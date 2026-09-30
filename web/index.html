@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensAI</title>
+<style>
+  :root {
+    --bg: #f6f7fb; --panel: #ffffff; --text: #16181d; --muted: #6b7280; --line: #e3e6ee;
+    --accent: #0a3cff; --on-accent: #ffffff; --user: #e8edff; --code: #eef0f6; --danger: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116; --panel: #161a22; --text: #e8eaf0; --muted: #9aa3b2; --line: #262c38;
+      --accent: #6d8bff; --on-accent: #0e1116; --user: #1e2a55; --code: #0b0d12; --danger: #ff8a80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; height: 100dvh; display: flex; flex-direction: column;
+    background: var(--bg); color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
+  }
+  header, form, #picker { padding: 12px 16px; background: var(--panel); border: 0 solid var(--line); }
+  header { border-bottom-width: 1px; }
+  form { border-top-width: 1px; }
+  .wrap { width: 100%; max-width: 760px; margin: 0 auto; transition: max-width .2s; }
+  body.comparing .wrap { max-width: 1240px; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  h1 { font-size: 1.1rem; margin: 0; letter-spacing: .04em; }
+  #model { color: var(--muted); font-size: .85rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .switch { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+  #picker { border-bottom-width: 1px; padding-top: 8px; padding-bottom: 8px; }
+  #picker .wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  #picker label { border: 1px solid var(--line); border-radius: 999px; padding: 2px 12px; font-size: .85rem; cursor: pointer; }
+  #picker label:has(input:checked) { border-color: var(--accent); background: var(--user); }
+  #picker small { color: var(--muted); }
+  main { flex: 1; overflow-y: auto; padding: 16px; }
+  #log { display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 92%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.user { align-self: flex-end; background: var(--user); padding: 8px 14px; border-radius: 16px 16px 4px 16px; }
+  .msg.assistant { align-self: flex-start; }
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .compare .msg { max-width: none; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+  .head { display: flex; justify-content: space-between; gap: 8px; font-size: .85rem; margin-bottom: 6px; white-space: normal; }
+  .head b { overflow: hidden; text-overflow: ellipsis; }
+  .status { color: var(--muted); white-space: nowrap; }
+  .waiting .status::before { content: "⏸ "; }
+  .msg pre { background: var(--code); padding: 10px 12px; border-radius: 8px; overflow-x: auto; margin: 6px 0; white-space: pre; }
+  .msg code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: .9em; }
+  .msg pre code { padding: 0; background: none; }
+  .meta { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  .error { color: var(--danger); }
+  details { color: var(--muted); font-size: .9rem; margin-bottom: 6px; }
+  details div { white-space: pre-wrap; margin-top: 4px; }
+  #empty { color: var(--muted); text-align: center; margin-top: 20vh; }
+  form .wrap { display: flex; gap: 8px; align-items: flex-end; }
+  textarea {
+    flex: 1; resize: none; max-height: 30vh; padding: 10px 12px; font: inherit; color: inherit;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+  }
+  button {
+    font: inherit; padding: 10px 16px; border-radius: 12px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel); color: var(--text);
+  }
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap row">
+    <h1>SENSAI</h1>
+    <span id="model"></span>
+    <label class="switch"><input type="checkbox" id="cmp"> Comparer</label>
+    <button id="reset" type="button">Nouvelle conversation</button>
+  </div>
+</header>
+<div id="picker" hidden>
+  <div class="wrap" id="picks"></div>
+</div>
+<main id="scroller">
+  <div class="wrap">
+    <p id="empty">Pose ta première question.</p>
+    <div id="log" role="log"></div>
+  </div>
+</main>
+<form id="form">
+  <div class="wrap">
+    <textarea id="box" rows="1" placeholder="Message (Entrée pour envoyer)" aria-label="Message" title="Entrée : envoyer · Maj+Entrée : nouvelle ligne"></textarea>
+    <button id="send" class="primary" type="submit">Envoyer</button>
+    <button id="stop" type="button" hidden>Stop</button>
+  </div>
+</form>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const [log, box, send, stop, empty, scroller, cmp, picker, picks] =
+  ["log", "box", "send", "stop", "empty", "scroller", "cmp", "picker", "picks"].map($);
+let messages = [];   // single chat: the conversation, resent in full every turn (the model has no memory)
+let convos = {};     // comparison: one conversation per model, so follow-up questions stay coherent
+let controller = null;
+
+fetch("/api/models").then((r) => r.json()).then((info) => {
+  $("model").textContent = info.default;
+  picks.innerHTML = info.models.map((m) =>
+    `<label><input type="checkbox" value="${esc(m.name)}" checked> ${esc(m.name)} <small>${(m.size / 1e9).toFixed(1)} Go</small></label>`
+  ).join("");
+}).catch(() => {});
+
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// Escape everything first, then re-add a few safe constructs: model output can never inject HTML.
+const md = (s) => esc(s)
+  .replace(/```\w*\n?([\s\S]*?)(```|$)/g, (_, c) => `<pre><code>${c}</code></pre>`)
+  .replace(/`([^`\n]+)`/g, "<code>$1</code>")
+  .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
+
+function scrollDown() {
+  if (scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 160) scroller.scrollTop = scroller.scrollHeight;
+}
+
+function addUser(text) {
+  empty.hidden = true;
+  const el = document.createElement("div");
+  el.className = "msg user";
+  el.textContent = text;
+  log.append(el);
+  scrollDown();
+}
+
+// One assistant answer (a chat bubble, or one column when comparing). feed() renders streamed events.
+function makeAnswer(parent, label) {
+  const el = document.createElement("div");
+  el.className = "msg assistant";
+  let status = null;
+  if (label) {
+    el.innerHTML = `<div class="head"><b></b><span class="status"></span></div>`;
+    el.querySelector("b").textContent = label;
+    status = el.querySelector(".status");
+  }
+  const body = document.createElement("div");
+  el.append(body);
+  parent.append(el);
+  const setStatus = (t, waiting = false) => { if (status) { status.textContent = t; el.classList.toggle("waiting", waiting); } };
+  const a = { text: "", failed: false, finished: false, think: null, setStatus };
+
+  a.feed = (ev) => {
+    if (ev.queued) setStatus("en attente de RAM", true);
+    else if (ev.started) setStatus("chargement…");
+    else if (ev.thinking) {
+      setStatus("réfléchit…");
+      if (!a.think) {
+        a.think = document.createElement("details");
+        a.think.innerHTML = "<summary>Réflexion…</summary><div></div>";
+        el.insertBefore(a.think, body);
+      }
+      a.think.lastChild.textContent += ev.thinking;
+    } else if (ev.token) {
+      setStatus("répond…");
+      a.text += ev.token;
+      if (a.think) a.think.firstChild.textContent = "Réflexion";
+      body.innerHTML = md(a.text);
+    } else if (ev.error) {
+      a.fail(ev.error);
+    } else if (ev.done) {
+      a.finished = true;
+      setStatus(`${ev.done.tokens} tokens${ev.done.tok_s ? ` · ${ev.done.tok_s} tok/s` : ""}`);
+      if (!status) {
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${ev.done.tokens} tokens${ev.done.tok_s ? ` · ${ev.done.tok_s} tok/s` : ""}`;
+        el.append(meta);
+      }
+    }
+    scrollDown();
+  };
+  a.fail = (msg) => {
+    a.failed = a.finished = true;
+    setStatus("erreur");
+    body.insertAdjacentHTML("beforeend", `<div class="error">${esc(msg)}</div>`);
+  };
+  a.remove = () => el.remove();
+  return a;
+}
+
+// POST a JSON body and feed each NDJSON line of the streamed reply to onEvent. Throws on HTTP errors.
+async function stream(url, payload, onEvent) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal: controller.signal,
+  });
+  if (!res.ok) throw new Error((await res.json()).error);
+  const reader = res.body.getReader(), decoder = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop();
+    lines.filter(Boolean).forEach((l) => onEvent(JSON.parse(l)));
+  }
+}
+
+function setBusy(busy) {
+  send.hidden = busy;
+  stop.hidden = !busy;
+  if (!busy) box.focus();
+}
+
+async function run(text, work) {
+  addUser(text);
+  controller = new AbortController();
+  setBusy(true);
+  let answered = false;
+  try {
+    answered = await work();
+  } catch (err) {
+    if (err.name !== "AbortError") log.insertAdjacentHTML("beforeend", `<div class="error">${esc(err.message)}</div>`);
+  }
+  if (!answered) box.value = text;   // nothing usable came back: let the user retry
+  controller = null;
+  setBusy(false);
+}
+
+// Single chat: one model (the server's default), one shared conversation.
+function chatOnce(text) {
+  const convo = messages;   // "New conversation" swaps `messages`; a late reply must not leak into the new one
+  return run(text, async () => {
+    const a = makeAnswer(log);
+    try {
+      await stream("/api/chat", { messages: [...convo, { role: "user", content: text }] }, a.feed);
+    } finally {
+      if (a.text) {
+        convo.push({ role: "user", content: text }, { role: "assistant", content: a.text });
+      } else if (!a.failed) {
+        a.remove();
+      }
+    }
+    return Boolean(a.text);
+  });
+}
+
+// Comparison: the same question goes to every selected model; the server runs them one at a time
+// (RAM guard), the others show as "en attente".
+function compareAll(text, models) {
+  const all = convos;
+  return run(text, async () => {
+    const grid = document.createElement("div");
+    grid.className = "compare";
+    log.append(grid);
+    const answers = Object.fromEntries(models.map((m) => [m, makeAnswer(grid, m)]));
+    models.forEach((m) => answers[m].feed({ queued: true }));   // until the server says otherwise
+    const requests = models.map((m) => ({ model: m, messages: [...(all[m] || []), { role: "user", content: text }] }));
+    try {
+      await stream("/api/compare", { requests }, (ev) => answers[ev.model]?.feed(ev));
+    } catch (err) {
+      if (err.name === "AbortError") throw err;
+      models.forEach((m) => answers[m].fail(err.message));   // e.g. Ollama unreachable
+    } finally {
+      models.forEach((m) => {
+        const a = answers[m];
+        if (!a.finished) a.setStatus("interrompu");           // the user pressed Stop
+        if (a.text) all[m] = [...(all[m] || []), { role: "user", content: text }, { role: "assistant", content: a.text }];
+      });
+    }
+    return models.some((m) => answers[m].text);
+  });
+}
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = box.value.trim();
+  if (!text || controller) return;   // empty input is ignored
+  const models = cmp.checked ? [...picks.querySelectorAll("input:checked")].map((i) => i.value) : null;
+  if (models && !models.length) return;
+  box.value = "";
+  box.style.height = "auto";
+  models ? compareAll(text, models) : chatOnce(text);
+});
+
+cmp.addEventListener("change", () => {
+  picker.hidden = !cmp.checked;
+  document.body.classList.toggle("comparing", cmp.checked);
+});
+box.addEventListener("keydown", (e) => {
+  // isComposing: Enter confirms a Japanese/IME conversion and must not send the message
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("form").requestSubmit(); }
+});
+box.addEventListener("input", () => { box.style.height = "auto"; box.style.height = box.scrollHeight + "px"; });
+stop.addEventListener("click", () => controller && controller.abort());
+$("reset").addEventListener("click", () => {
+  if (controller) controller.abort();
+  messages = [];
+  convos = {};
+  log.innerHTML = "";
+  empty.hidden = false;
+  box.focus();
+});
+box.focus();
+</script>
+</body>
+</html>
