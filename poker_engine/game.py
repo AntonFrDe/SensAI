@@ -38,6 +38,10 @@ class Game:
     def current_bet(self):
         return self.state.current_bet
 
+    @property
+    def history(self):
+        return self.state.hand_history
+
     def start_hand(self):
         had_previous_hand = self.state.phase == GamePhase.SHOWDOWN
 
@@ -48,6 +52,7 @@ class Game:
         self.state.deck.shuffle()
 
         self.state.community_cards.clear()
+        self.state.hand_history.clear()
 
         # Nouvelle main = nouveau pot
         self.state.pot = 0
@@ -57,6 +62,12 @@ class Game:
         self.state.last_raise_size = self.big_blind
 
         self.state.dealer_index = self.dealer_index
+
+        self._record_history(
+            "hand_started",
+            dealer=self._player_name(self.state.players[self.dealer_index]),
+            phase=self.state.phase.value,
+        )
 
         self._deal_private_cards()
         self._post_blinds()
@@ -73,6 +84,20 @@ class Game:
     def _deal_private_card(self, player):
         player.receive_card(
             self.state.deck.draw()
+        )
+
+    def _player_name(self, player):
+        return player.name
+
+    def _player_names(self, players):
+        return [player.name for player in players]
+
+    def _record_history(self, event_type, **payload):
+        self.state.hand_history.append(
+            {
+                "type": event_type,
+                **payload,
+            }
         )
 
     def _post_blinds(self):
@@ -104,6 +129,14 @@ class Game:
 
         self.state.current_bet = (
             big_blind_player.current_bet
+        )
+
+        self._record_history(
+            "blinds_posted",
+            small_blind=self._player_name(small_blind_player),
+            small_blind_amount=self.small_blind,
+            big_blind=self._player_name(big_blind_player),
+            big_blind_amount=self.big_blind,
         )
 
     def _set_pre_flop_first_player(self):
@@ -155,6 +188,12 @@ class Game:
         player.acted_this_round = True
         player.fold()
 
+        self._record_history(
+            "action",
+            action="fold",
+            player=self._player_name(player),
+        )
+
         self._next_player()
         self._advance_hand_if_round_complete()
 
@@ -167,6 +206,12 @@ class Game:
             )
 
         player.acted_this_round = True
+
+        self._record_history(
+            "action",
+            action="check",
+            player=self._player_name(player),
+        )
 
         self._next_player()
         self._advance_hand_if_round_complete()
@@ -189,6 +234,13 @@ class Game:
         self._put_chips(player, amount)
 
         player.acted_this_round = True
+
+        self._record_history(
+            "action",
+            action="call",
+            player=self._player_name(player),
+            amount=amount,
+        )
 
         self._next_player()
         self._advance_hand_if_round_complete()
@@ -214,6 +266,13 @@ class Game:
         self.state.last_raise_size = amount
 
         player.acted_this_round = True
+
+        self._record_history(
+            "action",
+            action="bet",
+            player=self._player_name(player),
+            amount=amount,
+        )
 
         self._next_player()
         self._advance_hand_if_round_complete()
@@ -267,6 +326,14 @@ class Game:
 
         player.acted_this_round = True
 
+        self._record_history(
+            "action",
+            action="raise",
+            player=self._player_name(player),
+            amount=amount_to_add,
+            target_amount=target_amount,
+        )
+
         self._next_player()
         self._advance_hand_if_round_complete()
 
@@ -301,6 +368,13 @@ class Game:
                 player.current_bet
             )
 
+        self._record_history(
+            "action",
+            action="all_in",
+            player=self._player_name(player),
+            amount=amount,
+        )
+
         self._next_player()
         self._advance_hand_if_round_complete()
 
@@ -318,6 +392,11 @@ class Game:
         self.state.next_phase()
 
         self._prepare_post_flop_round()
+        self._record_history(
+            "street_dealt",
+            street="flop",
+            community_cards=self.state.community_card_count,
+        )
         self._advance_hand_if_round_complete()
 
     def deal_turn(self):
@@ -332,6 +411,11 @@ class Game:
         self.state.next_phase()
 
         self._prepare_post_flop_round()
+        self._record_history(
+            "street_dealt",
+            street="turn",
+            community_cards=self.state.community_card_count,
+        )
         self._advance_hand_if_round_complete()
 
     def deal_river(self):
@@ -346,6 +430,11 @@ class Game:
         self.state.next_phase()
 
         self._prepare_post_flop_round()
+        self._record_history(
+            "street_dealt",
+            street="river",
+            community_cards=self.state.community_card_count,
+        )
         self._advance_hand_if_round_complete()
 
     def _prepare_post_flop_round(self):
@@ -421,6 +510,25 @@ class Game:
 
         return best_players
 
+    def _best_players_among(self, players):
+        if not players:
+            return []
+
+        best_result = None
+        best_players = []
+
+        for player in players:
+            result = self._player_hand_result(player)
+
+            if best_result is None or result > best_result:
+                best_result = result
+                best_players = [player]
+
+            elif result == best_result:
+                best_players.append(player)
+
+        return best_players
+
     def _ordered_players_from_button(self, players):
         if not players:
             return []
@@ -439,11 +547,11 @@ class Game:
 
         return ordered_players
 
-    def _award_pot(self, winners):
-        if not winners:
+    def _award_amount(self, amount, winners):
+        if amount <= 0 or not winners:
             return
 
-        share, remainder = divmod(self.state.pot, len(winners))
+        share, remainder = divmod(amount, len(winners))
 
         for index, player in enumerate(
             self._ordered_players_from_button(winners)
@@ -453,17 +561,98 @@ class Game:
             if index < remainder:
                 player.chips += 1
 
-        self.state.pot = 0
+    def _record_pot_award(self, amount, winners, eligible_players, reason):
+        self._record_history(
+            "pot_awarded",
+            reason=reason,
+            amount=amount,
+            winners=self._player_names(winners),
+            eligible_players=self._player_names(eligible_players),
+        )
+
+    def _build_side_pots(self):
+        contributions = [
+            player.contributed_this_hand
+            for player in self.state.players
+            if player.contributed_this_hand > 0
+        ]
+
+        if not contributions:
+            return []
+
+        levels = sorted(set(contributions))
+        pots = []
+        previous_level = 0
+        dead_money = 0
+
+        for level in levels:
+            players_at_level = [
+                player
+                for player in self.state.players
+                if player.contributed_this_hand >= level
+            ]
+
+            amount = (level - previous_level) * len(players_at_level)
+            eligible_players = [
+                player
+                for player in players_at_level
+                if not player.folded
+            ]
+
+            previous_level = level
+
+            if not eligible_players:
+                dead_money += amount
+                continue
+
+            pots.append((amount, eligible_players))
+
+        if pots:
+            amount, eligible_players = pots[-1]
+            pots[-1] = (amount + dead_money, eligible_players)
+
+        return pots
 
     def _resolve_showdown(self):
         contenders = self._showdown_contenders()
 
         if len(contenders) <= 1:
-            self._award_pot(contenders)
+            self._award_amount(self.state.pot, contenders)
+            self._record_pot_award(
+                self.state.pot,
+                contenders,
+                contenders,
+                "fold",
+            )
+            self.state.pot = 0
             return
 
-        winners = self._best_showdown_players()
-        self._award_pot(winners)
+        if not any(
+            player.contributed_this_hand > 0
+            for player in self.state.players
+        ):
+            winners = self._best_players_among(contenders)
+            self._award_amount(self.state.pot, winners)
+            self._record_pot_award(
+                self.state.pot,
+                winners,
+                contenders,
+                "showdown",
+            )
+            self.state.pot = 0
+            return
+
+        for amount, eligible_players in self._build_side_pots():
+            winners = self._best_players_among(eligible_players)
+            self._award_amount(amount, winners)
+            self._record_pot_award(
+                amount,
+                winners,
+                eligible_players,
+                "showdown",
+            )
+
+        self.state.pot = 0
 
     def _advance_hand_if_round_complete(self):
         if not self.is_betting_round_complete():

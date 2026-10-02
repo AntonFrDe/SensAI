@@ -65,6 +65,49 @@ def test_showdown_awards_entire_pot_to_best_hand():
     assert bob.chips == 0
 
 
+def test_showdown_distributes_side_pots_to_different_winners():
+    alice = Player("Alice", 0)
+    bob = Player("Bob", 0)
+    charlie = Player("Charlie", 0)
+
+    game = Game([alice, bob, charlie])
+    game.state.phase = GamePhase.RIVER
+    game.state.pot = 250
+
+    game.state.community_cards = build_cards(
+        ("2", Suit.CLUBS),
+        ("7", Suit.DIAMONDS),
+        ("9", Suit.SPADES),
+        ("J", Suit.HEARTS),
+        ("4", Suit.CLUBS),
+    )
+
+    alice.hand = build_cards(
+        ("A", Suit.CLUBS),
+        ("A", Suit.DIAMONDS),
+    )
+    bob.hand = build_cards(
+        ("K", Suit.CLUBS),
+        ("K", Suit.DIAMONDS),
+    )
+    charlie.hand = build_cards(
+        ("Q", Suit.CLUBS),
+        ("Q", Suit.DIAMONDS),
+    )
+
+    alice.contributed_this_hand = 50
+    bob.contributed_this_hand = 100
+    charlie.contributed_this_hand = 100
+
+    game.end_hand()
+
+    assert game.state.phase == GamePhase.SHOWDOWN
+    assert game.state.pot == 0
+    assert alice.chips == 150
+    assert bob.chips == 100
+    assert charlie.chips == 0
+
+
 def test_showdown_splits_pot_and_gives_odd_chip_to_player_closest_to_button():
     alice = Player("Alice", 0)
     bob = Player("Bob", 0)
