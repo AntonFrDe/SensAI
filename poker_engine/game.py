@@ -1,7 +1,6 @@
 from .deck import Deck
 from .game_state import GamePhase, GameState
 
-
 class Game:
     def __init__(
         self,
@@ -137,7 +136,7 @@ class Game:
 
             player = self.current_player
 
-            if player.is_active():
+            if player.can_act():
                 return
 
             if self.state.current_player_index == start_index:
@@ -152,6 +151,7 @@ class Game:
     def fold(self):
         player = self.current_player
 
+        player.acted_this_round = True
         player.fold()
 
         self._next_player()
@@ -163,6 +163,8 @@ class Game:
             raise RuntimeError(
                 "Cannot check while facing a bet"
             )
+
+        player.acted_this_round = True
 
         self._next_player()
 
@@ -182,6 +184,8 @@ class Game:
             )
 
         self._put_chips(player, amount)
+
+        player.acted_this_round = True
 
         self._next_player()
 
@@ -204,6 +208,8 @@ class Game:
 
         self.state.current_bet = player.current_bet
         self.state.last_raise_size = amount
+
+        player.acted_this_round = True
 
         self._next_player()
 
@@ -254,6 +260,8 @@ class Game:
 
         self.state.current_bet = target_amount
 
+        player.acted_this_round = True
+
         self._next_player()
 
     def all_in(self):
@@ -274,6 +282,8 @@ class Game:
             player,
             amount
         )
+
+        player.acted_this_round = True
 
         if player.current_bet > previous_current_bet:
             self.state.last_raise_size = (
@@ -365,3 +375,29 @@ class Game:
             )
 
         self.state.next_phase()
+
+    def is_betting_round_complete(self):
+        active_players = [
+            player
+            for player in self.state.players
+            if not player.folded
+        ]
+
+        players_who_can_act = [
+            player
+            for player in active_players
+            if player.chips > 0
+        ]
+
+        if len(active_players) <= 1:
+            return True
+
+        for player in players_who_can_act:
+            if player.current_bet != self.state.current_bet:
+                return False
+
+        for player in players_who_can_act:
+            if not player.acted_this_round:
+                return False
+
+        return True
