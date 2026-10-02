@@ -60,12 +60,14 @@ test), environ 50 fois plus vite.
 
 ```
 python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py
+python3 -m pytest poker_engine/tests       # moteur de poker
 ```
 
 ## Contenu
 
 | Fichier | Rôle |
 |---|---|
+| `poker_engine/` | Moteur de poker : cartes, paquet, joueurs, partie, actions, évaluation des mains |
 | `llm.py` | Client Ollama (HTTP, streaming) |
 | `ai.py` | Question en ligne de commande, avec le classement des combinaisons injecté |
 | `equity.py` | Chances de gagner d'une main selon le board, note avant le flop |
@@ -73,6 +75,7 @@ python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && py
 | `preflop.py` | `hand_range("AKs")` : action d'ouverture par position |
 | `glossary.py` | `define("UTG")` : glossaire du poker en français |
 | `build_glossary.py` | Régénère `data/poker_glossary.json` depuis la source |
+| `config.json`, `prompts/system.txt` | Réglages de l'interface web et prompt système |
 | `data/` | Données du poker, voir « Données » ci-dessous |
 | `docs/` | Sujet, bootstrap et catalogue de features |
 
