@@ -12,6 +12,7 @@ class Player:
         if chips < 0:
             raise ValueError("Chips cannot be negative")
 
+        self.acted_this_round = False
         self.name = name
         self.chips = chips
         self.initial_chips = chips
@@ -43,6 +44,10 @@ class Player:
         self.hand.clear()
         self.folded = False
         self.current_bet = 0
+        self.acted_this_round = False
+
+    def can_act(self):
+        return not self.folded and self.chips > 0
 
     def commit_chips(self, amount):
         if not isinstance(amount, (int, float)):
