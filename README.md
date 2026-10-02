@@ -1,7 +1,6 @@
 # SensAI
 
 Assistant IA local, tournant sur Ollama. Projet Epitech Tech3. Piste actuelle : un coach de poker (Texas Hold'em).
-Où on en est et ce qui reste à faire : [ROADMAP.md](ROADMAP.md).
 
 ## Installation
 
@@ -39,5 +38,16 @@ python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py
 | `preflop.py` | `hand_range("AKs")` : action d'ouverture par position |
 | `glossary.py` | `define("UTG")` : glossaire du poker en français |
 | `build_glossary.py` | Régénère `data/poker_glossary.json` depuis la source |
-| `data/` | Données et leur provenance (`SOURCE.md`, `DONNEES_A_AJOUTER.md`) |
+| `data/` | Données du poker, voir « Données » ci-dessous |
 | `docs/` | Sujet, bootstrap et catalogue de features |
+
+## Données
+
+| Fichier | Contenu | Source et droits |
+|---|---|---|
+| `data/preflop_rfi.json` | Ranges d'ouverture (RFI) 6-max 100bb, par position (UTG, MP, CO, BTN, SB). Main absente = fold | [AHTOOOXA/poker-charts](https://github.com/AHTOOOXA/poker-charts), `src/data/ranges/pekarstas.ts`, récupéré le 2026-09-21. Code sous MIT, mais les ranges viennent de sites tiers : droits incertains |
+| `data/poker_glossary_source.txt`, `data/poker_glossary.json` | Glossaire français : 313 entrées du lexique et 14 abréviations de chat, construit par `build_glossary.py` | Texte copié depuis un site affilié (il cite PokerListings). Droits inconnus |
+
+Le dépôt est privé : ces données tierces conviennent pour un projet d'école, mais **ne doivent pas être publiées**.
+Le glossaire a été nettoyé à la main (publicités et index retirés, paragraphes joints par ` ¶ `), coquilles de la
+source comprises.

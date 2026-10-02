@@ -94,7 +94,7 @@ def build() -> dict:
     return {
         "meta": {
             "language": "fr",
-            "source": "French poker glossary (lexique du poker), pasted by the user; see data/SOURCE.md",
+            "source": "French poker glossary (lexique du poker), pasted by the user; see README.md, section Données",
             "note": "definition is null for pure cross-references; `see` lists the entries to follow",
         },
         "entries": entries,
