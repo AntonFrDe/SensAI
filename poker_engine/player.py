@@ -19,6 +19,7 @@ class Player:
         self.hand = []
         self.folded = False
         self.current_bet = 0
+        self.contributed_this_hand = 0
 
     @property
     def stack(self):
@@ -45,6 +46,7 @@ class Player:
         self.folded = False
         self.current_bet = 0
         self.acted_this_round = False
+        self.contributed_this_hand = 0
 
     def can_act(self):
         return not self.folded and self.chips > 0
@@ -61,6 +63,7 @@ class Player:
 
         self.chips -= amount
         self.current_bet += amount
+        self.contributed_this_hand += amount
 
         return amount
 

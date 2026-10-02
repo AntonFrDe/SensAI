@@ -30,6 +30,7 @@ class GameState:
 
         self.community_cards = []
         self.pot = 0
+        self.hand_history = []
 
         self.phase = GamePhase.PRE_FLOP
 

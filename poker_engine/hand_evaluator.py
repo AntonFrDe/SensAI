@@ -234,3 +234,16 @@ class HandEvaluator:
         ]
 
         return max(results)
+
+    @classmethod
+    def compare_hands(cls, first_cards, second_cards):
+        first_result = cls.evaluate(first_cards)
+        second_result = cls.evaluate(second_cards)
+
+        if first_result > second_result:
+            return 1
+
+        if first_result < second_result:
+            return -1
+
+        return 0
