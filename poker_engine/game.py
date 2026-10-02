@@ -1,5 +1,6 @@
 from .deck import Deck
 from .game_state import GamePhase, GameState
+from .hand_evaluator import HandEvaluator
 
 class Game:
     def __init__(
@@ -155,6 +156,7 @@ class Game:
         player.fold()
 
         self._next_player()
+        self._advance_hand_if_round_complete()
 
     def check(self):
         player = self.current_player
@@ -167,6 +169,7 @@ class Game:
         player.acted_this_round = True
 
         self._next_player()
+        self._advance_hand_if_round_complete()
 
     def call(self):
         player = self.current_player
@@ -188,6 +191,7 @@ class Game:
         player.acted_this_round = True
 
         self._next_player()
+        self._advance_hand_if_round_complete()
 
     def bet(self, amount):
         player = self.current_player
@@ -212,6 +216,7 @@ class Game:
         player.acted_this_round = True
 
         self._next_player()
+        self._advance_hand_if_round_complete()
 
     def raise_bet(self, target_amount):
         player = self.current_player
@@ -263,6 +268,7 @@ class Game:
         player.acted_this_round = True
 
         self._next_player()
+        self._advance_hand_if_round_complete()
 
     def all_in(self):
         player = self.current_player
@@ -296,6 +302,7 @@ class Game:
             )
 
         self._next_player()
+        self._advance_hand_if_round_complete()
 
     def deal_flop(self):
         if self.state.phase != GamePhase.PRE_FLOP:
@@ -311,6 +318,7 @@ class Game:
         self.state.next_phase()
 
         self._prepare_post_flop_round()
+        self._advance_hand_if_round_complete()
 
     def deal_turn(self):
         if self.state.phase != GamePhase.FLOP:
@@ -324,6 +332,7 @@ class Game:
         self.state.next_phase()
 
         self._prepare_post_flop_round()
+        self._advance_hand_if_round_complete()
 
     def deal_river(self):
         if self.state.phase != GamePhase.TURN:
@@ -337,6 +346,7 @@ class Game:
         self.state.next_phase()
 
         self._prepare_post_flop_round()
+        self._advance_hand_if_round_complete()
 
     def _prepare_post_flop_round(self):
         self.state.current_bet = 0
@@ -344,6 +354,7 @@ class Game:
 
         for player in self.state.players:
             player.current_bet = 0
+            player.acted_this_round = False
 
         first_player = (
             self.dealer_index + 1
@@ -375,6 +386,113 @@ class Game:
             )
 
         self.state.next_phase()
+        self._resolve_showdown()
+
+    def _showdown_contenders(self):
+        return [
+            player
+            for player in self.state.players
+            if not player.folded
+        ]
+
+    def _player_hand_result(self, player):
+        return HandEvaluator.evaluate(
+            player.hand + self.state.community_cards
+        )
+
+    def _best_showdown_players(self):
+        contenders = self._showdown_contenders()
+
+        if len(contenders) <= 1:
+            return contenders
+
+        best_result = None
+        best_players = []
+
+        for player in contenders:
+            result = self._player_hand_result(player)
+
+            if best_result is None or result > best_result:
+                best_result = result
+                best_players = [player]
+
+            elif result == best_result:
+                best_players.append(player)
+
+        return best_players
+
+    def _ordered_players_from_button(self, players):
+        if not players:
+            return []
+
+        ordered_players = []
+        target_players = set(players)
+        index = (self.dealer_index + 1) % len(self.state.players)
+
+        for _ in range(len(self.state.players)):
+            player = self.state.players[index]
+
+            if player in target_players:
+                ordered_players.append(player)
+
+            index = (index + 1) % len(self.state.players)
+
+        return ordered_players
+
+    def _award_pot(self, winners):
+        if not winners:
+            return
+
+        share, remainder = divmod(self.state.pot, len(winners))
+
+        for index, player in enumerate(
+            self._ordered_players_from_button(winners)
+        ):
+            player.chips += share
+
+            if index < remainder:
+                player.chips += 1
+
+        self.state.pot = 0
+
+    def _resolve_showdown(self):
+        contenders = self._showdown_contenders()
+
+        if len(contenders) <= 1:
+            self._award_pot(contenders)
+            return
+
+        winners = self._best_showdown_players()
+        self._award_pot(winners)
+
+    def _advance_hand_if_round_complete(self):
+        if not self.is_betting_round_complete():
+            return False
+
+        contenders = [
+            player
+            for player in self.state.players
+            if not player.folded
+        ]
+
+        if len(contenders) <= 1:
+            self.state.phase = GamePhase.SHOWDOWN
+            self._resolve_showdown()
+            return True
+
+        if self.state.phase == GamePhase.PRE_FLOP:
+            self.deal_flop()
+
+        elif self.state.phase == GamePhase.FLOP:
+            self.deal_turn()
+
+        elif self.state.phase == GamePhase.TURN:
+            self.deal_river()
+
+        elif self.state.phase == GamePhase.RIVER:
+            self.end_hand()
+
+        return True
 
     def is_betting_round_complete(self):
         active_players = [
