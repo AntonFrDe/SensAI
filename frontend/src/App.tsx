@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import PokerTable from './PokerTable';
+import './styles.css';
 
 export default function App() {
   const [view, setView] = useState<'home' | 'game'>('home');
@@ -11,6 +13,7 @@ export default function App() {
         <button type="button" onClick={() => setView('game')}>Jouer</button>
       </section> : <section aria-label="Partie">
         <h2>Table de poker</h2>
+        <PokerTable />
         <button type="button" onClick={() => setView('home')}>Retour à l’accueil</button>
       </section>}
     </main>
