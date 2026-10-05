@@ -1,4 +1,4 @@
-"""Preflop open-raise (RFI) ranges, 6-max 100bb. Data provenance: data/SOURCE.md."""
+"""Preflop open-raise (RFI) ranges, 6-max 100bb. Data provenance: README.md, section Données."""
 import json
 from pathlib import Path
 

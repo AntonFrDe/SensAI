@@ -1,0 +1,12 @@
+[
+  {"rang": 1, "fr": "Quinte flush royale", "en": "Royal flush", "description": "As, Roi, Dame, Valet, 10 de la même couleur.", "exemple": "As♠ Roi♠ Dame♠ Valet♠ 10♠"},
+  {"rang": 2, "fr": "Quinte flush", "en": "Straight flush", "description": "Cinq cartes qui se suivent, de la même couleur.", "exemple": "9♥ 8♥ 7♥ 6♥ 5♥"},
+  {"rang": 3, "fr": "Carré", "en": "Four of a kind", "description": "Quatre cartes de même valeur.", "exemple": "Dame♠ Dame♥ Dame♦ Dame♣ 7♠"},
+  {"rang": 4, "fr": "Full", "en": "Full house", "description": "Un brelan et une paire.", "exemple": "Roi♠ Roi♥ Roi♦ 4♣ 4♠"},
+  {"rang": 5, "fr": "Couleur", "en": "Flush", "description": "Cinq cartes de la même couleur, qui ne se suivent pas.", "exemple": "As♦ Valet♦ 8♦ 6♦ 2♦"},
+  {"rang": 6, "fr": "Quinte", "en": "Straight", "description": "Cinq cartes qui se suivent, pas toutes de la même couleur.", "exemple": "8♠ 7♥ 6♦ 5♣ 4♠"},
+  {"rang": 7, "fr": "Brelan", "en": "Three of a kind", "description": "Trois cartes de même valeur.", "exemple": "9♠ 9♥ 9♦ Roi♣ 3♠"},
+  {"rang": 8, "fr": "Double paire", "en": "Two pair", "description": "Deux paires différentes.", "exemple": "Valet♠ Valet♥ 5♦ 5♣ As♠"},
+  {"rang": 9, "fr": "Paire", "en": "One pair", "description": "Deux cartes de même valeur.", "exemple": "10♠ 10♥ Roi♦ 7♣ 2♠"},
+  {"rang": 10, "fr": "Carte haute", "en": "High card", "description": "Aucune combinaison : la carte la plus forte compte.", "exemple": "As♠ Dame♥ 9♦ 6♣ 3♠"}
+]

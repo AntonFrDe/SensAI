@@ -1,3 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.claude
+graphify-out/
+
 # Project subject PDFs and Windows download metadata
 *.[pP][dD][fF]
 *:Zone.Identifier

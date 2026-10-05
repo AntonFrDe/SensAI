@@ -1,4 +1,4 @@
-"""French poker glossary, loaded from data/poker_glossary.json (built by build_glossary.py, see data/SOURCE.md)."""
+"""French poker glossary, loaded from data/poker_glossary.json (built by build_glossary.py, provenance in README.md, section Données)."""
 import json
 import re
 import unicodedata
