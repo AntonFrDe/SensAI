@@ -56,10 +56,28 @@ La note va de 10 (top 10 % des 1 326 mains de départ) à 1, pour 1 à 5 adversa
 lit les 7 cartes en un seul passage : mêmes résultats que `poker_engine/hand_evaluator.py` (vérifié par un
 test), environ 50 fois plus vite.
 
+## Outs et cote du pot
+
+```
+python3 odds.py Ah Kh --board Qh 7h 2c --pot 100 --payer 50
+```
+
+`odds.py` ajoute à l'équité les **outs** (cartes qui améliorent la combinaison grâce à nos cartes, groupées par
+combinaison ; une carte qui ne fait que pairer le board ne compte pas), la chance exacte d'en toucher un, et la
+**cote du pot** : équité minimale = à payer / (pot + à payer), où le pot inclut la mise adverse.
+
+`ai.py` s'en sert : si la question contient au moins 2 cartes (`Ah`, `10d`, `Q♣`), les 2 premières sont la main,
+les suivantes le board ; « pot 100 », « payer 50 » (ou « mise », « suivre ») et « 3 adversaires » sont lus aussi.
+Les calculs sont injectés avant la question et le modèle doit les citer, pas les refaire :
+
+```
+python3 ai.py "J'ai Ah Kh, flop Qh 7h 2c, pot de 100, je dois payer 50. Je suis ?"
+```
+
 ## Tests
 
 ```
-python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py
+python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 ```
 
@@ -71,6 +89,7 @@ python3 -m pytest poker_engine/tests       # moteur de poker
 | `llm.py` | Client Ollama (HTTP, streaming) |
 | `ai.py` | Question en ligne de commande, avec le classement des combinaisons injecté |
 | `equity.py` | Chances de gagner d'une main selon le board, note avant le flop |
+| `odds.py` | Outs, cote du pot et analyse complète d'une situation, injectée par `ai.py` |
 | `server.py`, `web/index.html` | Interface web et comparaison de modèles |
 | `preflop.py` | `hand_range("AKs")` : action d'ouverture par position |
 | `glossary.py` | `define("UTG")` : glossaire du poker en français |

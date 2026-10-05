@@ -9,16 +9,21 @@ Prérequis : Ollama tourne (`ollama serve`) avec le modèle installé
             (`ollama pull qwen3:4b-instruct-2507-q4_K_M`).
 """
 import json
+import re
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
 
+import equity
+import odds
+
 MODEL = "qwen3:4b-instruct-2507-q4_K_M"
 OLLAMA = "http://localhost:11434/api/chat"
 DATA = Path(__file__).parent / "data"
 SYSTEM = "Tu es SensAI, un coach de poker. Réponds en Français, court et précis. Dans le cadre d'une question par rapport " \
-           "a une partie (que faire a un moment donné), il faudra que tu normalize le resultat, avec - (Action à faire) \n - (Combien miser)\n - (Pourquoi) \n"
+           "a une partie (que faire a un moment donné), il faudra que tu normalize le resultat, avec - (Action à faire) \n - (Combien miser)\n - (Pourquoi) \n" \
+         "Si le contexte contient des calculs (équité, outs, cote du pot), appuie ton conseil dessus et cite-les tels quels.\n"
 
 
 def hand_rankings_context() -> str:
@@ -69,15 +74,44 @@ def ambigu_context() -> str:
 
     return "CONTEXTE AMBIGU \n" ++ line1 ++ serial_ex ++ ambigue ++ ambigue_ex 
 
+# « Ah », « 10d », « Q♣ » : valeur en majuscule, couleur en minuscule, pour ne pas lire « as » ou « je » comme des cartes.
+CARD = re.compile(r"(?<!\w)(?:10|[2-9TJQKA])[shdc♠♥♦♣](?!\w)")
+AMOUNT = r"\D{0,20}?(\d+(?:[.,]\d+)?)"
+POT = re.compile(r"\bpot\b" + AMOUNT, re.I)
+TO_CALL = re.compile(r"\b(?:payer|suivre|call(?:er)?|mise|misé)" + AMOUNT, re.I)
+OPPONENTS = re.compile(r"(\d+)\s*adversaires?", re.I)
+
+
+def situation_context(question: str) -> str:
+    """Équité, outs et cote du pot calculés par odds.py, si la question décrit une main.
+
+    Convention : les 2 premières cartes citées sont les nôtres, les suivantes le board (0, 3, 4 ou 5).
+    « pot 100 » = ce qu'il y a au milieu, mise adverse comprise ; « payer 50 » = la somme à suivre.
+    """
+    cards = CARD.findall(question)
+    if len(cards) < 2:
+        return ""
+    pot, to_call, opponents = POT.search(question), TO_CALL.search(question), OPPONENTS.search(question)
+    try:
+        return "Calculs exacts pour cette main (fais-leur confiance, ne les recalcule pas) :\n" + odds.analyse(
+            equity.parse_cards(" ".join(cards[:2])),
+            equity.parse_cards(" ".join(cards[2:])),
+            int(opponents.group(1)) if opponents else 1,
+            float(pot.group(1).replace(",", ".")) if pot and to_call else None,
+            float(to_call.group(1).replace(",", ".")) if pot and to_call else None,
+        )
+    except ValueError as error:  # cartes en double, board de 2 cartes... : le modèle doit le signaler
+        return f"Les cartes de la question ne forment pas une situation valide : {error}"
+
+
 def find_context(question: str) -> str:
     """Cherche dans data/ ce qui aide à répondre, et le renvoie en texte pour le modèle.
 
-    Pour l'instant : le classement des combinaisons, injecté à chaque question (10 lignes).
-    À venir : les définitions du glossaire pour les termes présents dans la question.
+    Le classement des combinaisons et le glossaire, puis les calculs de la main si la question en décrit une.
     """
     context = hand_rankings_context() + "\n\n" + glossary_context()
-
-    return context
+    situation = situation_context(question)
+    return context + "\n\n" + situation if situation else context
 
 
 def build_prompt(question: str) -> str:

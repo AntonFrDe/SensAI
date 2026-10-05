@@ -31,6 +31,20 @@ def test_prompt_puts_the_context_before_the_question():
 
         assert prompt.index("Quinte flush royale") < prompt.index(question)
 
+def test_situation_in_the_question_is_computed_and_injected():
+        question = "J'ai Ah Kh, le flop est Qh 7h 2c, pot de 100 et je dois payer 50. Je suis ?"
+
+        prompt = ai.build_prompt(question)
+
+        assert "Outs : 15" in prompt and "33,3 %" in prompt
+        assert prompt.index("Outs : 15") < prompt.index(question)
+
+
+def test_question_without_cards_gets_no_calculation():
+        assert ai.situation_context("Quelle est la meilleure main ? As-tu une idée ?") == ""
+        assert "pas une situation valide" in ai.situation_context("Ah Ah sur Kd 2c")
+
+
 if __name__ == "__main__":
         for name, test in list(globals().items()):
                 if name.startswith("test_"):
