@@ -16,10 +16,12 @@ import urllib.request
 from pathlib import Path
 
 import equity
+import glossary
 import odds
 
 MODEL = "qwen3:4b-instruct-2507-q4_K_M"
 OLLAMA = "http://localhost:11434/api/chat"
+NUM_CTX = 8192  # tokens : contexte injecté + question + réponse ; Ollama prend 4 096 par défaut
 DATA = Path(__file__).parent / "data"
 SYSTEM = "Tu es SensAI, un coach de poker. Réponds en Français, court et précis. Dans le cadre d'une question par rapport " \
            "a une partie (que faire a un moment donné), il faudra que tu normalize le resultat, avec - (Action à faire) \n - (Combien miser)\n - (Pourquoi) \n" \
@@ -44,21 +46,38 @@ def hand_rankings_context() -> str:
         + "\nPlus la force est élevée, plus la combinaison est forte."
     )
 
-def glossary_context() -> str:
-    """Le glossaire de poker, une ligne textuelle par entrée."""
-    glossary = json.loads((DATA / "poker_glossary.json").read_text(encoding="utf-8"))
-    lines = []
-    for entry in glossary["entries"]:
-        aliases = f" (alias : {', '.join(entry['aliases'])})" if entry["aliases"] else ""
-        if entry["definition"]:
-            text = entry["definition"]
-            if entry["see"]:
-                text += f" Voir aussi : {', '.join(entry['see'])}."
-        else:
-            text = f"Voir : {', '.join(entry['see'])}."
-        lines.append(f"- {entry['term']}{aliases} : {text}")
+def glossary_entries_in(question: str) -> list[glossary.Entry]:
+    """Les entrées du glossaire dont le terme ou un alias apparaît dans la question, plus leurs renvois « voir X ».
 
-    return "Glossaire de poker :\n" + "\n".join(lines)
+    Le glossaire entier fait ~15 000 tokens : bien plus que le contexte de 4 096 tokens d'Ollama par défaut.
+    """
+    words = f" {glossary.normalize(question)} "
+    found = [
+        entry for entry in glossary.ENTRIES
+        if any(len(key) > 1 and f" {key} " in words for key in map(glossary.normalize, (entry.term, *entry.aliases)))
+    ]
+    for entry in list(found):
+        for target in filter(None, map(glossary.lookup, entry.see)):
+            if target not in found:
+                found.append(target)
+    return found
+
+
+def glossary_context(question: str | None = None) -> str:
+    """Le glossaire de poker, une ligne textuelle par entrée : tout, ou seulement les termes de la question."""
+    entries = glossary.ENTRIES if question is None else glossary_entries_in(question)
+    lines = []
+    for entry in entries:
+        aliases = f" (alias : {', '.join(entry.aliases)})" if entry.aliases else ""
+        if entry.definition:
+            text = entry.definition.replace("\n", " ")
+            if entry.see:
+                text += f" Voir aussi : {', '.join(entry.see)}."
+        else:
+            text = f"Voir : {', '.join(entry.see)}."
+        lines.append(f"- {entry.term}{aliases} : {text}")
+
+    return "Glossaire de poker :\n" + "\n".join(lines) if lines else ""
 
 def ambigu_context() -> str:
     line1  = "Si la question ne pointe pas vers une reponse rapide du tableau, il faut que tu fasse une association des elements pour essayer d'y repondre, et serialiser les donnée comme ci dessous \n"
@@ -109,9 +128,8 @@ def find_context(question: str) -> str:
 
     Le classement des combinaisons et le glossaire, puis les calculs de la main si la question en décrit une.
     """
-    context = hand_rankings_context() + "\n\n" + glossary_context()
-    situation = situation_context(question)
-    return context + "\n\n" + situation if situation else context
+    parts = (hand_rankings_context(), glossary_context(question), situation_context(question))
+    return "\n\n".join(part for part in parts if part)
 
 
 def build_prompt(question: str) -> str:
@@ -124,20 +142,49 @@ def build_prompt(question: str) -> str:
 
 def ask(question: str) -> str:
     """Envoie la question à Ollama et renvoie la réponse du modèle. C'EST L'APPEL À L'IA."""
-    
+    return chat([
+        {"role": "system", "content": SYSTEM},
+        {"role": "user", "content": build_prompt(question)},
+    ])
+
+
+class OllamaError(Exception):
+    """Erreur d'Ollama, avec un message lisible pour l'utilisateur."""
+
+
+def chat(messages: list[dict], options: dict | None = None, **extra) -> str:
+    """Un appel à Ollama, sans streaming. `extra` complète la requête (ex. `format` pour une sortie JSON)."""
     payload = {
         "model": MODEL,
         "stream": False,  # on attend la réponse entière (plus simple à lire qu'en streaming)
-        "messages": [
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": build_prompt(question)},
-        ],
+        "messages": messages,
+        "options": {"num_ctx": NUM_CTX, **(options or {})},
+        **extra,
     }
     request = urllib.request.Request(
         OLLAMA, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}
     )
-    with urllib.request.urlopen(request) as response:
-        return json.load(response)["message"]["content"].strip()
+    try:
+        with urllib.request.urlopen(request) as response:
+            return json.load(response)["message"]["content"].strip()
+    except urllib.error.HTTPError as e:
+        raise OllamaError(_http_error(e)) from None
+    except urllib.error.URLError:
+        raise OllamaError("Ollama injoignable. Lance-le avec : ollama serve") from None
+
+
+def _http_error(e: urllib.error.HTTPError) -> str:
+    """Le message d'Ollama lui-même ; il est parfois un JSON dans le JSON (dépassement de contexte)."""
+    if e.code == 404:
+        return f"Modèle « {MODEL} » absent. Installe-le : ollama pull {MODEL}"
+    message = e.read().decode(errors="replace")
+    for _ in range(2):
+        try:
+            message = json.loads(message)["error"]
+            message = message["message"] if isinstance(message, dict) else message
+        except (ValueError, KeyError, TypeError):
+            break
+    return f"Erreur Ollama (HTTP {e.code}) : {message}"
 
 
 def main() -> int:
@@ -146,11 +193,8 @@ def main() -> int:
         return 2
     try:
         print(ask(" ".join(sys.argv[1:])))
-    except urllib.error.HTTPError as e:  # ex. 404 : modèle pas installé
-        print(f"Erreur Ollama (HTTP {e.code}). Modèle « {MODEL} » installé ? → ollama pull {MODEL}", file=sys.stderr)
-        return 1
-    except urllib.error.URLError:  # Ollama éteint / injoignable
-        print("Ollama injoignable. Lance-le avec : ollama serve", file=sys.stderr)
+    except OllamaError as e:
+        print(e, file=sys.stderr)
         return 1
     return 0
 

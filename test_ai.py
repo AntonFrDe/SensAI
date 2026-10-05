@@ -24,6 +24,16 @@ def test_glossary_context_serializes_entries_as_text():
         assert "- UTG : Voir : Under The Gun." in context
 
 
+def test_only_the_glossary_terms_of_the_question_are_injected():
+        context = ai.glossary_context("Que veut dire UTG ?")
+
+        assert "- UTG : Voir : Under The Gun." in context
+        assert "- Under The Gun" in context  # le renvoi est suivi
+        assert "Acolyte" not in context
+        assert ai.glossary_context("Bonjour") == ""
+        assert len(ai.build_prompt("Que veut dire UTG ?")) < 4000  # le glossaire entier dépassait 50 000
+
+
 def test_prompt_puts_the_context_before_the_question():
         question = "Quelle est la meilleur main ?"
 

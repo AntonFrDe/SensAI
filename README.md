@@ -29,7 +29,9 @@ RAM dès qu'il a répondu. Sans authentification : ne pas utiliser `--host 0.0.0
 python3 ai.py "Quelle est la meilleure main au poker ?"
 ```
 
-`ai.py` injecte le classement des combinaisons (`data/hand_rankings.json`) avant chaque question. Sans lui,
+`ai.py` injecte le classement des combinaisons (`data/hand_rankings.json`) avant chaque question, et les
+entrées du glossaire dont le terme apparaît dans la question (le glossaire entier, ~15 000 tokens, dépassait le
+contexte d'Ollama). Sans lui,
 `qwen3:4b-instruct` répondait « As, Roi, Dame, Roi, 10 » 5 fois sur 5 ; avec, « quinte flush royale » 5 fois
 sur 5. Chaque combinaison est donnée avec une force de 10 à 1 plutôt qu'un rang de 1 à 10 : avec des rangs,
 le modèle lit « 5 > 4 » et conclut qu'une couleur bat un full.
@@ -74,10 +76,29 @@ Les calculs sont injectés avant la question et le modèle doit les citer, pas l
 python3 ai.py "J'ai Ah Kh, flop Qh 7h 2c, pot de 100, je dois payer 50. Je suis ?"
 ```
 
+## Jeu d'évaluation
+
+```
+python3 evaluate.py                          # les 33 questions, modèle par défaut
+python3 evaluate.py --modele llama3.2:3b     # comparer un autre modèle
+python3 evaluate.py --questions q01 q28      # quelques questions seulement
+```
+
+`evaluation/questions.jsonl` contient 33 questions de poker (combinaisons, règles, vocabulaire, ranges préflop,
+équité, outs, cote du pot) avec une réponse de référence vérifiée (`equity.py`, `odds.py`, `preflop.py`).
+Pour chacune, le modèle local répond comme dans `ai.py`, puis reçoit la référence et sa propre réponse : il
+découpe la référence en faits et dit pour chacun s'il est présent, absent ou contredit, en JSON (sortie contrainte
+par `format`). Le script compte la question réussie si tous les faits sont présents : jugée « en bloc », la
+réponse était refusée par le petit modèle dès qu'elle contenait du texte en plus. Le script remplit
+`evaluation/resultats.md` : une ligne par question, case cochée ☑ si réussie, différences relevées, puis le
+détail des réponses ; `evaluation/resultats.json` garde tout. Seul le modèle local (Ollama) est appelé.
+
+Le correcteur est le même petit modèle : relire les verdicts, il peut être indulgent.
+
 ## Tests
 
 ```
-python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py
+python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 ```
 
@@ -89,6 +110,7 @@ python3 -m pytest poker_engine/tests       # moteur de poker
 | `llm.py` | Client Ollama (HTTP, streaming) |
 | `ai.py` | Question en ligne de commande, avec le classement des combinaisons injecté |
 | `equity.py` | Chances de gagner d'une main selon le board, note avant le flop |
+| `evaluate.py`, `evaluation/` | Jeu d'évaluation : questions de référence, résultats remplis par le script |
 | `odds.py` | Outs, cote du pot et analyse complète d'une situation, injectée par `ai.py` |
 | `server.py`, `web/index.html` | Interface web et comparaison de modèles |
 | `preflop.py` | `hand_range("AKs")` : action d'ouverture par position |

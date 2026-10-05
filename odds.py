@@ -15,21 +15,22 @@ import equity as eq
 def outs(hero: list[eq.Card], board: list[eq.Card]) -> dict[str, list[eq.Card]]:
     """Cartes qui améliorent la combinaison au prochain tirage, groupées par combinaison obtenue.
 
-    Une carte compte si elle fait monter la catégorie de la main (paire → deux paires, tirage → couleur…)
-    et si cette catégorie vient de nos cartes : une carte qui ne fait que pairer le board ne compte pas.
+    Une carte compte si elle creuse l'écart de catégorie entre notre main et le board seul (tirage → couleur,
+    paire → brelan…). Une carte qui ne fait que pairer le board ne compte pas : avec AA sur K-7-2, un 2 donne
+    une double paire, mais le board a lui aussi gagné une paire.
     ponytail: ignore les outs « sales » (couleur qui donne aussi une couleur plus haute à l'adversaire) ;
     à affiner avec les ranges adverses.
     """
     if len(board) not in (3, 4):
         raise ValueError("Les outs se comptent au flop (3 cartes) ou au turn (4 cartes).")
     eq._check(hero, board, 1)  # même validation des cartes que equity()
-    current = eq.evaluate7(hero + board)[0]
+    lead = eq.evaluate7(hero + board)[0] - eq.evaluate7(board)[0]
     groups: dict[str, list[eq.Card]] = {}
     for card in eq.DECK:
         if card in hero or card in board:
             continue
-        improved = eq.evaluate7(hero + board + [card])[0]
-        if improved > current and improved > eq.evaluate7(board + [card])[0]:
+        new_board = board + [card]
+        if eq.evaluate7(hero + new_board)[0] - eq.evaluate7(new_board)[0] > lead:
             groups.setdefault(eq.hand_name(hero + board + [card]), []).append(card)
     return groups
 
