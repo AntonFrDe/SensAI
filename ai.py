@@ -39,6 +39,35 @@ def hand_rankings_context() -> str:
         + "\nPlus la force est élevée, plus la combinaison est forte."
     )
 
+def glossary_context() -> str:
+    """Le glossaire de poker, une ligne textuelle par entrée."""
+    glossary = json.loads((DATA / "poker_glossary.json").read_text(encoding="utf-8"))
+    lines = []
+    for entry in glossary["entries"]:
+        aliases = f" (alias : {', '.join(entry['aliases'])})" if entry["aliases"] else ""
+        if entry["definition"]:
+            text = entry["definition"]
+            if entry["see"]:
+                text += f" Voir aussi : {', '.join(entry['see'])}."
+        else:
+            text = f"Voir : {', '.join(entry['see'])}."
+        lines.append(f"- {entry['term']}{aliases} : {text}")
+
+    return "Glossaire de poker :\n" + "\n".join(lines)
+
+def ambigu_context() -> str:
+    line1  = "Si la question ne pointe pas vers une reponse rapide du tableau, il faut que tu fasse une association des elements pour essayer d'y repondre, et serialiser les donnée comme ci dessous \n"
+    serial_ex = "-- Je n'ai pas de reponse precise pour cette question mais je peux essayer de deviner --\
+                - Ce que je comprend de la question : (ton analyse de la question et comment t'en ai venue à selection l'une ou l'autre donnée en fonction\n \
+                (LA REPONSE)"
+
+    ambigue = "Si la question te semble embigu ou pointe vers deux ou plusieurs données de ton tableau menant a plusieur reponse differente il faudrait que tu redemande la questino en proposant des piste comme dans l'exemple ci-dessous\n"
+    ambigue_ex = "- J'interprete ta question de plusieurs manière peux-tu reformuler ou selectionner l'une des proposition ci dessous : \n\
+                1.(Reformulation de la question celon ta premiere interpretation)" \
+                "2.(Deuxieme reformulation)" \
+                "3. (Troisieme si nescssaire, pas plus)"
+
+    return "CONTEXTE AMBIGU \n" ++ line1 ++ serial_ex ++ ambigue ++ ambigue_ex 
 
 def find_context(question: str) -> str:
     """Cherche dans data/ ce qui aide à répondre, et le renvoie en texte pour le modèle.
@@ -46,14 +75,16 @@ def find_context(question: str) -> str:
     Pour l'instant : le classement des combinaisons, injecté à chaque question (10 lignes).
     À venir : les définitions du glossaire pour les termes présents dans la question.
     """
-    return hand_rankings_context()
+    context = hand_rankings_context() + "\n\n" + glossary_context()
+
+    return context
 
 
 def build_prompt(question: str) -> str:
     """Assemble le message envoyé au modèle : le contexte trouvé dans la doc, puis la question."""
     context = find_context(question)
     if not context:
-        return question  # pas de doc branchée : le modèle répond avec ce qu'il sait déjà
+        return question
     return f"Contexte (extrait de la documentation) :\n{context}\n\nQuestion : {question}"
 
 

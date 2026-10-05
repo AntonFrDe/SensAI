@@ -15,6 +15,15 @@ def test_context_lists_the_ten_hands_from_strongest_to_weakest():
 
         assert forces == [str(n) for n in range (10, 0, -1)]
 
+
+def test_glossary_context_serializes_entries_as_text():
+        context = ai.glossary_context()
+
+        assert isinstance(context, str)
+        assert "- Acolyte : Traduction français hasardeuse du fameux Kicker." in context
+        assert "- UTG : Voir : Under The Gun." in context
+
+
 def test_prompt_puts_the_context_before_the_question():
         question = "Quelle est la meilleur main ?"
 
