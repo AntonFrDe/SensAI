@@ -18,8 +18,12 @@ import traceback
 from collections.abc import Callable
 from contextlib import closing
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from uuid import uuid4
 
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
+from poker_api import public_game_state
+from poker_engine.game import Game
+from poker_engine.player import Player
 
 MAX_BODY = 1_000_000  # bytes
 MAX_COMPARED = 8      # models per comparison
@@ -72,6 +76,8 @@ def parse_requests(raw: bytes, installed: set[str]) -> list[tuple[str, list[dict
 
 
 class Handler(BaseHTTPRequestHandler):
+    games: dict[str, Game] = {}
+    games_lock = threading.Lock()
     cfg: dict = None  # set by main()
     slots = threading.BoundedSemaphore(1)  # replaced by main() from "max_parallel_models"
 
@@ -88,7 +94,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Not found."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/api/chat", "/api/compare"):
+        if self.path not in ("/api/chat", "/api/compare", "/api/games"):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -98,6 +104,16 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_BODY:
                 raise ValueError("Empty or oversized request.")
             raw = self.rfile.read(length)
+            if self.path == "/api/games":
+                parse_json(raw)
+                game = Game([Player("Vous", 1000), Player("IA", 1000)])
+                game.start_hand()
+                game_id = uuid4().hex
+                with self.games_lock:
+                    if len(self.games) >= 100:
+                        return self._send_json(503, {"error": "Game session limit reached."})
+                    self.games[game_id] = game
+                return self._send_json(201, {"gameId": game_id, "state": public_game_state(game)})
             if self.path == "/api/chat":
                 jobs = [(self.cfg["model"], self.cfg, parse_messages(raw))]
             else:
