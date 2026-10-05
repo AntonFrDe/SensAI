@@ -21,7 +21,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from uuid import uuid4
 
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
-from poker_api import public_game_state
+from poker_api import player_controls, public_game_state
 from poker_engine.game import Game
 from poker_engine.player import Player
 
@@ -94,7 +94,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Not found."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/api/chat", "/api/compare", "/api/games"):
+        if self.path not in ("/api/chat", "/api/compare", "/api/games", "/api/actions"):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -104,6 +104,27 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_BODY:
                 raise ValueError("Empty or oversized request.")
             raw = self.rfile.read(length)
+            if self.path == "/api/actions":
+                body = parse_json(raw)
+                with self.games_lock:
+                    game_id = body.get("gameId")
+                    game = self.games.get(game_id) if isinstance(game_id, str) else None
+                    if game is None:
+                        return self._send_json(404, {"error": "Unknown game."})
+                    controls = player_controls(game)
+                    action = body.get("action")
+                    if action not in controls["allowedActions"]:
+                        raise ValueError("Action unavailable on your turn.")
+                    method = getattr(game, "raise_bet" if action == "raise" else action)
+                    if action in ("bet", "raise"):
+                        amount = body.get("amount")
+                        if type(amount) is not int or not controls["minAmount"] <= amount <= controls["maxAmount"]:
+                            raise ValueError("Invalid bet amount.")
+                        method(amount)
+                    else:
+                        method()
+                    result = {"gameId": game_id, "state": public_game_state(game)}
+                return self._send_json(200, result)
             if self.path == "/api/games":
                 parse_json(raw)
                 game = Game([Player("Vous", 1000), Player("IA", 1000)])
@@ -123,7 +144,7 @@ class Handler(BaseHTTPRequestHandler):
                     (model, {**self.cfg, "model": model, "keep_alive": 0}, messages)
                     for model, messages in parse_requests(raw, installed)
                 ]
-        except ValueError as e:
+        except (ValueError, RuntimeError) as e:
             return self._send_json(400, {"error": str(e)})
         except LLMError as e:
             return self._send_json(502, {"error": str(e)})
