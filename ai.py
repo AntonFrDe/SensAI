@@ -21,6 +21,9 @@ import odds
 
 MODEL = "qwen3:4b-instruct-2507-q4_K_M"
 OLLAMA = "http://localhost:11434/api/chat"
+# 0 = réponses reproductibles (Ollama prend 0,7 pour ce modèle). Ne rend pas la réponse plus juste : sans le
+# bon contexte, elle reste fausse, mais toujours de la même façon, ce qui permet de comparer avant/après.
+TEMPERATURE = 0.0
 NUM_CTX = 8192  # tokens : contexte injecté + question + réponse ; Ollama prend 4 096 par défaut
 DATA = Path(__file__).parent / "data"
 SYSTEM = "Tu es SensAI, un coach de poker. Réponds en Français, court et précis. Dans le cadre d'une question par rapport " \
@@ -145,7 +148,7 @@ def ask(question: str) -> str:
     return chat([
         {"role": "system", "content": SYSTEM},
         {"role": "user", "content": build_prompt(question)},
-    ])
+    ], options={"temperature": TEMPERATURE})
 
 
 class OllamaError(Exception):

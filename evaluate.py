@@ -97,7 +97,7 @@ def render(results: list[dict], model: str, total: int) -> str:
     lines = [
         "# Résultats de l'évaluation",
         "",
-        f"Modèle : `{model}` — {datetime.now():%Y-%m-%d %H:%M} — "
+        f"Modèle : `{model}` — température {ai.TEMPERATURE:g} — {datetime.now():%Y-%m-%d %H:%M} — "
         f"**{passed}/{len(results)} réussies** ({passed / len(results):.0%})" if results else "Aucun résultat.",
     ]
     if len(results) < total:
@@ -133,9 +133,11 @@ def render(results: list[dict], model: str, total: int) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Évalue le modèle local sur le jeu de questions de poker.")
     parser.add_argument("--modele", default=ai.MODEL, help=f"modèle Ollama (défaut : {ai.MODEL})")
+    parser.add_argument("--temperature", type=float, default=ai.TEMPERATURE,
+                        help=f"température des réponses (défaut : {ai.TEMPERATURE} ; 0.7 = réglage d'Ollama)")
     parser.add_argument("--questions", nargs="*", help="identifiants à évaluer, ex. q01 q28")
     args = parser.parse_args(argv)
-    ai.MODEL = args.modele
+    ai.MODEL, ai.TEMPERATURE = args.modele, args.temperature
     items = load_questions()
     if args.questions:
         items = [item for item in items if item["id"] in args.questions]
@@ -156,7 +158,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if results:
         (FOLDER / "resultats.md").write_text(render(results, ai.MODEL, len(items)), encoding="utf-8")
-        payload = {"modele": ai.MODEL, "date": datetime.now().isoformat(timespec="seconds"), "resultats": results}
+        payload = {"modele": ai.MODEL, "temperature": ai.TEMPERATURE, "date": datetime.now().isoformat(timespec="seconds"), "resultats": results}
         (FOLDER / "resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         passed = sum(r["reussi"] for r in results)
         print(f"\n{passed}/{len(results)} réussies → {FOLDER / 'resultats.md'}")

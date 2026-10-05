@@ -82,6 +82,7 @@ python3 ai.py "J'ai Ah Kh, flop Qh 7h 2c, pot de 100, je dois payer 50. Je suis 
 python3 evaluate.py                          # les 33 questions, modèle par défaut
 python3 evaluate.py --modele llama3.2:3b     # comparer un autre modèle
 python3 evaluate.py --questions q01 q28      # quelques questions seulement
+python3 evaluate.py --temperature 0.7        # comparer avec le réglage par défaut d'Ollama
 ```
 
 `evaluation/questions.jsonl` contient 33 questions de poker (combinaisons, règles, vocabulaire, ranges préflop,
@@ -92,6 +93,10 @@ par `format`). Le script compte la question réussie si tous les faits sont pré
 réponse était refusée par le petit modèle dès qu'elle contenait du texte en plus. Le script remplit
 `evaluation/resultats.md` : une ligne par question, case cochée ☑ si réussie, différences relevées, puis le
 détail des réponses ; `evaluation/resultats.json` garde tout. Seul le modèle local (Ollama) est appelé.
+
+Les réponses sont générées à température 0 (`TEMPERATURE` dans `ai.py`) : mêmes réponses à chaque lancement,
+donc deux scores sont comparables. Cela ne rend pas les réponses plus justes : testé, une réponse fausse faute de
+contexte reste fausse à 0. La température utilisée est notée dans `resultats.md`.
 
 Le correcteur est le même petit modèle : relire les verdicts, il peut être indulgent.
 

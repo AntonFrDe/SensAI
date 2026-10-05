@@ -55,6 +55,18 @@ def test_question_without_cards_gets_no_calculation():
         assert "pas une situation valide" in ai.situation_context("Ah Ah sur Kd 2c")
 
 
+def test_answers_use_temperature_zero_by_default():
+        sent = {}
+        real_chat = ai.chat
+        ai.chat = lambda messages, **extra: sent.update(extra) or "ok"
+        try:
+                ai.ask("Que veut dire UTG ?")
+        finally:
+                ai.chat = real_chat
+
+        assert ai.TEMPERATURE == 0 and sent["options"] == {"temperature": 0}
+
+
 if __name__ == "__main__":
         for name, test in list(globals().items()):
                 if name.startswith("test_"):
