@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export type PokerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
-type Props = {
+export type ActionControlsProps = {
   allowedActions?: PokerAction[];
   onAction?: (action: PokerAction, amount?: number) => void;
   minAmount?: number;
@@ -9,7 +9,7 @@ type Props = {
 };
 const actions: PokerAction[] = ['fold', 'check', 'call', 'bet', 'raise'];
 
-export default function ActionControls({ allowedActions = [], onAction, minAmount = 1, maxAmount }: Props) {
+export default function ActionControls({ allowedActions = [], onAction, minAmount = 1, maxAmount }: ActionControlsProps) {
   const [amount, setAmount] = useState('');
   const value = Number(amount);
   const validAmount = Number.isSafeInteger(value) && value >= minAmount && maxAmount !== undefined && value <= maxAmount;
