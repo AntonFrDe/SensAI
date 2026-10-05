@@ -1,6 +1,7 @@
 import PlayingCard, { type CardData } from './PlayingCard';
 import CommunityCards from './CommunityCards';
 import ChipAmount from './ChipAmount';
+import ActionControls from './ActionControls';
 
 type Props = {
   playerCards?: CardData[];
@@ -22,6 +23,7 @@ export default function PokerTable({ playerCards = [], communityCards = [], pot,
       <div className="cards" role="group" aria-label="Vos cartes privées">
         <PlayingCard card={playerCards[0]} /><PlayingCard card={playerCards[1]} />
       </div>
+      <ActionControls />
     </section>
   );
 }
