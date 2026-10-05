@@ -8,3 +8,6 @@ button:focus-visible { outline: 3px solid #fbbf24; outline-offset: 4px; }
 .seat { display: flex; justify-content: center; align-items: center; gap: 12px; }
 .seat span { font-size: 2rem; }
 .board { min-height: 100px; }
+.cards { display: flex; justify-content: center; gap: 12px; }
+.playing-card { display: grid; place-items: center; width: 64px; height: 88px; border-radius: 8px; background: #fff; color: #101820; font-size: 1.5rem; font-weight: 700; }
+.playing-card.red { color: #b91c1c; }
