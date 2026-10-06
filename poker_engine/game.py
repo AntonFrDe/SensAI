@@ -43,8 +43,6 @@ class Game:
         return self.state.hand_history
 
     def start_hand(self):
-        had_previous_hand = self.state.phase == GamePhase.SHOWDOWN
-
         for player in self.state.players:
             player.reset_hand()
 
@@ -73,8 +71,6 @@ class Game:
         self._post_blinds()
         self._set_pre_flop_first_player()
 
-        if had_previous_hand:
-            self.state.pot = 0
 
     def _deal_private_cards(self):
         for _ in range(2):

@@ -186,7 +186,7 @@ def test_start_new_hand_resets_state():
 
     assert game.state.phase == GamePhase.PRE_FLOP
     assert game.state.community_card_count == 0
-    assert game.state.pot == 0
+    assert game.state.pot == game.small_blind + game.big_blind  # only the new blinds
     assert alex.hand_size == 2
     assert bob.hand_size == 2
     assert game.state.deck.remaining == 48

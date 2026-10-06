@@ -23,6 +23,22 @@ Le bouton **Comparer** envoie la même question à plusieurs modèles installés
 qu'`max_parallel_models` à la fois (1 par défaut) ; les autres attendent, et chaque modèle est déchargé de la
 RAM dès qu'il a répondu. Sans authentification : ne pas utiliser `--host 0.0.0.0` sur un réseau non sûr.
 
+## Jouer contre l'IA (frontend React)
+
+```
+python3 server.py                                  # API sur http://localhost:8000
+cd frontend && npm install && npm run dev          # puis http://localhost:5173 (Vite relaie /api)
+```
+
+- **Adversaire IA** : à son tour, le frontend appelle `/api/opponent`. Le modèle reçoit ses cartes, le board et
+  les calculs d'`odds.py`, et doit répondre en JSON conforme à un schéma (`format` d'Ollama) limité aux actions
+  légales. Montant hors bornes : ramené dans les bornes. Réponse inutilisable ou Ollama en panne : règle de
+  secours (check, sinon suivre), signalée à l'écran. Compter 15 à 40 s par décision sur CPU.
+- **Coach SensAI** : `/api/coach` envoie votre situation à `ai.build_prompt` (même contexte que la CLI) et
+  diffuse le conseil en streaming. Disponible seulement à votre tour.
+- Les deux passent par le sémaphore RAM de `server.py` et le modèle de `config.json`. La logique est dans
+  `poker_ai.py` (testée sans Ollama par `test_poker_ai.py`).
+
 ## Question en ligne de commande
 
 ```
@@ -103,7 +119,7 @@ Le correcteur est le même petit modèle : relire les verdicts, il peut être in
 ## Tests
 
 ```
-python3 test_web.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
+python3 test_web.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 ```
 
@@ -117,7 +133,9 @@ python3 -m pytest poker_engine/tests       # moteur de poker
 | `equity.py` | Chances de gagner d'une main selon le board, note avant le flop |
 | `evaluate.py`, `evaluation/` | Jeu d'évaluation : questions de référence, résultats remplis par le script |
 | `odds.py` | Outs, cote du pot et analyse complète d'une situation, injectée par `ai.py` |
-| `server.py`, `web/index.html` | Interface web et comparaison de modèles |
+| `server.py`, `web/index.html` | Interface web, comparaison de modèles, API de jeu, adversaire IA et coach |
+| `poker_ai.py`, `poker_api.py` | Ce que le modèle voit d'une main (coach, adversaire) ; état public de la partie |
+| `frontend/` | Table de poker React (Vite) |
 | `preflop.py` | `hand_range("AKs")` : action d'ouverture par position |
 | `glossary.py` | `define("UTG")` : glossaire du poker en français |
 | `build_glossary.py` | Régénère `data/poker_glossary.json` depuis la source |

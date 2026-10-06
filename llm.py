@@ -28,6 +28,8 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
     }
     if "keep_alive" in cfg:  # 0 = unload the model from RAM as soon as it has answered
         payload["keep_alive"] = cfg["keep_alive"]
+    if "format" in cfg:  # a JSON schema the answer must follow (Ollama structured output)
+        payload["format"] = cfg["format"]
     try:
         with requests.post(f"{cfg['ollama_url']}/api/chat", json=payload, stream=True, timeout=(5, 300)) as r:
             if r.status_code >= 400:

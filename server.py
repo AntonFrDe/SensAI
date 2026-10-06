@@ -13,6 +13,7 @@ import argparse
 import functools
 import json
 import queue
+import sys
 import threading
 import traceback
 from collections.abc import Callable
@@ -20,8 +21,10 @@ from contextlib import closing
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from uuid import uuid4
 
+import ai
+import poker_ai
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
-from poker_api import player_controls, public_game_state
+from poker_api import AI, HUMAN, apply_action, next_hand, player_controls, public_game_state
 from poker_engine.game import Game
 from poker_engine.player import Player
 
@@ -30,6 +33,11 @@ MAX_COMPARED = 8      # models per comparison
 ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
+GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand")
+
+
+class UnknownGame(Exception):
+    """The request names no live game: answered with a 404."""
 
 
 def clean_messages(messages: object) -> list[dict]:
@@ -78,6 +86,7 @@ def parse_requests(raw: bytes, installed: set[str]) -> list[tuple[str, list[dict
 class Handler(BaseHTTPRequestHandler):
     games: dict[str, Game] = {}
     games_lock = threading.Lock()
+    thinking: set[str] = set()  # games whose AI opponent is deciding: one decision at a time per game
     cfg: dict = None  # set by main()
     slots = threading.BoundedSemaphore(1)  # replaced by main() from "max_parallel_models"
 
@@ -94,7 +103,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Not found."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/api/chat", "/api/compare", "/api/games", "/api/actions"):
+        if self.path not in ("/api/chat", "/api/compare", "/api/coach", *GAME_ROUTES):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -104,38 +113,11 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_BODY:
                 raise ValueError("Empty or oversized request.")
             raw = self.rfile.read(length)
-            if self.path == "/api/actions":
-                body = parse_json(raw)
-                with self.games_lock:
-                    game_id = body.get("gameId")
-                    game = self.games.get(game_id) if isinstance(game_id, str) else None
-                    if game is None:
-                        return self._send_json(404, {"error": "Unknown game."})
-                    controls = player_controls(game)
-                    action = body.get("action")
-                    if action not in controls["allowedActions"]:
-                        raise ValueError("Action unavailable on your turn.")
-                    method = getattr(game, "raise_bet" if action == "raise" else action)
-                    if action in ("bet", "raise"):
-                        amount = body.get("amount")
-                        if type(amount) is not int or not controls["minAmount"] <= amount <= controls["maxAmount"]:
-                            raise ValueError("Invalid bet amount.")
-                        method(amount)
-                    else:
-                        method()
-                    result = {"gameId": game_id, "state": public_game_state(game)}
-                return self._send_json(200, result)
-            if self.path == "/api/games":
-                parse_json(raw)
-                game = Game([Player("Vous", 1000), Player("IA", 1000)])
-                game.start_hand()
-                game_id = uuid4().hex
-                with self.games_lock:
-                    if len(self.games) >= 100:
-                        return self._send_json(503, {"error": "Game session limit reached."})
-                    self.games[game_id] = game
-                return self._send_json(201, {"gameId": game_id, "state": public_game_state(game)})
-            if self.path == "/api/chat":
+            if self.path in GAME_ROUTES:
+                return self._send_json(*self._game_route(parse_json(raw)))
+            if self.path == "/api/coach":
+                jobs = [self._coach_job(parse_json(raw))]
+            elif self.path == "/api/chat":
                 jobs = [(self.cfg["model"], self.cfg, parse_messages(raw))]
             else:
                 installed = {m["name"] for m in list_models(self.cfg)}
@@ -144,6 +126,8 @@ class Handler(BaseHTTPRequestHandler):
                     (model, {**self.cfg, "model": model, "keep_alive": 0}, messages)
                     for model, messages in parse_requests(raw, installed)
                 ]
+        except UnknownGame:
+            return self._send_json(404, {"error": "Unknown game."})
         except (ValueError, RuntimeError) as e:
             return self._send_json(400, {"error": str(e)})
         except LLMError as e:
@@ -157,6 +141,74 @@ class Handler(BaseHTTPRequestHandler):
             self.run_jobs(jobs, functools.partial(self._emit_event, tagged=self.path == "/api/compare"))
         except (BrokenPipeError, ConnectionResetError):
             pass  # the browser hit Stop or closed the tab
+
+    def _game(self, body: dict) -> tuple[str, Game]:
+        """The game named by the request. Call with games_lock held."""
+        game_id = body.get("gameId")
+        game = self.games.get(game_id) if isinstance(game_id, str) else None
+        if game is None:
+            raise UnknownGame
+        return game_id, game
+
+    def _game_route(self, body: dict) -> tuple[int, dict]:
+        if self.path == "/api/games":
+            game = Game([Player("Vous", 1000), Player("IA", 1000)])
+            game.start_hand()
+            game_id = uuid4().hex
+            with self.games_lock:
+                if len(self.games) >= 100:
+                    return 503, {"error": "Game session limit reached."}
+                self.games[game_id] = game
+            return 201, {"gameId": game_id, "state": public_game_state(game)}
+        if self.path == "/api/opponent":
+            return self._opponent_turn(body)
+        with self.games_lock:
+            game_id, game = self._game(body)
+            if self.path == "/api/actions":
+                apply_action(game, HUMAN, body.get("action"), body.get("amount"))
+            else:
+                next_hand(game)
+            return 200, {"gameId": game_id, "state": public_game_state(game)}
+
+    def _opponent_turn(self, body: dict) -> tuple[int, dict]:
+        """One decision of the AI opponent. The model runs outside games_lock, so other games keep playing."""
+        with self.games_lock:
+            game_id, game = self._game(body)
+            controls = player_controls(game, AI)
+            if not controls["allowedActions"] or game_id in self.thinking:
+                raise ValueError("It is not the AI's turn.")
+            self.thinking.add(game_id)
+            seen = poker_ai.situation(game, AI)
+        try:
+            system, prompt, schema = poker_ai.opponent_request(seen, controls)
+            try:
+                reply = self._complete({**self.cfg, "system_prompt": system, "format": schema}, prompt)
+            except LLMError as e:  # the hand goes on with the fallback rule
+                print(f"AI opponent: {e}", file=sys.stderr)
+                reply = None
+            with self.games_lock:
+                decision = poker_ai.parse_decision(reply, player_controls(game, AI))
+                apply_action(game, AI, decision["action"], decision.get("amount"))
+                return 200, {"gameId": game_id, "state": public_game_state(game), "opponentAction": decision}
+        finally:
+            with self.games_lock:
+                self.thinking.discard(game_id)
+
+    def _coach_job(self, body: dict) -> Job:
+        """The coach's advice on the human's current decision, streamed like a chat answer."""
+        with self.games_lock:
+            _, game = self._game(body)
+            if not player_controls(game)["allowedActions"]:
+                raise ValueError("Advice is available on your turn.")
+            seen = poker_ai.situation(game, HUMAN)
+        prompt = poker_ai.coach_prompt(seen)
+        return self.cfg["model"], {**self.cfg, "system_prompt": ai.SYSTEM}, [{"role": "user", "content": prompt}]
+
+    def _complete(self, cfg: dict, prompt: str) -> str:
+        """A whole answer, generated once a RAM slot is free."""
+        with self.slots:
+            chunks = stream_chat([{"role": "user", "content": prompt}], cfg)
+            return "".join(data for kind, data in chunks if kind == "token")
 
     def run_jobs(self, jobs: list[Job], emit: Callable[[str, str, object], None]) -> None:
         """Run every job in its own thread; each waits for a free RAM slot. Events reach `emit` as they happen:

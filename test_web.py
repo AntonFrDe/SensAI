@@ -6,6 +6,8 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import ai
+import poker_ai
 import server
 
 CHUNKS = [
@@ -14,6 +16,8 @@ CHUNKS = [
     {"message": {"content": "lo"}},
     {"message": {"content": ""}, "done": True, "eval_count": 20, "eval_duration": 2_000_000_000},
 ]
+# What the model answers when the request carries a JSON schema (the AI opponent's decision)
+DECISION = [{"message": {"content": '{"action": "call"}'}}, {"message": {"content": ""}, "done": True}]
 INSTALLED = ["ok", "missing", "a", "b", "c", "slow1", "slow2", "slow3"]
 
 
@@ -54,7 +58,7 @@ class FakeOllama(BaseHTTPRequestHandler):
             cls.active += 1
             cls.max_active = max(cls.max_active, cls.active)
         try:
-            for chunk in CHUNKS:
+            for chunk in DECISION if "format" in body else CHUNKS:
                 time.sleep(0.3 if body["model"].startswith("slow") else 0.05)
                 line = json.dumps(chunk).encode() + b"\n"
                 self.wfile.write(b"%x\r\n%s\r\n" % (len(line), line))
@@ -208,6 +212,67 @@ def test_client_disconnect_cancels_running_and_waiting_models():
     assert len(FakeOllama.requests) == 1, "waiting models must not start after the client left"
     assert FakeOllama.active == 0
     assert server.Handler.slots.acquire(blocking=False), "the slot must be free again"
+
+
+def new_game():
+    status, [body] = post("/api/games", b"{}")
+    assert status == 201 and body["state"]["currentPlayer"] == "opponent"  # the AI speaks first
+    return body["gameId"]
+
+
+def game_post(path, game_id, **kw):
+    status, events = post(path, json.dumps({"gameId": game_id}).encode(), **kw)
+    return status, events if path == "/api/coach" and status == 200 else events[0]
+
+
+def test_ai_opponent_plays_its_turn_with_a_structured_answer():
+    FakeOllama.reset()
+    game_id = new_game()
+
+    status, body = game_post("/api/opponent", game_id)
+
+    assert status == 200 and body["opponentAction"] == {"action": "call", "source": "llm"}
+    assert body["state"]["currentPlayer"] == "player" and body["state"]["pot"] == 40
+    sent = FakeOllama.requests[-1]
+    assert sent["messages"][0] == {"role": "system", "content": poker_ai.OPPONENT_SYSTEM}
+    assert sent["format"]["properties"]["action"]["enum"] == ["fold", "call", "raise"]
+    assert game_post("/api/opponent", game_id)[0] == 400  # now it is the human's turn
+
+
+def test_ai_opponent_falls_back_when_the_model_fails():
+    status, body = game_post("/api/opponent", new_game(), model="missing")
+    assert status == 200 and body["opponentAction"] == {"action": "call", "source": "fallback"}
+
+
+def test_coach_streams_advice_on_the_humans_turn_only():
+    game_id = new_game()
+    assert game_post("/api/coach", game_id)[0] == 400  # the AI is to act
+    game_post("/api/opponent", game_id)
+    FakeOllama.reset()
+
+    status, events = game_post("/api/coach", game_id)
+
+    assert status == 200 and {"token": "Hel"} in events
+    system, user = FakeOllama.requests[-1]["messages"]
+    assert system == {"role": "system", "content": ai.SYSTEM}
+    assert "Mes cartes :" in user["content"] and "Que dois-je faire ?" in user["content"]
+
+
+def test_hand_can_be_finished_and_the_next_one_dealt():
+    game_id = new_game()
+    game_post("/api/opponent", game_id)
+    assert game_post("/api/next-hand", game_id)[0] == 400  # the hand is still going on
+    status, [body] = post("/api/actions", json.dumps({"gameId": game_id, "action": "fold"}).encode())
+    assert status == 200 and body["state"]["awards"][0]["winners"] == ["IA"]
+
+    status, body = game_post("/api/next-hand", game_id)
+
+    assert status == 200 and body["state"]["phase"] == "pre_flop" and body["state"]["awards"] == []
+
+
+def test_unknown_games_are_404():
+    for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
+        assert game_post(path, "nope")[0] == 404, path
 
 
 if __name__ == "__main__":

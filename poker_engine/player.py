@@ -42,6 +42,7 @@ class Player:
         self.folded = True
 
     def reset_hand(self):
+        self.initial_chips = self.chips  # stack at the start of this hand
         self.hand.clear()
         self.folded = False
         self.current_bet = 0

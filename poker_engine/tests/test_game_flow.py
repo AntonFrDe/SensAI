@@ -47,3 +47,18 @@ def test_betting_round_completion_advances_through_all_streets():
     game.check()
 
     assert game.state.phase == GamePhase.SHOWDOWN
+
+def test_second_hand_keeps_the_blinds_in_the_pot_and_charges_the_right_call():
+    game, players = create_game()
+    game.fold()  # Bob wins the blinds: his stack is now above where he started
+    game.dealer_index = 1
+    game.start_hand()
+
+    assert game.state.pot == 30
+    assert sum(player.chips for player in players) + game.state.pot == 2000
+
+    small_blind = game.current_player
+    chips_before = small_blind.chips
+    game.call()
+
+    assert chips_before - small_blind.chips == 10
