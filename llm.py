@@ -19,7 +19,8 @@ def load_config(path: Path = ROOT / "config.json") -> dict:
 
 
 def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]:
-    """Yield ("thinking" | "token", text) as the model produces them, then ("done", stats)."""
+    """Yield ("thinking" | "token", text) as the model produces them, ("tool_calls", calls) when it asks for
+    tools instead of answering, then ("done", stats)."""
     payload = {
         "model": cfg["model"],
         "stream": True,
@@ -30,6 +31,8 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
         payload["keep_alive"] = cfg["keep_alive"]
     if "format" in cfg:  # a JSON schema the answer must follow (Ollama structured output)
         payload["format"] = cfg["format"]
+    if cfg.get("tools"):  # functions the model may call (Ollama tool calling)
+        payload["tools"] = cfg["tools"]
     try:
         with requests.post(f"{cfg['ollama_url']}/api/chat", json=payload, stream=True, timeout=(5, 300)) as r:
             if r.status_code >= 400:
@@ -45,6 +48,8 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
                     yield "thinking", msg["thinking"]
                 if msg.get("content"):
                     yield "token", msg["content"]
+                if msg.get("tool_calls"):
+                    yield "tool_calls", msg["tool_calls"]
                 if chunk.get("done"):
                     n, ns = chunk.get("eval_count", 0), chunk.get("eval_duration", 0)
                     yield "done", {"tokens": n, "tok_s": round(n / ns * 1e9, 1) if ns else None}

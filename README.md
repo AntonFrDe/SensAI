@@ -23,6 +23,33 @@ Le bouton **Comparer** envoie la même question à plusieurs modèles installés
 qu'`max_parallel_models` à la fois (1 par défaut) ; les autres attendent, et chaque modèle est déchargé de la
 RAM dès qu'il a répondu. Sans authentification : ne pas utiliser `--host 0.0.0.0` sur un réseau non sûr.
 
+## Chat en ligne de commande (B1) et outils MCP (T1)
+
+```
+python3 main.py                        # modèle et serveurs MCP lus dans config.json
+python3 main.py --model llama3.2:3b    # autre modèle, sans toucher au code
+python3 main.py --no-tools             # chat seul, sans serveur MCP
+```
+
+Réponse affichée au fil de l'eau, historique gardé pendant la session. Commandes : `/reset` (oublier la
+conversation), `/tools` (outils chargés), `/quit` ou Ctrl-D. Ctrl-C coupe une réponse sans quitter.
+Ollama éteint, modèle absent, configuration illisible : message clair et arrêt. Message vide : refusé sans
+appeler le modèle.
+
+Le modèle peut **appeler des outils** au lieu de répondre : il émet une demande (nom + arguments), `main.py`
+l'exécute via MCP et lui renvoie le résultat, puis il continue (5 tours d'outils au plus par question). Les
+serveurs MCP sont déclarés dans `config.json` (`mcp_servers`), client et serveur écrits en bibliothèque
+standard (`mcp_client.py`, `mcp_server.py`) :
+
+| Serveur | Outils | Exemple de question |
+|---|---|---|
+| `poker` (le nôtre, `mcp_server.py`) | `hand_odds`, `define_term`, `preflop_open`, `hand_rankings` | « J'ai As Roi de cœur, flop dame de cœur, 7 de cœur, 2 de trèfle, 100 au pot, 50 à payer. Je suis ? » |
+| `fichiers` ([serveur officiel](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem), via `npx`) | `list_directory`, `read_text_file`, `write_file`, limités au dossier `notes/` | « Qu'est-ce que j'ai noté dans mes notes de jeu ? » |
+
+`mcp_server.py` fonctionne avec n'importe quel client MCP. Un serveur qui ne démarre pas est signalé et le chat
+continue sans lui. `write_file` remplace tout le fichier : le modèle doit le réécrire en entier pour ajouter une
+ligne.
+
 ## Jouer contre l'IA (frontend React)
 
 ```
@@ -119,7 +146,7 @@ Le correcteur est le même petit modèle : relire les verdicts, il peut être in
 ## Tests
 
 ```
-python3 test_web.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
+python3 test_cli.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 ```
 
@@ -134,6 +161,9 @@ python3 -m pytest poker_engine/tests       # moteur de poker
 | `evaluate.py`, `evaluation/` | Jeu d'évaluation : questions de référence, résultats remplis par le script |
 | `odds.py` | Outs, cote du pot et analyse complète d'une situation, injectée par `ai.py` |
 | `server.py`, `web/index.html` | Interface web, comparaison de modèles, API de jeu, adversaire IA et coach |
+| `main.py` | Chat en ligne de commande, avec appels d'outils |
+| `mcp_client.py`, `mcp_server.py` | Client MCP (lance les serveurs de la config) ; nos outils de poker en serveur MCP |
+| `notes/` | Notes de jeu, accessibles au modèle par le serveur MCP de fichiers |
 | `poker_ai.py`, `poker_api.py` | Ce que le modèle voit d'une main (coach, adversaire) ; état public de la partie |
 | `frontend/` | Table de poker React (Vite) |
 | `preflop.py` | `hand_range("AKs")` : action d'ouverture par position |

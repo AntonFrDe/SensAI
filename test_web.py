@@ -4,80 +4,11 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import ai
 import poker_ai
 import server
-
-CHUNKS = [
-    {"message": {"content": "", "thinking": "hmm"}},
-    {"message": {"content": "Hel"}},
-    {"message": {"content": "lo"}},
-    {"message": {"content": ""}, "done": True, "eval_count": 20, "eval_duration": 2_000_000_000},
-]
-# What the model answers when the request carries a JSON schema (the AI opponent's decision)
-DECISION = [{"message": {"content": '{"action": "call"}'}}, {"message": {"content": ""}, "done": True}]
-INSTALLED = ["ok", "missing", "a", "b", "c", "slow1", "slow2", "slow3"]
-
-
-class FakeOllama(BaseHTTPRequestHandler):
-    protocol_version = "HTTP/1.1"  # like the real Ollama: the stream is chunked, so tokens arrive live
-    lock = threading.Lock()
-    requests: list = []   # every /api/chat body received
-    active = 0            # streams generating right now
-    max_active = 0        # peak of `active`: what the RAM semaphore must keep low
-
-    @classmethod
-    def reset(cls):
-        cls.requests, cls.active, cls.max_active = [], 0, 0
-
-    def do_GET(self):  # /api/tags
-        data = json.dumps({"models": [{"name": n, "size": 1} for n in INSTALLED]}).encode()
-        self.send_response(200)
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
-
-    def do_POST(self):
-        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-        cls = FakeOllama
-        with cls.lock:
-            cls.requests.append(body)
-        if body["model"] == "missing":
-            data = json.dumps({"error": "model 'missing' not found"}).encode()
-            self.send_response(404)
-            self.send_header("Content-Length", str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
-            return
-        self.send_response(200)
-        self.send_header("Transfer-Encoding", "chunked")
-        self.end_headers()
-        with cls.lock:
-            cls.active += 1
-            cls.max_active = max(cls.max_active, cls.active)
-        try:
-            for chunk in DECISION if "format" in body else CHUNKS:
-                time.sleep(0.3 if body["model"].startswith("slow") else 0.05)
-                line = json.dumps(chunk).encode() + b"\n"
-                self.wfile.write(b"%x\r\n%s\r\n" % (len(line), line))
-            self.wfile.write(b"0\r\n\r\n")
-        except (BrokenPipeError, ConnectionResetError):
-            pass  # the server closed the request: generation stops
-        finally:
-            with cls.lock:
-                cls.active -= 1
-
-    def log_message(self, *args):
-        pass
-
-
-def start(handler):
-    srv = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    threading.Thread(target=srv.serve_forever, daemon=True).start()
-    return srv.server_address[1]
-
+from fake_ollama import FakeOllama, start
 
 server.Handler.log_message = lambda *args: None
 OLLAMA = f"http://127.0.0.1:{start(FakeOllama)}"
