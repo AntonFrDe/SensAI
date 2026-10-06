@@ -33,4 +33,8 @@ def public_game_state(game: Game) -> dict:
         "phase": state.phase.value,
         "currentBet": state.current_bet,
         "controls": player_controls(game),
+        "history": [
+            {key: value for key, value in event.items() if key in ("player", "action", "amount", "target_amount")}
+            for event in state.hand_history if event["type"] == "action"
+        ],
     }
