@@ -4,6 +4,7 @@ import ChipAmount from './ChipAmount';
 import ActionControls, { type ActionControlsProps } from './ActionControls';
 import HandInfo, { type GamePhase } from './HandInfo';
 import HandHistory, { type HistoryEntry } from './HandHistory';
+import HandResult, { type PotAward } from './HandResult';
 
 type Props = {
   playerCards?: CardData[];
@@ -16,11 +17,12 @@ type Props = {
   phase?: GamePhase;
   currentBet?: number;
   history?: HistoryEntry[];
+  awards?: PotAward[];
 };
 
 export default function PokerTable({
   playerCards = [], communityCards = [], pot, playerStack, opponentStack, controls, currentPlayer,
-  phase, currentBet, history = [],
+  phase, currentBet, history = [], awards = [],
 }: Props) {
   return (
     <section className="poker-table" aria-label="Table de Texas Hold’em à deux joueurs">
@@ -34,7 +36,8 @@ export default function PokerTable({
       <div className="cards" role="group" aria-label="Vos cartes privées">
         <PlayingCard card={playerCards[0]} /><PlayingCard card={playerCards[1]} />
       </div>
-      <p className="chip-info" aria-live="polite">Tour : {currentPlayer === 'player' ? 'à vous de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>
+      {phase !== 'showdown' && <p className="chip-info" aria-live="polite">Tour : {currentPlayer === 'player' ? 'à vous de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>}
+      {phase === 'showdown' && <HandResult awards={awards} />}
       <ActionControls
         {...controls}
         allowedActions={currentPlayer === 'player' ? controls?.allowedActions : []}
