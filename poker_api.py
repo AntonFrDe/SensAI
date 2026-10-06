@@ -25,6 +25,7 @@ def public_game_state(game: Game) -> dict:
     player, opponent = state.players
     return {
         "playerCards": _cards(player.hand),
+        "opponentCards": _cards(opponent.hand) if state.phase.value == "showdown" and not any(p.folded for p in state.players) else [],
         "communityCards": _cards(state.community_cards),
         "pot": state.pot,
         "playerStack": player.chips,

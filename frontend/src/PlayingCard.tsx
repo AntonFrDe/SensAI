@@ -3,12 +3,12 @@ export type CardData = { rank: '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '
 const symbols = { clubs: '♣', diamonds: '♦', hearts: '♥', spades: '♠' };
 const names = { clubs: 'trèfle', diamonds: 'carreau', hearts: 'cœur', spades: 'pique' };
 
-export default function PlayingCard({ card }: { card?: CardData }) {
-  const red = card?.suit === 'hearts' || card?.suit === 'diamonds';
-  const label = card ? `${card.rank} de ${names[card.suit]}` : 'Carte non distribuée';
+export default function PlayingCard({ card, hidden = false }: { card?: CardData; hidden?: boolean }) {
+  const red = !hidden && (card?.suit === 'hearts' || card?.suit === 'diamonds');
+  const label = hidden ? 'Carte cachée' : card ? `${card.rank} de ${names[card.suit]}` : 'Carte non distribuée';
   return (
     <span className={`playing-card${red ? ' red' : ''}`} role="img" aria-label={label}>
-      {card ? `${card.rank}${symbols[card.suit]}` : '?'}
+      {hidden ? '🂠' : card ? `${card.rank}${symbols[card.suit]}` : '?'}
     </span>
   );
 }

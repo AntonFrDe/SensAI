@@ -8,6 +8,7 @@ import HandResult, { type PotAward } from './HandResult';
 
 type Props = {
   playerCards?: CardData[];
+  opponentCards?: CardData[];
   communityCards?: CardData[];
   pot?: number;
   playerStack?: number;
@@ -22,13 +23,17 @@ type Props = {
 
 export default function PokerTable({
   playerCards = [], communityCards = [], pot, playerStack, opponentStack, controls, currentPlayer,
-  phase, currentBet, history = [], awards = [],
+  phase, currentBet, history = [], awards = [], opponentCards = [],
 }: Props) {
   return (
     <section className="poker-table" aria-label="Table de Texas Hold’em à deux joueurs">
       <HandInfo phase={phase} currentBet={currentBet} />
       <div className="seat"><span aria-hidden="true">🤖</span><strong>Adversaire IA</strong></div>
       <p className="chip-info">Stack IA : <ChipAmount amount={opponentStack} /></p>
+      <div className="cards" role="group" aria-label="Cartes de l’adversaire">
+        <PlayingCard card={opponentCards[0]} hidden={!opponentCards[0]} />
+        <PlayingCard card={opponentCards[1]} hidden={!opponentCards[1]} />
+      </div>
       <CommunityCards cards={communityCards} />
       <p className="chip-info pot" aria-live="polite">Pot : <ChipAmount amount={pot} /></p>
       <div className="seat"><span aria-hidden="true">👤</span><strong>Vous</strong></div>
