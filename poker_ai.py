@@ -1,7 +1,8 @@
 """The LLM's side of a game: the coach's advice for the human, and the AI opponent's decisions.
 
-The situation is written in the notation `ai.situation_context` reads (« Ah Kh », « pot 130 », « payer 20 »),
-so the web coach and the AI opponent get the same context as the CLI: hand rankings, glossary, equity, pot odds.
+The situation is written in the notation `ai.situation_context` reads (« Ah Kh », « pot 130 », « payer 20 »).
+The web coach gets the same context as the CLI: hand rankings, glossary, equity, pot odds. The AI opponent only
+gets the numbers (420 tokens instead of 1 150), and plays with a smaller model (config "opponent_model").
 """
 import json
 
@@ -48,7 +49,8 @@ def opponent_request(seen: str, controls: dict) -> tuple[str, str, dict]:
         for a in allowed
     )
     # The legal actions go after the prompt: « call » or « mise » in them would mislead situation_context.
-    prompt = f"{ai.build_prompt(seen)}\n\nActions possibles : {actions}. Choisis-en une."
+    choice = f"Actions possibles : {actions}. Choisis-en une."
+    prompt = "\n\n".join(filter(None, [seen, ai.situation_context(seen), choice]))
     schema = {
         "type": "object",
         "properties": {"action": {"type": "string", "enum": allowed}, "amount": {"type": "integer"}},

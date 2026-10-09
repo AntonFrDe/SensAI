@@ -45,6 +45,7 @@ def test_opponent_request_lists_legal_actions_and_constrains_the_answer():
     assert prompt.endswith("Actions possibles : fold, call, raise (montant total entre 40 et 1000). Choisis-en une.")
     assert schema["properties"]["action"]["enum"] == ["fold", "call", "raise"]
     assert "Cote du pot : payer 10" in prompt  # the action list did not change the amount to call
+    assert "Classement des combinaisons" not in prompt and "Glossaire" not in prompt  # numbers only: fast on CPU
 
 
 def test_legal_decision_is_kept_and_bet_amounts_are_clamped():

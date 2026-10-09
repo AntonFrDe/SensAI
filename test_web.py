@@ -1,9 +1,11 @@
 """Web server checks against a fake Ollama, so no model is needed. Run: python3 test_web.py"""
 import json
+import tempfile
 import threading
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import ai
 import poker_ai
@@ -13,10 +15,12 @@ from fake_ollama import FakeOllama, start
 server.Handler.log_message = lambda *args: None
 OLLAMA = f"http://127.0.0.1:{start(FakeOllama)}"
 PORT = start(server.Handler)
+BANQUE = str(Path(tempfile.mkdtemp()) / "banque.jsonl")  # the tests never write the real bank
 
 
-def post(path, data, ctype="application/json", model="ok", url=OLLAMA, slots=1):
-    server.Handler.cfg = {"model": model, "ollama_url": url, "num_ctx": 1024, "system_prompt": "SYS"}
+def post(path, data, ctype="application/json", model="ok", url=OLLAMA, slots=1, **cfg):
+    server.Handler.cfg = {"model": model, "ollama_url": url, "num_ctx": 1024, "system_prompt": "SYS",
+                          "banque_file": BANQUE, **cfg}
     server.Handler.slots = threading.BoundedSemaphore(slots)
     req = urllib.request.Request(
         f"http://127.0.0.1:{PORT}{path}", data=data, headers={"Content-Type": ctype}, method="POST"
@@ -35,6 +39,11 @@ def chat(messages, body=None, **kw):
 def compare(models, body=None, **kw):
     reqs = [{"model": m, "messages": [{"role": "user", "content": "hi"}]} for m in models]
     return post("/api/compare", body if body is not None else json.dumps({"requests": reqs}).encode(), **kw)
+
+
+def get(path):
+    with urllib.request.urlopen(f"http://127.0.0.1:{PORT}{path}", timeout=15) as r:
+        return r.status, json.loads(r.read())
 
 
 def by_model(events):
@@ -170,6 +179,13 @@ def test_ai_opponent_plays_its_turn_with_a_structured_answer():
     assert game_post("/api/opponent", game_id)[0] == 400  # now it is the human's turn
 
 
+def test_ai_opponent_plays_with_its_own_model_without_thinking():
+    FakeOllama.reset()
+    game_post("/api/opponent", new_game(), opponent_model="a")
+    sent = FakeOllama.requests[-1]
+    assert sent["model"] == "a" and sent["think"] is False
+
+
 def test_ai_opponent_falls_back_when_the_model_fails():
     status, body = game_post("/api/opponent", new_game(), model="missing")
     assert status == 200 and body["opponentAction"] == {"action": "call", "source": "fallback"}
@@ -204,6 +220,30 @@ def test_hand_can_be_finished_and_the_next_one_dealt():
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path
+
+
+def test_banque_rejects_unknown_theme_and_level():
+    assert post("/api/banque", json.dumps({"theme": "ghost", "niveau": "avance"}).encode())[0] == 400
+    assert post("/api/banque", json.dumps({"theme": "tirage", "niveau": "ghost"}).encode())[0] == 400
+
+
+def test_banque_falls_back_after_three_refused_answers_and_lists_newest_first():
+    FakeOllama.reset()
+    status, [body] = post("/api/banque", json.dumps({"theme": "tirage", "niveau": "avance"}).encode())
+
+    assert status == 201
+    sit = body["situation"]
+    assert sit["source"] == "repli" and sit["tentatives"] == 3 and len(sit["erreurs"]) == 3
+    assert len(FakeOllama.requests) == 3  # the fake answers {"action": "call"}: refused each time
+    _, listing = get("/api/banque")
+    assert listing["situations"][0]["id"] == sit["id"]
+
+
+def test_banque_falls_back_when_ollama_is_unreachable():
+    status, [body] = post("/api/banque", json.dumps({"theme": "ouverture", "niveau": "debutant"}).encode(),
+                          url="http://127.0.0.1:1")
+
+    assert status == 201 and body["situation"]["source"] == "repli" and body["situation"]["tentatives"] == 1
 
 
 if __name__ == "__main__":

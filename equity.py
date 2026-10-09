@@ -101,7 +101,7 @@ def evaluate7(cards: list[Card]) -> tuple[int, ...]:
     if trips:
         return (4, trips[0], *singles[:2])
     if len(pairs) >= 2:
-        return (3, pairs[0], pairs[1], max(singles + pairs[2:]))
+        return (3, pairs[0], pairs[1], max(singles + pairs[2:], default=0))
     if pairs:
         return (2, pairs[0], *singles[:3])
     return (1, *singles[:5])

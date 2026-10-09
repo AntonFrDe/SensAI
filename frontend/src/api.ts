@@ -29,6 +29,51 @@ export async function postGame(path: string, body: object): Promise<GameResponse
   return result;
 }
 
+export type Theme = 'ouverture' | 'tirage';
+export type Niveau = 'debutant' | 'intermediaire' | 'avance';
+/** One training situation from the bank (same shape as the JSON contract in docs/PLAN_GENERATION.md). */
+export type Situation = {
+  id: string;
+  theme: Theme;
+  niveau: Niveau;
+  position: string;
+  cartes: string[];
+  board: string[];
+  pot: number;
+  a_payer: number;
+  historique: string;
+  actions: PokerAction[];
+  reference: { bonnes: PokerAction[]; acceptables: PokerAction[]; faits: string[] };
+  source: 'llm' | 'repli';
+  tentatives: number;
+  erreurs: string[][];
+  cree_le: string;
+};
+
+const suits = { s: 'spades', h: 'hearts', d: 'diamonds', c: 'clubs' } as const;
+
+/** Converts a card code such as "Kd" or "Th" (T = 10) into card data for PlayingCard. */
+export function toCard(code: string): CardData {
+  const rank = code[0] === 'T' ? '10' : code[0];
+  return { rank: rank as CardData['rank'], suit: suits[code[1] as keyof typeof suits] };
+}
+
+export async function fetchBanque(): Promise<Situation[]> {
+  const response = await fetch('/api/banque');
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'Banque indisponible.');
+  return result.situations;
+}
+
+export async function genererSituation(theme: Theme, niveau: Niveau): Promise<Situation> {
+  const response = await fetch('/api/banque', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ theme, niveau }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'Banque indisponible.');
+  return result.situation;
+}
+
 /** Streams the coach's advice: calls onToken for each piece of text, throws on a server or model error. */
 export async function streamCoach(gameId: string, onToken: (text: string) => void, signal: AbortSignal) {
   const response = await fetch('/api/coach', {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Banque from './Banque';
 import CoachPanel from './CoachPanel';
 import PokerTable from './PokerTable';
 import { postGame, type Award, type GameResponse, type OpponentAction } from './api';
@@ -18,7 +19,7 @@ function describeAward({ amount, winners, reason }: Award): string {
 }
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'game'>('home');
+  const [view, setView] = useState<'home' | 'game' | 'banque'>('home');
   const [game, setGame] = useState<GameResponse | null>(null);
   const [version, setVersion] = useState(0);  // remounts the coach: its advice is about one table state
   const [busy, setBusy] = useState<'' | 'player' | 'opponent'>('');
@@ -56,12 +57,13 @@ export default function App() {
     <main>
       <h1>SensAI Poker</h1>
       {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
-      {view === 'home' || !game || !state ? <section aria-label="Accueil">
+      {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <section aria-label="Accueil">
         <h2>Entraînez-vous au Texas Hold’em</h2>
         <p>Affrontez une IA et apprenez à comprendre vos décisions.</p>
         <button type="button" disabled={busy !== ''} onClick={() => void send('/api/games', {}, 'player')}>
           {busy ? 'Distribution…' : 'Jouer'}
         </button>
+        <button type="button" onClick={() => setView('banque')}>Banque de situations</button>
       </section> : <section aria-label="Partie">
         <h2>Table de poker</h2>
         <div className="game-layout">

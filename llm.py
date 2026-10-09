@@ -31,6 +31,10 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
         payload["keep_alive"] = cfg["keep_alive"]
     if "format" in cfg:  # a JSON schema the answer must follow (Ollama structured output)
         payload["format"] = cfg["format"]
+    if "temperature" in cfg:  # 0 = always the same answer, higher = more variety
+        payload["options"]["temperature"] = cfg["temperature"]
+    if "think" in cfg:  # False = a thinking model (qwen3) answers at once, without reasoning first
+        payload["think"] = cfg["think"]
     if cfg.get("tools"):  # functions the model may call (Ollama tool calling)
         payload["tools"] = cfg["tools"]
     try:
@@ -59,6 +63,11 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
         raise LLMError("Ollama took too long to answer.") from None
     except requests.RequestException as e:
         raise LLMError(f"Connection to Ollama lost: {e}") from None
+
+
+def complete(messages: list[dict], cfg: dict) -> str:
+    """The whole answer, without streaming."""
+    return "".join(data for kind, data in stream_chat(messages, cfg) if kind == "token")
 
 
 def list_models(cfg: dict) -> list[dict]:

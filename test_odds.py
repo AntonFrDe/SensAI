@@ -30,6 +30,10 @@ def test_card_that_only_pairs_the_board_is_not_an_out():
     assert paired and all(card in groups["Couleur"] for card in paired)  # seuls les cœurs comptent
 
 
+def test_outs_on_a_two_pair_turn_board_does_not_crash():
+    assert isinstance(odds.outs(cards("Ah 5h"), cards("Kh Kd 7c 7s")), dict)
+
+
 def test_overpair_does_not_improve_when_the_board_pairs():
     assert count(odds.outs(cards("As Ad"), cards("Kc 7d 2s"))) == {"Brelan": 2}
 

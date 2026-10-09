@@ -22,6 +22,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from uuid import uuid4
 
 import ai
+import generation
 import poker_ai
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
 from poker_api import AI, HUMAN, apply_action, next_hand, player_controls, public_game_state
@@ -34,6 +35,7 @@ ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
 GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand")
+BANQUE_ROUTE = "/api/banque"
 
 
 class UnknownGame(Exception):
@@ -99,11 +101,14 @@ class Handler(BaseHTTPRequestHandler):
             except LLMError as e:
                 return self._send_json(502, {"error": str(e)})
             self._send_json(200, {"default": self.cfg["model"], "models": models})
+        elif self.path == BANQUE_ROUTE:
+            situations = generation.lire_banque(self.cfg)
+            self._send_json(200, {"situations": list(reversed(situations))})
         else:
             self._send_json(404, {"error": "Not found."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/api/chat", "/api/compare", "/api/coach", *GAME_ROUTES):
+        if self.path not in ("/api/chat", "/api/compare", "/api/coach", BANQUE_ROUTE, *GAME_ROUTES):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -115,6 +120,8 @@ class Handler(BaseHTTPRequestHandler):
             raw = self.rfile.read(length)
             if self.path in GAME_ROUTES:
                 return self._send_json(*self._game_route(parse_json(raw)))
+            if self.path == BANQUE_ROUTE:
+                return self._send_json(*self._banque_route(parse_json(raw)))
             if self.path == "/api/coach":
                 jobs = [self._coach_job(parse_json(raw))]
             elif self.path == "/api/chat":
@@ -170,6 +177,15 @@ class Handler(BaseHTTPRequestHandler):
                 next_hand(game)
             return 200, {"gameId": game_id, "state": public_game_state(game)}
 
+    def _banque_route(self, body: dict) -> tuple[int, dict]:
+        """One generated situation, one model call at a time (RAM guard)."""
+        if body.get("theme") not in generation.THEMES:
+            return 400, {"error": "Thème inconnu."}
+        if body.get("niveau") not in generation.NIVEAUX:
+            return 400, {"error": "Niveau inconnu."}
+        with self.slots:
+            return 201, {"situation": generation.generer(body["theme"], body["niveau"], self.cfg)}
+
     def _opponent_turn(self, body: dict) -> tuple[int, dict]:
         """One decision of the AI opponent. The model runs outside games_lock, so other games keep playing."""
         with self.games_lock:
@@ -182,7 +198,10 @@ class Handler(BaseHTTPRequestHandler):
         try:
             system, prompt, schema = poker_ai.opponent_request(seen, controls)
             try:
-                reply = self._complete({**self.cfg, "system_prompt": system, "format": schema}, prompt)
+                # a small model plays, the main one keeps the analysis (coach, generation)
+                model = self.cfg.get("opponent_model", self.cfg["model"])
+                cfg = {**self.cfg, "model": model, "think": False, "system_prompt": system, "format": schema}
+                reply = self._complete(cfg, prompt)
             except LLMError as e:  # the hand goes on with the fallback rule
                 print(f"AI opponent: {e}", file=sys.stderr)
                 reply = None
