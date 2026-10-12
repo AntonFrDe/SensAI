@@ -119,6 +119,25 @@ def test_preflop_rating_from_the_table():
     assert seven_deuce["note"] == 1 and seven_deuce["top"] > 0.9
 
 
+def test_class_combos_counts_and_rejects_bad_names():
+    assert len(eq.class_combos("QQ")) == 6 and len(eq.class_combos("AKs")) == 4 and len(eq.class_combos("AKo")) == 12
+    assert all(eq.hand_class(hand) == "AKs" for hand in eq.class_combos("AKs"))
+    for bad in ("AK", "AAs", "KAs", "XYo", "AKx"):
+        try:
+            eq.class_combos(bad)
+        except ValueError:
+            continue
+        raise AssertionError(f"{bad!r} aurait dû être refusée")
+
+
+def test_versus_matches_known_preflop_matchups():
+    kings = eq.versus("KK", "QQ", 20_000, random.Random(42))
+    flip = eq.versus("AKs", "88", 20_000, random.Random(42))
+
+    assert abs(kings.equity - 0.82) < 0.015
+    assert abs(flip.equity - 0.48) < 0.015  # « coin flip » : la paire est légèrement favorite
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

@@ -9,6 +9,7 @@ Prérequis : Ollama tourne (`ollama serve`) avec le modèle installé
             (`ollama pull qwen3:4b-instruct-2507-q4_K_M`).
 """
 import json
+import random
 import re
 import sys
 import urllib.error
@@ -18,6 +19,7 @@ from pathlib import Path
 import equity
 import glossary
 import odds
+import preflop
 
 MODEL = "qwen3:4b-instruct-2507-q4_K_M"
 OLLAMA = "http://localhost:11434/api/chat"
@@ -126,12 +128,86 @@ def situation_context(question: str) -> str:
         return f"Les cartes de la question ne forment pas une situation valide : {error}"
 
 
+# Mains de départ : « K9s », « 72o », « QQ », « 88 » ; en toutes lettres : « Roi-9 assortis », « paire de Dames ».
+HAND_CLASS = re.compile(r"(?<![\w-])([2-9TJQKA])([2-9TJQKA])([so]?)(?![\w-])")
+RANK_WORDS = {"as": "A", "roi": "K", "dame": "Q", "valet": "J", "dix": "T", "10": "T"}
+RANK_WORD = r"(as|rois?|dames?|valets?|dix|10|[2-9])"
+NAMED_HAND = re.compile(RANK_WORD + r"\s*-\s*" + RANK_WORD + r"\s+(assortie?s?|d[ée]pareill[ée]e?s?)", re.I)
+NAMED_PAIR = re.compile(r"paire\s+(?:d'|d’|de\s+)" + RANK_WORD + r"(?!\w)", re.I)
+POSITIONS = {"UTG": "UTG", "MP": "MP (hijack)", "CO": "CO (cut-off)", "BTN": "BTN (bouton)", "SB": "SB (petite blinde)"}
+
+
+def _rank(word: str) -> str:
+    word = word.lower()
+    return RANK_WORDS.get(word.rstrip("s") if word != "as" else word, word.upper())
+
+
+def hands_in(question: str) -> list[str]:
+    """Les mains de départ citées dans la question, dans l'ordre, au format de preflop.py (« AKs », « QQ »).
+
+    Deux cartes exactes sans board (« Ah Kh ») comptent aussi : c'est le préflop vu par le coach de la table.
+    Une main sans s/o (« AK ») est ignorée : on ne sait pas si elle est assortie.
+    """
+    found = []
+    for match in sorted([*HAND_CLASS.finditer(question), *NAMED_HAND.finditer(question),
+                         *NAMED_PAIR.finditer(question)], key=lambda m: m.start()):
+        if match.re is HAND_CLASS:
+            high, low, kind = match.groups()
+            if (high == low) != (kind == ""):
+                continue
+        elif match.re is NAMED_HAND:
+            high, low, kind = _rank(match[1]), _rank(match[2]), "s" if match[3].lower().startswith("a") else "o"
+            kind = "" if high == low else kind
+        else:
+            high = low = _rank(match[1])
+            kind = ""
+        found.append(preflop.normalize_hand(high + low + kind))
+    cards = CARD.findall(question)
+    if not found and len(cards) == 2:
+        found.append(preflop.normalize_hand("".join(cards).replace("10", "T")))
+    return list(dict.fromkeys(found))
+
+
+def preflop_context(question: str) -> str:
+    """Range d'ouverture et équité avant le flop de chaque main de départ citée ; face-à-face si deux mains."""
+    try:
+        hands = hands_in(question)
+    except ValueError:
+        return ""
+    if not hands:
+        return ""
+    lines = ["Avant le flop (6-max, 100bb), valeurs calculées : fais-leur confiance, ne les recalcule pas."]
+    for hand in hands:
+        by_action = {"raise": [], "mixed": [], "fold": []}
+        for position, action in preflop.hand_range(hand).items():
+            by_action["mixed" if isinstance(action, tuple) else action].append(POSITIONS[position])
+        opening = "; ".join(f"{label} depuis {', '.join(by_action[key])}" for key, label in (
+            ("raise", "ouvrir"), ("mixed", "ouvrir ou se coucher (main limite)"), ("fold", "se coucher"),
+        ) if by_action[key])
+        rating = equity.preflop_rating(equity.class_combos(hand)[0])
+        lines.append(
+            f"- {hand}, premier à parler (personne n'a ouvert avant) : {opening}. La grosse blinde n'ouvre pas. "
+            f"Équité contre une main au hasard : {equity.pct(rating['equity'])} "
+            f"(meilleure que {equity.pct(1 - rating['top'])} des mains de départ)."
+        )
+    if len(hands) == 2:
+        first, second = hands
+        result = equity.versus(first, second, equity.TABLE_SAMPLES, random.Random(equity.TABLE_SEED))
+        lines.append(
+            f"- {first} contre {second} : {first} {equity.pct(result.equity)}, {second} "
+            f"{equity.pct(1 - result.equity)} (égalités partagées, ±{equity.pct(result.margin)})."
+        )
+    return "\n".join(lines)
+
+
 def find_context(question: str) -> str:
     """Cherche dans data/ ce qui aide à répondre, et le renvoie en texte pour le modèle.
 
-    Le classement des combinaisons et le glossaire, puis les calculs de la main si la question en décrit une.
+    Le classement des combinaisons et le glossaire, les ranges et l'équité avant le flop des mains de départ
+    citées, puis les calculs de la main si la question en décrit une.
     """
-    parts = (hand_rankings_context(), glossary_context(question), situation_context(question))
+    parts = (hand_rankings_context(), glossary_context(question), preflop_context(question),
+             situation_context(question))
     return "\n\n".join(part for part in parts if part)
 
 
