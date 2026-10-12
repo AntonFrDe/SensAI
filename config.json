@@ -3,5 +3,29 @@
   "ollama_url": "http://localhost:11434",
   "num_ctx": 8192,
   "system_prompt_file": "prompts/system.txt",
-  "max_parallel_models": 1
+  "opponent_model": "qwen3:1.7b",
+  "banque_file": "data/situations_generees.jsonl",
+  "max_parallel_models": 1,
+  "mcp_servers": {
+    "poker": {
+      "command": [
+        "python3",
+        "mcp_server.py"
+      ]
+    },
+    "fichiers": {
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "notes"
+      ],
+      "tools": [
+        "list_directory",
+        "read_text_file",
+        "write_file"
+      ],
+      "hint": "Dossier des notes de jeu de l'utilisateur (bilans de sessions, erreurs à corriger). Chemins relatifs à ce dossier : « . » pour le lister, « sessions.md » pour un fichier."
+    }
+  }
 }

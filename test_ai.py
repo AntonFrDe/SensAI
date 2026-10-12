@@ -67,6 +67,31 @@ def test_answers_use_temperature_zero_by_default():
         assert ai.TEMPERATURE == 0 and sent["options"] == {"temperature": 0}
 
 
+def test_preflop_hands_are_read_in_notation_and_in_words():
+        assert ai.hands_in("Faut-il ouvrir 7-2 dépareillés (72o) depuis UTG ?") == ["72o"]
+        assert ai.hands_in("As-Roi assortis contre une paire de 8") == ["AKs", "88"]
+        assert ai.hands_in("paire de Rois contre paire de Dames") == ["KK", "QQ"]
+        assert ai.hands_in("Mes cartes : Ah Kh.") == ["AKs"]
+        assert ai.hands_in("J'ai Ah Kh, le flop est Qh 7h 2c") == []
+        assert ai.hands_in("As-tu une idée ? J'ai AK.") == []
+
+
+def test_preflop_context_gives_the_opening_range_and_the_equity():
+        context = ai.preflop_context("Depuis quelles positions ouvre-t-on Roi-9 assortis (K9s) ?")
+
+        assert "ouvrir depuis MP (hijack), CO (cut-off), BTN (bouton), SB (petite blinde)" in context
+        assert "se coucher depuis UTG" in context
+        assert "85,1 %" in ai.preflop_context("Équité d'une paire d'As ?")
+        assert ai.preflop_context("Que veut dire UTG ?") == ""
+
+
+def test_two_preflop_hands_get_their_head_to_head_equity():
+        prompt = ai.build_prompt("Paire de Rois contre paire de Dames : quelles chances ?")
+
+        assert "KK contre QQ : KK 81,9 %, QQ 18,1 %" in prompt
+        assert prompt.index("KK contre QQ") < prompt.index("quelles chances")
+
+
 if __name__ == "__main__":
         for name, test in list(globals().items()):
                 if name.startswith("test_"):

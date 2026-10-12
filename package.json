@@ -1,0 +1,22 @@
+{
+  "name": "sensai-2",
+  "version": "1.0.0",
+  "description": "Assistant IA local, tournant sur Ollama. Projet Epitech Tech3. Piste actuelle : un coach de poker (Texas Hold'em).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EpitechPGE3-2026/G-AIA-500-TLS-5-1-sensai-2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EpitechPGE3-2026/G-AIA-500-TLS-5-1-sensai-2/issues"
+  },
+  "homepage": "https://github.com/EpitechPGE3-2026/G-AIA-500-TLS-5-1-sensai-2#readme"
+}

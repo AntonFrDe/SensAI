@@ -19,7 +19,8 @@ def load_config(path: Path = ROOT / "config.json") -> dict:
 
 
 def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]:
-    """Yield ("thinking" | "token", text) as the model produces them, then ("done", stats)."""
+    """Yield ("thinking" | "token", text) as the model produces them, ("tool_calls", calls) when it asks for
+    tools instead of answering, then ("done", stats)."""
     payload = {
         "model": cfg["model"],
         "stream": True,
@@ -28,6 +29,14 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
     }
     if "keep_alive" in cfg:  # 0 = unload the model from RAM as soon as it has answered
         payload["keep_alive"] = cfg["keep_alive"]
+    if "format" in cfg:  # a JSON schema the answer must follow (Ollama structured output)
+        payload["format"] = cfg["format"]
+    if "temperature" in cfg:  # 0 = always the same answer, higher = more variety
+        payload["options"]["temperature"] = cfg["temperature"]
+    if "think" in cfg:  # False = a thinking model (qwen3) answers at once, without reasoning first
+        payload["think"] = cfg["think"]
+    if cfg.get("tools"):  # functions the model may call (Ollama tool calling)
+        payload["tools"] = cfg["tools"]
     try:
         with requests.post(f"{cfg['ollama_url']}/api/chat", json=payload, stream=True, timeout=(5, 300)) as r:
             if r.status_code >= 400:
@@ -43,6 +52,8 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
                     yield "thinking", msg["thinking"]
                 if msg.get("content"):
                     yield "token", msg["content"]
+                if msg.get("tool_calls"):
+                    yield "tool_calls", msg["tool_calls"]
                 if chunk.get("done"):
                     n, ns = chunk.get("eval_count", 0), chunk.get("eval_duration", 0)
                     yield "done", {"tokens": n, "tok_s": round(n / ns * 1e9, 1) if ns else None}
@@ -52,6 +63,11 @@ def stream_chat(messages: list[dict], cfg: dict) -> Iterator[tuple[str, object]]
         raise LLMError("Ollama took too long to answer.") from None
     except requests.RequestException as e:
         raise LLMError(f"Connection to Ollama lost: {e}") from None
+
+
+def complete(messages: list[dict], cfg: dict) -> str:
+    """The whole answer, without streaming."""
+    return "".join(data for kind, data in stream_chat(messages, cfg) if kind == "token")
 
 
 def list_models(cfg: dict) -> list[dict]:

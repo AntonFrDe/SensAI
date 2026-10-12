@@ -18,3 +18,35 @@ button:focus-visible { outline: 3px solid #fbbf24; outline-offset: 4px; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 .actions label { display: grid; gap: 6px; width: 100%; max-width: 260px; }
 .actions input { width: 100%; padding: 10px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; }
+.game-layout { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 900px) { main { max-width: 1200px; } .game-layout { grid-template-columns: minmax(0, 1fr) 320px; } }
+.ai-note { min-height: 1.5em; margin: 0; text-align: center; color: #bae6fd; }
+.coach { display: grid; gap: 12px; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
+.coach h3 { margin: 0; }
+.coach p { margin: 0; white-space: pre-wrap; line-height: 1.5; }
+.coach-error { color: #fca5a5; }
+.result { display: grid; gap: 8px; justify-items: center; margin-bottom: 24px; }
+.result p { margin: 0; font-weight: 700; }
+.banque-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 24px 0; }
+.banque-form label { display: grid; gap: 6px; }
+.banque-form select { min-width: 220px; padding: 10px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; color: #f1f5f9; background: #172330; }
+.situations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px; }
+.situation { display: grid; gap: 12px; align-content: start; min-width: 0; padding: 16px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
+.situation h3 { margin: 0; font-size: 1rem; }
+.situation ul { margin: 0; padding-left: 20px; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { padding: 2px 8px; border-radius: 999px; background: #243447; color: #e2e8f0; font-size: .8rem; }
+.badge.llm { background: #166534; color: #bbf7d0; }
+.badge.retry { background: #78350f; color: #fde68a; }
+.badge.repli { background: #374151; color: #e5e7eb; }
+.mini-table { display: grid; gap: 10px; padding: 12px; border: 6px solid #593b2c; border-radius: 48px; background: #14532d; }
+.mini-table .cards { flex-wrap: wrap; }
+.mini-table .playing-card { width: 44px; height: 62px; font-size: 1rem; }
+.mini-table .board { gap: 10px; }
+.mini-table .chip-info { font-size: .9rem; }
+.historique { margin: 0; line-height: 1.5; }
+.situation .verdicts { list-style: none; padding-left: 0; display: grid; gap: 4px; }
+.verdicts .bon { color: #bbf7d0; }
+.verdicts .acceptable { color: #fde68a; }
+.verdicts .erreur { color: #fca5a5; }
+.situation details { color: #cbd5e1; }
