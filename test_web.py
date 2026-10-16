@@ -307,6 +307,18 @@ def test_glossary_answers_404_for_an_unknown_term():
         raise AssertionError("unknown term accepted")
 
 
+def test_state_of_a_game_can_be_read_back_without_playing():
+    game_id = new_game()
+    game_post("/api/opponent", game_id)
+
+    status, body = game_post("/api/state", game_id)
+    again = game_post("/api/state", game_id)[1]
+
+    assert status == 200 and body["gameId"] == game_id and body["state"]["currentPlayer"] == "player"
+    assert again["state"] == body["state"]
+    assert game_post("/api/state", "nope")[0] == 404
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path
