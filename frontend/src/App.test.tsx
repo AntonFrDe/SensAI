@@ -19,12 +19,14 @@ function state(overrides: Partial<GameState>): GameState {
 }
 
 const bodies: unknown[] = [];
+const status = { ollama: true, models: { coach: { name: 'qwen', installed: true }, opponent: { name: 'qwen', installed: true } } };
 
 function fakeServer(routes: Record<string, (body: Record<string, unknown>) => object>) {
   const calls: string[] = [];
   bodies.length = 0;
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const path = String(input);
+    if (path === '/api/status') return Response.json(status);
     calls.push(path);
     bodies.push(JSON.parse(String(init?.body ?? '{}')));
     const reply = routes[path];
@@ -75,7 +77,7 @@ describe('App', () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
     render(<App />);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to fetch');
+    expect(await screen.findByText(/^Failed to fetch/, { selector: 'main > p' })).toHaveAttribute('role', 'alert');
   });
 
   it('names the winning hand at the showdown', async () => {
