@@ -9,7 +9,7 @@ export default function PlayingCard({ card, highlighted = false }: PlayingCardPr
   const red = card?.suit === 'hearts' || card?.suit === 'diamonds';
   const label = card ? `${card.rank} de ${names[card.suit]}${highlighted ? ', dans la meilleure main' : ''}` : 'Carte non distribuée';
   return (
-    <span className={`playing-card${red ? ' red' : ''}${highlighted ? ' best' : ''}`} role="img" aria-label={label}>
+    <span className={`playing-card${red ? ' red' : ''}${card ? ` suit-${card.suit}` : ''}${highlighted ? ' best' : ''}`} role="img" aria-label={label}>
       {card ? `${card.rank}${symbols[card.suit]}` : '?'}
     </span>
   );
