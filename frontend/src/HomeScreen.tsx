@@ -8,6 +8,7 @@ export type HomeScreenProps = {
   onPlay: (options: TableOptions) => void;
   onOpenBanque: () => void;
   onOpenGlossary?: () => void;
+  onOpenRankings?: () => void;
   savedGame?: GameResponse | null;
   onResume?: () => void;
 };
@@ -19,7 +20,7 @@ const maxDepth = 500;
 const formatter = new Intl.NumberFormat('fr-FR');
 
 export default function HomeScreen({
-  options, busy, onPlay, onOpenBanque, onOpenGlossary, savedGame, onResume,
+  options, busy, onPlay, onOpenBanque, onOpenGlossary, onOpenRankings, savedGame, onResume,
 }: HomeScreenProps) {
   const [blinds, setBlinds] = useState<BlindLevel>(options.blinds);
   const [depth, setDepth] = useState(String(options.stackBigBlinds));
@@ -74,6 +75,7 @@ export default function HomeScreen({
           <button type="submit" className="primary" disabled={busy || !validDepth}>{busy ? 'Distribution…' : 'Jouer'}</button>
           <button type="button" onClick={onOpenBanque}>Banque de situations</button>
           {onOpenGlossary && <button type="button" onClick={onOpenGlossary}>Glossaire</button>}
+          {onOpenRankings && <button type="button" onClick={onOpenRankings}>Classement des mains</button>}
         </div>
       </form>
       <ServerStatus />

@@ -162,3 +162,12 @@ export async function fetchGlossary(): Promise<GlossaryEntry[]> {
   if (!response.ok) throw new Error('Glossaire indisponible.');
   return result.entries;
 }
+
+export type HandRanking = { rank: number; name: string; description: string; cards: CardData[] };
+
+export async function fetchHandRankings(): Promise<HandRanking[]> {
+  const response = await fetch('/api/hand-rankings');
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error('Classement des mains indisponible.');
+  return result.rankings;
+}

@@ -218,6 +218,17 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .chart-table summary { cursor: pointer; color: #cbd5e1; font-size: .85rem; }
 .term { position: relative; display: inline; }
 .glossary { display: grid; gap: 16px; }
+.rankings { display: grid; gap: 16px; }
+.rankings h2, .rankings > p { margin: 0; }
+.rankings > button { justify-self: start; }
+.rankings-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.rankings-list li { display: grid; grid-template-columns: 2.5em minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 12px 16px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
+.ranking-number { color: #94a3b8; font-size: 1.4rem; font-weight: 800; text-align: center; }
+.ranking-text h3 { margin: 0 0 4px; font-size: 1rem; }
+.ranking-text p { margin: 0; color: #cbd5e1; font-size: .9rem; }
+.rankings-list .playing-card { width: 40px; height: 56px; font-size: .95rem; }
+.rankings-list .cards { gap: 6px; }
+@media (max-width: 600px) { .rankings-list li { grid-template-columns: 2em minmax(0, 1fr); } .rankings-list .cards { grid-column: 1 / -1; } }
 .glossary h2, .glossary p { margin: 0; }
 .glossary > button { justify-self: start; }
 .glossary-search { display: grid; gap: 6px; max-width: 420px; }
