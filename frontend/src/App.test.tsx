@@ -9,7 +9,7 @@ function state(overrides: Partial<GameState>): GameState {
     playerCards: [{ rank: 'A', suit: 'spades' }, { rank: '7', suit: 'hearts' }], opponentCards: [], communityCards: [],
     pot: 30, playerStack: 990, opponentStack: 980, currentPlayer: 'player', phase: 'pre_flop', currentBet: 20,
     controls: { allowedActions: ['fold', 'call', 'raise'], minAmount: 40, maxAmount: 1000 },
-    awards: [], history: [], gameOver: false, blinds: { small: 10, big: 20 },
+    awards: [], history: [], gameOver: false, blinds: { small: 10, big: 20 }, hands: { player: null, opponent: null },
     seats: {
       player: { name: 'Vous', stack: 990, bet: 10, folded: false, allIn: false, dealer: false, blind: 'small' },
       opponent: { name: 'IA', stack: 980, bet: 20, folded: false, allIn: false, dealer: true, blind: 'big' },

@@ -2,7 +2,7 @@ import type { PokerAction } from './ActionControls';
 import type { HistoryEntry } from './HandHistory';
 import type { GamePhase } from './HandInfo';
 import type { CardData } from './PlayingCard';
-import type { Blinds, Seats } from './PokerTable';
+import type { Blinds, Hands, Seats } from './PokerTable';
 
 export type Award = { amount: number; winners: string[]; reason: 'fold' | 'showdown' };
 export type GameState = {
@@ -20,6 +20,7 @@ export type GameState = {
   history: HistoryEntry[];
   seats: Seats;
   blinds: Blinds;
+  hands: Hands;
   gameOver: boolean;
 };
 export type OpponentAction = { action: PokerAction; amount?: number; source: 'llm' | 'fallback' };
