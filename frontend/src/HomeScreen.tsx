@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import type { BlindLevel, GameResponse, TableOptions } from './api';
+import PreferencesPanel from './PreferencesPanel';
+import type { Preferences } from './preferences';
 import ServerStatus from './ServerStatus';
 
 export type HomeScreenProps = {
@@ -11,6 +13,8 @@ export type HomeScreenProps = {
   onOpenRankings?: () => void;
   savedGame?: GameResponse | null;
   onResume?: () => void;
+  preferences?: Preferences;
+  onPreferencesChange?: (change: Partial<Preferences>) => void;
 };
 
 const blindLevels: BlindLevel[] = ['5/10', '10/20', '25/50'];
@@ -20,7 +24,7 @@ const maxDepth = 500;
 const formatter = new Intl.NumberFormat('fr-FR');
 
 export default function HomeScreen({
-  options, busy, onPlay, onOpenBanque, onOpenGlossary, onOpenRankings, savedGame, onResume,
+  options, busy, onPlay, onOpenBanque, onOpenGlossary, onOpenRankings, savedGame, onResume, preferences, onPreferencesChange,
 }: HomeScreenProps) {
   const [blinds, setBlinds] = useState<BlindLevel>(options.blinds);
   const [depth, setDepth] = useState(String(options.stackBigBlinds));
@@ -79,6 +83,7 @@ export default function HomeScreen({
         </div>
       </form>
       <ServerStatus />
+      {preferences && onPreferencesChange && <PreferencesPanel preferences={preferences} onChange={onPreferencesChange} />}
     </section>
   );
 }

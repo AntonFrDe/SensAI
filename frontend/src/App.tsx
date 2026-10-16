@@ -3,6 +3,7 @@ import Banque from './Banque';
 import CoachPanel from './CoachPanel';
 import PokerTable from './PokerTable';
 import SessionStats from './SessionStats';
+import { usePreferences } from './preferences';
 import { rememberGame, useSavedGame } from './savedGame';
 import { useSessionStats } from './sessionStats';
 import {
@@ -56,6 +57,7 @@ export default function App() {
   const playedHands = useHandLog(game);
   const [options, setOptions] = useState<TableOptions>(loadOptions);
   const [savedGame, forgetSavedGame] = useSavedGame();
+  const [preferences, setPreferences] = usePreferences();
 
   useEffect(() => {
     if (game) rememberGame(game.gameId);
@@ -112,7 +114,8 @@ export default function App() {
       {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'glossary' ? <GlossaryScreen onBack={() => setView('home')} />
         : view === 'rankings' ? <HandRankings onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
         onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')} onOpenRankings={() => setView('rankings')}
-        savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame} /> : <section aria-label="Partie">
+        savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame}
+        preferences={preferences} onPreferencesChange={setPreferences} /> : <section aria-label="Partie">
         <h2>Table de poker</h2>
         <div className="game-layout">
           <PokerTable {...state}

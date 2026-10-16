@@ -242,3 +242,23 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .glossary-list dd { margin: 4px 0 0; color: #cbd5e1; line-height: 1.5; }
 .term-button { padding: 0; border: 0; border-bottom: 1px dotted currentColor; border-radius: 0; background: none; color: inherit; font: inherit; cursor: help; }
 .term-popover { position: absolute; z-index: 10; top: calc(100% + 6px); left: 50%; width: min(280px, 80vw); padding: 10px 12px; border: 1px solid #334155; border-radius: 8px; background: #0f1a24; color: #e2e8f0; font-size: .85rem; font-weight: 400; line-height: 1.4; text-align: left; transform: translateX(-50%); box-shadow: 0 8px 24px rgba(0, 0, 0, .4); }
+.preferences { padding: 12px 16px; border: 1px solid #334155; border-radius: 12px; }
+.preferences summary { cursor: pointer; font-weight: 700; }
+.preferences-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+.preferences fieldset { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 10px; border: 1px solid #334155; border-radius: 10px; }
+[data-deck='four-colors'] .playing-card.suit-diamonds { color: #1d4ed8; }
+[data-deck='four-colors'] .playing-card.suit-clubs { color: #15803d; }
+[data-card-size='large'] .poker-table .playing-card { width: 80px; height: 112px; font-size: 1.9rem; }
+[data-motion='off'] *, [data-motion='off'] *::before, [data-motion='off'] *::after { animation: none !important; transition: none !important; }
+[data-theme='light'] { color: #0f172a; background: #f1f5f9; }
+[data-theme='light'] :is(.coach, .stats, .odds, .hand-log, .situation, .glossary-list div, .rankings-list li, .game-summary, .choice, .stats-scope button, .suggestion) { border-color: #cbd5e1; background: #fff; color: #0f172a; }
+[data-theme='light'] :is(.server-status, .preferences, .table-options fieldset, .preferences fieldset) { border-color: #cbd5e1; }
+[data-theme='light'] :is(.coach-message, .hand-replay, .chart-tooltip, .term-popover, code) { border-color: #cbd5e1; background: #e2e8f0; color: #0f172a; }
+[data-theme='light'] .coach-message.user { background: #dbeafe; }
+[data-theme='light'] :is(input, select) { border-color: #94a3b8; background: #fff; color: #0f172a; }
+[data-theme='light'] :is(.stat dt, .hint, .hand-number, .replay-count, .summary-figures dt, .coach-message .speaker, .ranking-number, .glossary-list dd, .ranking-text p) { color: #475569; }
+[data-theme='light'] :is(.link-button) { color: #1d4ed8; }
+[data-theme='light'] .hand-log-list li.selected { background: #e2e8f0; }
+[data-theme='light'] .chart-grid { stroke: #e2e8f0; }
+[data-theme='light'] .chart-end { fill: #0f172a; }
+[data-theme='light'] .chart-dot { stroke: #fff; }
