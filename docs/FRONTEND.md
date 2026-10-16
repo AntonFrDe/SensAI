@@ -58,6 +58,7 @@ JSON en camelCase.
 | `POST /api/next-hand` `{gameId}` | Main suivante, une fois la main finie |
 | `POST /api/odds` `{gameId}` | Cote du pot, équité contre une main au hasard (`equity.py`), outs (`odds.py`) |
 | `POST /api/coach` `{gameId, messages?}` | Conseil en streaming NDJSON ; `messages` = suite de la conversation |
+| `POST /api/notes` `{hands, won, net, remark?}` | Ajoute une ligne de bilan à `notes/sessions.md`, que le coach CLI lit par le serveur MCP de fichiers |
 | `GET /api/status` | Ollama joignable, modèles du coach et de l'adversaire installés ou non |
 | `GET /api/glossary`, `GET /api/glossary?term=` | Glossaire complet ou définition d'un terme |
 | `GET /api/hand-rankings` | Les dix combinaisons, avec un exemple en cartes |
@@ -161,6 +162,7 @@ par un test Vitest, un test Playwright ou un essai dans le navigateur.
 2. En tant que joueur, je veux suivre mes résultats, afin de savoir si je progresse.
    - « Statistiques » compte les mains, gagnées, perdues, partagées, les abattages, le bilan et les séries.
    - « Depuis toujours » survit à la fermeture du navigateur ; sa remise à zéro demande une confirmation.
+   - « Ajouter à mes notes » écrit une ligne datée dans `notes/sessions.md`, avec ce que je retiens.
    - La courbe du tapis et le bilan de fin de partie montrent l'évolution main après main.
 
 **Accueil et confort**
