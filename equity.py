@@ -101,7 +101,7 @@ def evaluate7(cards: list[Card]) -> tuple[int, ...]:
     if trips:
         return (4, trips[0], *singles[:2])
     if len(pairs) >= 2:
-        return (3, pairs[0], pairs[1], max(singles + pairs[2:]))
+        return (3, pairs[0], pairs[1], max(singles + pairs[2:], default=0))
     if pairs:
         return (2, pairs[0], *singles[:3])
     return (1, *singles[:5])
@@ -205,6 +205,40 @@ def hand_class(hero: list[Card]) -> str:
     (high, high_suit), (low, low_suit) = sorted(hero, reverse=True)
     name = RANKS[high - 2] + RANKS[low - 2]
     return name if high == low else name + ("s" if high_suit == low_suit else "o")
+
+
+def class_combos(name: str) -> list[list[Card]]:
+    """Les mains d'une classe de départ : « QQ » en a 6, « AKs » 4, « AKo » 12. Lève ValueError si illisible."""
+    if len(name) not in (2, 3) or name[0] not in RANKS or name[1] not in RANKS:
+        raise ValueError(f"Main de départ illisible : {name!r} (exemples : AKs, 72o, QQ)")
+    high, low, kind = RANKS.index(name[0]) + 2, RANKS.index(name[1]) + 2, name[2:]
+    if high < low or (high == low) != (kind == "") or kind not in ("", "s", "o"):
+        raise ValueError(f"Main de départ illisible : {name!r} (exemples : AKs, 72o, QQ)")
+    if high == low:
+        return [[(high, a), (high, b)] for a, b in combinations(range(4), 2)]
+    return [[(high, a), (low, b)] for a in range(4) for b in range(4) if (a == b) == (kind == "s")]
+
+
+def versus(first: str, second: str, samples: int = SAMPLES, rng: random.Random | None = None) -> Equity:
+    """Équité avant le flop d'une classe de départ contre une autre (« AKs » contre « 88 »).
+
+    Les couleurs sont tirées au hasard parmi les combinaisons compatibles, puis le board : Monte Carlo.
+    """
+    deals = [(a, b) for a in class_combos(first) for b in class_combos(second) if not set(a) & set(b)]
+    if not deals:
+        raise ValueError(f"{first} et {second} ne peuvent pas être distribuées ensemble.")
+    if samples < 1:
+        raise ValueError("Il faut au moins 1 tirage.")
+    rng = rng or random.Random()
+    wins = ties = 0
+    for _ in range(samples):
+        hero, villain = rng.choice(deals)
+        board = rng.sample([card for card in DECK if card not in hero and card not in villain], 5)
+        mine, theirs = evaluate7(hero + board), evaluate7(villain + board)
+        wins += mine > theirs
+        ties += mine == theirs
+    return Equity(wins / samples, ties / samples, (samples - wins - ties) / samples,
+                  (wins + ties / 2) / samples, samples, False)
 
 
 def build_table(samples: int = TABLE_SAMPLES) -> dict:
