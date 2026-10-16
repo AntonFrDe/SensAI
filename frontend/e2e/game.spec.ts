@@ -19,6 +19,11 @@ test('plays a hand against the opponent and keeps it in the history', async ({ p
   await expect(page.getByRole('region', { name: 'Statistiques' })).toContainText('Mains jouées1');
   await expect(page.getByRole('region', { name: 'Mains précédentes' }).getByRole('listitem')).toHaveCount(1);
 
+  const stats = page.getByRole('region', { name: 'Statistiques' });
+  await stats.getByRole('textbox', { name: 'Ce que je retiens (facultatif)' }).fill('Je me couche trop vite.');
+  await stats.getByRole('button', { name: 'Ajouter à mes notes' }).click();
+  await expect(stats.getByRole('status')).toContainText(/partie web, 1 main, 0 gagnée, bilan -\d+ jetons\. Je me couche trop vite\./);
+
   await page.getByRole('button', { name: 'Main suivante' }).click();
   await expect(page.getByText('Phase : Préflop')).toBeVisible();
 });

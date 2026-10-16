@@ -330,7 +330,8 @@ def test_session_note_is_one_clean_line():
     line = server.session_note({"hands": 12, "won": 7, "net": -140, "remark": "  trop de\n call  "}, date(2026, 10, 16))
 
     assert line == "- 2026-10-16 : partie web, 12 mains, 7 gagnées, bilan -140 jetons. trop de call"
-    assert server.session_note({"hands": 3, "won": 0, "net": 50}, date(2026, 10, 16)).endswith("bilan +50 jetons.")
+    assert server.session_note({"hands": 1, "won": 0, "net": 50}, date(2026, 10, 16)).endswith(
+        "partie web, 1 main, 0 gagnée, bilan +50 jetons.")
 
 
 def test_session_notes_are_appended_to_the_notes_file():

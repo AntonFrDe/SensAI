@@ -85,7 +85,9 @@ def session_note(body: dict, today: date) -> str:
     if not isinstance(remark, str) or len(remark) > MAX_NOTE:
         raise ValueError(f"The remark must be text of at most {MAX_NOTE} characters.")
     hands, won, net = counts
-    line = f"- {today.isoformat()} : partie web, {hands} mains, {won} gagnées, bilan {net:+d} jetons."
+    plural = {"mains": "s" if hands > 1 else "", "gagnées": "s" if won > 1 else ""}
+    line = (f"- {today.isoformat()} : partie web, {hands} main{plural['mains']}, {won} gagnée{plural['gagnées']}, "
+            f"bilan {net:+d} jetons.")
     remark = " ".join(remark.split())
     return f"{line} {remark}" if remark else line
 
