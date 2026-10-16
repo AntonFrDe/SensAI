@@ -9,6 +9,8 @@ import { useSessionStats } from './sessionStats';
 import {
   defaultTableOptions, postGame, type Award, type GameResponse, type GameState, type OpponentAction, type TableOptions,
 } from './api';
+import GameRecords from './GameRecords';
+import { useGameRecords } from './gameRecords';
 import GameSummary from './GameSummary';
 import GlossaryScreen from './GlossaryScreen';
 import GuidedTour, { tourDoneKey } from './GuidedTour';
@@ -47,7 +49,7 @@ function describeAward({ amount, winners, reason }: Award, hands?: GameState['ha
 }
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'game' | 'banque' | 'glossary' | 'rankings'>('home');
+  const [view, setView] = useState<'home' | 'game' | 'banque' | 'glossary' | 'rankings' | 'records'>('home');
   const [game, setGame] = useState<GameResponse | null>(null);
   const [version, setVersion] = useState(0);  // remounts the coach: its advice is about one table state
   const [busy, setBusy] = useState<'' | 'player' | 'opponent'>('');
@@ -56,6 +58,7 @@ export default function App() {
   const inFlight = useRef(false);
   const stats = useSessionStats(game);
   const playedHands = useHandLog(game);
+  const [records, clearRecords] = useGameRecords(game);
   const [options, setOptions] = useState<TableOptions>(loadOptions);
   const [savedGame, forgetSavedGame] = useSavedGame();
   const [preferences, setPreferences] = usePreferences();
@@ -120,8 +123,9 @@ export default function App() {
       <h1>SensAI Poker</h1>
       {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
       {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'glossary' ? <GlossaryScreen onBack={() => setView('home')} />
-        : view === 'rankings' ? <HandRankings onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
-        onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')} onOpenRankings={() => setView('rankings')}
+        : view === 'rankings' ? <HandRankings onBack={() => setView('home')} />
+        : view === 'records' ? <GameRecords records={records} onClear={clearRecords} onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
+        onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')} onOpenRankings={() => setView('rankings')} onOpenRecords={() => setView('records')}
         savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame}
         preferences={preferences} onPreferencesChange={setPreferences} /> : <section aria-label="Partie">
         <h2>Table de poker</h2>

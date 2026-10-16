@@ -228,6 +228,17 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .term { position: relative; display: inline; }
 .glossary { display: grid; gap: 16px; }
 .rankings { display: grid; gap: 16px; }
+.game-records { display: grid; gap: 16px; }
+.game-records h2, .game-records p { margin: 0; }
+.game-records > button { justify-self: start; }
+.game-records table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.game-records th, .game-records td { padding: 8px 10px; border-bottom: 1px solid #334155; text-align: left; }
+.game-records th { color: #94a3b8; font-size: .85rem; font-weight: 600; }
+.game-records td.up { color: #86efac; }
+.game-records td.down { color: #fca5a5; }
+[data-theme='light'] .game-records :is(th, td) { border-color: #cbd5e1; }
+[data-theme='light'] .game-records td.up { color: #15803d; }
+[data-theme='light'] .game-records td.down { color: #b91c1c; }
 .rankings h2, .rankings > p { margin: 0; }
 .rankings > button { justify-self: start; }
 .rankings-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
