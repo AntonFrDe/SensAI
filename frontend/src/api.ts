@@ -172,3 +172,12 @@ export async function fetchHandRankings(): Promise<HandRanking[]> {
   if (!response.ok) throw new Error('Classement des mains indisponible.');
   return result.rankings;
 }
+
+export async function saveSessionNote(hands: number, won: number, net: number, remark: string): Promise<string> {
+  const response = await fetch('/api/notes', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hands, won, net, remark }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'Impossible d’écrire dans les notes.');
+  return result.line;
+}

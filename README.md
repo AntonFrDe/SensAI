@@ -76,7 +76,7 @@ L'interface (détails, routes et user stories dans `docs/FRONTEND.md`) :
 - **Actions** : seules les actions légales sont actives ; montants rapides (½ pot, ¾ pot, pot, tapis), curseur,
   raccourcis clavier F, C, R, T.
 - **Coach** en chat (questions de suite, arrêt), **Repères** chiffrés par le code (cote du pot, équité, outs),
-  **Statistiques** de la partie et depuis toujours.
+  **Statistiques** de la partie et depuis toujours, bilan ajoutable à `notes/sessions.md` (lu par le coach CLI).
 - **Mains précédentes** : revoir une main étape par étape, courbe du tapis, export texte ou JSON, bilan de fin
   de partie. Pages **Glossaire** et **Classement des mains**.
 

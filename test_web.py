@@ -5,6 +5,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+from datetime import date
 from pathlib import Path
 
 import ai
@@ -323,6 +324,28 @@ def test_hand_rankings_are_served_from_the_strongest():
     status, body = get("/api/hand-rankings")
 
     assert status == 200 and len(body["rankings"]) == 10 and body["rankings"][-1]["name"] == "Carte haute"
+
+
+def test_session_note_is_one_clean_line():
+    line = server.session_note({"hands": 12, "won": 7, "net": -140, "remark": "  trop de\n call  "}, date(2026, 10, 16))
+
+    assert line == "- 2026-10-16 : partie web, 12 mains, 7 gagnées, bilan -140 jetons. trop de call"
+    assert server.session_note({"hands": 1, "won": 0, "net": 50}, date(2026, 10, 16)).endswith(
+        "partie web, 1 main, 0 gagnée, bilan +50 jetons.")
+
+
+def test_session_notes_are_appended_to_the_notes_file():
+    notes = Path(tempfile.mkdtemp()) / "sessions.md"
+    notes.write_text("# Notes de jeu\n\n- 2026-10-06 : ancienne note.\n", encoding="utf-8")
+    body = {"hands": 4, "won": 3, "net": 90, "remark": "Je relance mieux."}
+
+    status, [reply] = post("/api/notes", json.dumps(body).encode(), notes_file=str(notes))
+
+    assert status == 201 and reply["line"].endswith("bilan +90 jetons. Je relance mieux.")
+    assert notes.read_text(encoding="utf-8").splitlines()[-2:] == ["- 2026-10-06 : ancienne note.", reply["line"]]
+    for bad in ({"hands": 2, "won": 3, "net": 0}, {"hands": "4", "won": 1, "net": 0}, {**body, "remark": "x" * 201}):
+        assert post("/api/notes", json.dumps(bad).encode(), notes_file=str(notes))[0] == 400
+    assert len(notes.read_text(encoding="utf-8").splitlines()) == 4
 
 
 def test_unknown_games_are_404():

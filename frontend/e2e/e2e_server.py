@@ -15,8 +15,9 @@ from llm import load_config
 def main() -> None:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8791
     ollama = f"http://127.0.0.1:{start(FakeOllama)}"
-    bank = str(Path(tempfile.mkdtemp()) / "banque.jsonl")
-    server.Handler.cfg = {**load_config(), "model": "ok", "opponent_model": "ok", "ollama_url": ollama, "banque_file": bank}
+    scratch = Path(tempfile.mkdtemp())
+    files = {"banque_file": str(scratch / "banque.jsonl"), "notes_file": str(scratch / "sessions.md")}
+    server.Handler.cfg = {**load_config(), "model": "ok", "opponent_model": "ok", "ollama_url": ollama, **files}
     server.Handler.slots = threading.BoundedSemaphore(1)
     server.Handler.log_message = lambda *args: None
     ThreadingHTTPServer(("127.0.0.1", port), server.Handler).serve_forever()
