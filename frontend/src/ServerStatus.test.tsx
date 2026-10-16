@@ -1,0 +1,45 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import ServerStatus from './ServerStatus';
+
+describe('ServerStatus', () => {
+  it('lists the installed and missing models with the command to install them', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({
+      ollama: true,
+      models: { coach: { name: 'qwen2.5:3b', installed: true }, opponent: { name: 'qwen3:1.7b', installed: false } },
+    }));
+    render(<ServerStatus />);
+    expect(await screen.findByText(/Coach :/)).toHaveTextContent('Coach : qwen2.5:3b installé');
+    expect(screen.getByText(/Adversaire IA :/)).toHaveTextContent('absent, l’IA jouera avec sa règle de secours');
+    await userEvent.click(screen.getByRole('button', { name: 'Copier « ollama pull qwen3:1.7b »' }));
+    expect(writeText).toHaveBeenCalledWith('ollama pull qwen3:1.7b');
+    expect(screen.getByRole('button', { name: 'Commande copiée' })).toBeInTheDocument();
+  });
+
+  it('explains what still works when ollama is down', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({
+      ollama: false, error: 'Cannot reach Ollama.',
+      models: { coach: { name: 'a', installed: false }, opponent: { name: 'a', installed: false } },
+    }));
+    render(<ServerStatus />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/la partie reste jouable.*ollama serve/);
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
+  it('reports a missing backend and checks again on demand', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(Response.json({
+        ollama: true, models: { coach: { name: 'a', installed: true }, opponent: { name: 'a', installed: true } },
+      }));
+    render(<ServerStatus />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Failed to fetch.*python3 server\.py/);
+    await userEvent.click(screen.getByRole('button', { name: 'Revérifier' }));
+    expect(await screen.findAllByText(/installé/)).toHaveLength(2);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+});

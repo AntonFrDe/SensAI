@@ -54,6 +54,18 @@ def clean_messages(messages: object) -> list[dict]:
     return [{"role": m["role"], "content": m["content"]} for m in messages]
 
 
+def model_status(cfg: dict) -> dict:
+    """Whether Ollama answers and whether the coach and opponent models are installed."""
+    names = {"coach": cfg["model"], "opponent": cfg.get("opponent_model", cfg["model"])}
+    try:
+        installed = {m["name"] for m in list_models(cfg)}
+        status = {"ollama": True}
+    except LLMError as e:
+        installed, status = set(), {"ollama": False, "error": str(e)}
+    status["models"] = {role: {"name": name, "installed": name in installed} for role, name in names.items()}
+    return status
+
+
 def parse_json(raw: bytes) -> dict:
     try:
         body = json.loads(raw)
@@ -101,6 +113,8 @@ class Handler(BaseHTTPRequestHandler):
             except LLMError as e:
                 return self._send_json(502, {"error": str(e)})
             self._send_json(200, {"default": self.cfg["model"], "models": models})
+        elif self.path == "/api/status":
+            self._send_json(200, model_status(self.cfg))
         elif self.path == BANQUE_ROUTE:
             situations = generation.lire_banque(self.cfg)
             self._send_json(200, {"situations": list(reversed(situations))})

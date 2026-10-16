@@ -129,3 +129,13 @@ export async function fetchOdds(gameId: string): Promise<OddsSummary> {
   if (!response.ok) throw new Error(result.error || 'Calcul des repères impossible.');
   return result.odds;
 }
+
+export type ModelStatus = { name: string; installed: boolean };
+export type ServerStatusData = { ollama: boolean; error?: string; models: { coach: ModelStatus; opponent: ModelStatus } };
+
+export async function fetchStatus(): Promise<ServerStatusData> {
+  const response = await fetch('/api/status');
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'Serveur SensAI injoignable.');
+  return result;
+}

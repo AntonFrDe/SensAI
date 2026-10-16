@@ -127,6 +127,16 @@ kbd { padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; font
 .hint { color: #94a3b8; font-size: .9rem; }
 .home-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .primary { background: #fbbf24; color: #101820; font-weight: 700; }
+.server-status { display: grid; gap: 8px; padding: 16px; border: 1px solid #334155; border-radius: 12px; font-size: .9rem; }
+.server-status h3, .server-status p { margin: 0; }
+.model-lines { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.model-lines li { display: grid; grid-template-columns: 1.4em minmax(0, 1fr); align-items: start; gap: 2px 8px; overflow-wrap: anywhere; }
+.model-lines li button { grid-column: 2; justify-self: start; text-align: left; }
+.model-lines li > span:first-child { display: inline-grid; place-items: center; width: 1.4em; height: 1.4em; border-radius: 50%; font-weight: 800; font-size: .8rem; }
+.model-lines .ok > span:first-child { background: #14532d; color: #bbf7d0; }
+.model-lines .missing > span:first-child { background: #78350f; color: #fde68a; }
+.status-error { color: #fca5a5; }
+code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85em; }
 .hand-log { display: grid; gap: 12px; margin: 24px 0; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
 .hand-log h3, .hand-log p { margin: 0; }
 .hand-log-list { display: grid; gap: 4px; max-height: 260px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }

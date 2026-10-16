@@ -272,6 +272,22 @@ def test_odds_are_computed_on_the_humans_turn():
     assert status == 200 and 0 <= body["odds"]["equity"]["share"] <= 1 and body["odds"]["pot"] > 0
 
 
+def test_status_tells_which_models_are_installed():
+    server.Handler.cfg = {"model": "ok", "opponent_model": "absent", "ollama_url": OLLAMA}
+    status, body = get("/api/status")
+
+    assert status == 200 and body["ollama"] is True
+    assert body["models"] == {"coach": {"name": "ok", "installed": True}, "opponent": {"name": "absent", "installed": False}}
+
+
+def test_status_reports_an_unreachable_ollama():
+    server.Handler.cfg = {"model": "ok", "ollama_url": "http://127.0.0.1:9"}
+    status, body = get("/api/status")
+
+    assert status == 200 and body["ollama"] is False and "Cannot reach Ollama" in body["error"]
+    assert body["models"]["opponent"] == {"name": "ok", "installed": False}
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path

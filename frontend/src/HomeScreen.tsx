@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import type { BlindLevel, TableOptions } from './api';
+import ServerStatus from './ServerStatus';
 
 export type HomeScreenProps = {
   options: TableOptions;
@@ -64,6 +65,7 @@ export default function HomeScreen({ options, busy, onPlay, onOpenBanque }: Home
           <button type="button" onClick={onOpenBanque}>Banque de situations</button>
         </div>
       </form>
+      <ServerStatus />
     </section>
   );
 }
