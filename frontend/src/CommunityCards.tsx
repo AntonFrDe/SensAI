@@ -12,7 +12,7 @@ export default function CommunityCards({ cards, highlighted = [] }: CommunityCar
         <div className="street" key={name} role="group" aria-label={name}>
           <div className="cards">{slots.map(slot => {
             const card = cards[slot];
-            return <PlayingCard key={slot} card={card} highlighted={card !== undefined && highlighted.some(best => sameCard(best, card))} />;
+            return <PlayingCard key={card ? `${card.rank}${card.suit}` : `slot-${slot}`} card={card} highlighted={card !== undefined && highlighted.some(best => sameCard(best, card))} />;
           })}</div>
           <small>{name}</small>
         </div>

@@ -148,3 +148,25 @@ kbd { padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; font
 .replay-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
 .replay-controls button { padding: 8px 14px; }
 .replay-count { min-width: 8em; text-align: center; color: #94a3b8; font-variant-numeric: tabular-nums; }
+@keyframes deal { from { opacity: 0; transform: translateY(-10px) rotate(-4deg); } to { opacity: 1; transform: none; } }
+.board .playing-card, .seat-box .playing-card { animation: deal .25s ease-out; }
+.playing-card { transition: transform .15s ease-out, box-shadow .15s ease-out; }
+.actions button, .home-actions button { min-height: 44px; }
+@media (max-width: 600px) {
+  main { padding: 12px; }
+  h1 { font-size: 1.5rem; }
+  .poker-table { gap: 16px; padding: 20px 8px; border-width: 8px; border-radius: 40px; }
+  .playing-card { width: 46px; height: 66px; font-size: 1.1rem; }
+  .board { gap: 8px; }
+  .cards { gap: 6px; }
+  .seat-box { padding: 8px; }
+  .actions button { flex: 1 1 30%; padding: 10px 8px; }
+  .action kbd { display: none; }
+  .hand-log-list li { grid-template-columns: 2.5em 1fr auto auto; }
+  .hand-made { display: none; }
+  .replay-table { padding: 10px 4px; border-width: 4px; border-radius: 24px; }
+  .table-options fieldset { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
