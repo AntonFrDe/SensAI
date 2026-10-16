@@ -34,6 +34,7 @@ dans des modules `camelCase.ts` testés à part. Tous les appels HTTP sont dans 
 | Écran ou zone | Composants | Logique |
 |---|---|---|
 | Accueil | `HomeScreen` (blindes, tapis de départ, reprise de partie), `ServerStatus`, `PreferencesPanel` | `savedGame.ts`, `preferences.ts` |
+| Visite guidée | `GuidedTour` (première partie, puis bouton « Visite guidée ») | — |
 | Table | `PokerTable`, `Seat`, `PlayingCard`, `CommunityCards`, `HandInfo`, `HandBadge`, `OpponentNote`, `Term` | — |
 | Actions | `ActionControls` (boutons, montant, curseur, montants rapides, raccourcis) | `betSizing.ts`, `shortcuts.ts` |
 | Colonne de droite | `CoachPanel` (chat), `OddsPanel` (repères), `SessionStats` | `sessionStats.ts` |
@@ -176,5 +177,8 @@ par un test Vitest, un test Playwright ou un essai dans le navigateur.
 3. En tant que joueur dont Ollama n'est pas prêt, je veux savoir ce qui manque, afin de le réparer seul.
    - L'accueil dit si Ollama répond et si les modèles du coach et de l'adversaire sont installés.
    - La commande `ollama pull` exacte se copie en un clic.
-4. En tant que joueur qui voit mal certaines couleurs, je veux adapter l'affichage, afin de lire les cartes.
+4. En tant que tout nouveau joueur, je veux une visite de la table, afin de savoir où regarder.
+   - À la première partie, quatre étapes encadrent tour à tour mes cartes, les actions, le coach et les mains.
+   - « Passer la visite » ou Échap la ferme pour de bon ; « Visite guidée » la relance.
+5. En tant que joueur qui voit mal certaines couleurs, je veux adapter l'affichage, afin de lire les cartes.
    - Jeu à quatre couleurs, grandes cartes, thème clair et animations coupées, retenus d'une visite à l'autre.
