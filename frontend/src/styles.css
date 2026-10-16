@@ -95,3 +95,19 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .verdicts .acceptable { color: #fde68a; }
 .verdicts .erreur { color: #fca5a5; }
 .situation details { color: #cbd5e1; }
+.home { display: grid; gap: 16px; max-width: 640px; }
+.home h2, .home p { margin: 0; }
+.table-options { display: grid; gap: 16px; }
+.table-options fieldset { display: grid; gap: 10px; margin: 0; padding: 16px; border: 1px solid #334155; border-radius: 12px; }
+.table-options legend { padding: 0 6px; font-weight: 700; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid #334155; border-radius: 8px; background: #172330; color: #e2e8f0; cursor: pointer; }
+.choice small { color: #94a3b8; }
+.choice:has(input:checked), .choice[aria-pressed='true'] { border-color: #fbbf24; color: #fde68a; }
+.choice input { accent-color: #fbbf24; }
+.depth-input { display: grid; gap: 6px; max-width: 260px; font-size: .9rem; }
+.depth-input input { padding: 10px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; color: #f1f5f9; background: #0f1a24; }
+.depth-input input[aria-invalid='true'] { border-color: #f87171; }
+.hint { color: #94a3b8; font-size: .9rem; }
+.home-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.primary { background: #fbbf24; color: #101820; font-weight: 700; }
