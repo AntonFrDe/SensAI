@@ -11,6 +11,13 @@ const verbs = {
 
 const formatter = new Intl.NumberFormat('fr-FR');
 
+const shortLabels = { fold: 'Couché', check: 'Check', call: 'Suit', bet: 'Mise', raise: 'Relance à' };
+
+export function shortAction(entry: HistoryEntry): string {
+  const label = shortLabels[entry.action];
+  return entry.amount === undefined ? label : `${label} ${formatter.format(entry.amount)}`;
+}
+
 export function describeEntry(entry: HistoryEntry): string {
   const sentence = entry.player === 'Vous' ? `Vous ${verbs.you[entry.action]}` : `L’IA ${verbs.ai[entry.action]}`;
   return entry.amount === undefined ? sentence : `${sentence} ${formatter.format(entry.amount)} jetons`;
