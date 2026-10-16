@@ -14,7 +14,7 @@ export type GameState = {
   currentPlayer: 'player' | 'opponent';
   phase: GamePhase;
   currentBet: number;
-  controls: { allowedActions: PokerAction[]; minAmount?: number; maxAmount?: number };
+  controls: { allowedActions: PokerAction[]; minAmount?: number; maxAmount?: number; toCall?: number };
   awards: Award[];
   history: HistoryEntry[];
   gameOver: boolean;
