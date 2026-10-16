@@ -117,5 +117,20 @@ describe('App', () => {
     await waitFor(() => expect(localStorage.getItem('sensai-game-id')).toBeNull());
     expect(screen.queryByRole('button', { name: 'Reprendre la partie' })).not.toBeInTheDocument();
   });
+
+  it('offers the guided tour on the first game only', async () => {
+    fakeServer({ '/api/games': () => ({ gameId: 'g3', state: state({}) }) });
+    const { unmount } = render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
+    expect(await screen.findByRole('dialog', { name: 'Vos cartes et le board' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Passer la visite' }));
+    unmount();
+    render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
+    await screen.findByText(/à vous de jouer/);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Visite guidée' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
 });
 
