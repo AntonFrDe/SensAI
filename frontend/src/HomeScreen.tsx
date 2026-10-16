@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { BlindLevel, TableOptions } from './api';
+import type { BlindLevel, GameResponse, TableOptions } from './api';
 import ServerStatus from './ServerStatus';
 
 export type HomeScreenProps = {
@@ -8,6 +8,8 @@ export type HomeScreenProps = {
   onPlay: (options: TableOptions) => void;
   onOpenBanque: () => void;
   onOpenGlossary?: () => void;
+  savedGame?: GameResponse | null;
+  onResume?: () => void;
 };
 
 const blindLevels: BlindLevel[] = ['5/10', '10/20', '25/50'];
@@ -16,7 +18,9 @@ const minDepth = 20;
 const maxDepth = 500;
 const formatter = new Intl.NumberFormat('fr-FR');
 
-export default function HomeScreen({ options, busy, onPlay, onOpenBanque, onOpenGlossary }: HomeScreenProps) {
+export default function HomeScreen({
+  options, busy, onPlay, onOpenBanque, onOpenGlossary, savedGame, onResume,
+}: HomeScreenProps) {
   const [blinds, setBlinds] = useState<BlindLevel>(options.blinds);
   const [depth, setDepth] = useState(String(options.stackBigBlinds));
   const value = Number(depth);
@@ -32,6 +36,11 @@ export default function HomeScreen({ options, busy, onPlay, onOpenBanque, onOpen
     <section className="home" aria-label="Accueil">
       <h2>Entraînez-vous au Texas Hold’em</h2>
       <p>Affrontez une IA et apprenez à comprendre vos décisions.</p>
+      {savedGame && onResume && <div className="resume" role="group" aria-label="Partie en cours">
+        <p>Une partie est en cours : votre tapis est de {formatter.format(savedGame.state.seats.player.stack)} jetons,
+          celui de l’IA de {formatter.format(savedGame.state.seats.opponent.stack)}.</p>
+        <button type="button" className="primary" disabled={busy} onClick={onResume}>Reprendre la partie</button>
+      </div>}
       <form className="table-options" onSubmit={submit}>
         <fieldset>
           <legend>Blindes</legend>

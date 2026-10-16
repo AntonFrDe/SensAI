@@ -36,7 +36,7 @@ MAX_COACH_FOLLOW_UPS = 20
 ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
-GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand", "/api/odds")
+GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand", "/api/odds", "/api/state")
 BANQUE_ROUTE = "/api/banque"
 
 
@@ -202,6 +202,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._opponent_turn(body)
         with self.games_lock:
             game_id, game = self._game(body)
+            if self.path == "/api/state":
+                return 200, {"gameId": game_id, "state": public_game_state(game)}
             if self.path == "/api/odds":
                 return 200, {"gameId": game_id, "odds": odds_summary(game)}
             if self.path == "/api/actions":
