@@ -78,7 +78,7 @@ L'interface (détails, routes et user stories dans `docs/FRONTEND.md`) :
 - **Coach** en chat (questions de suite, arrêt), **Repères** chiffrés par le code (cote du pot, équité, outs),
   **Statistiques** de la partie et depuis toujours, bilan ajoutable à `notes/sessions.md` (lu par le coach CLI).
 - **Mains précédentes** : revoir une main étape par étape, courbe du tapis, export texte ou JSON, bilan de fin
-  de partie. Pages **Glossaire** et **Classement des mains**.
+  de partie. Pages **Mes parties**, **Glossaire** et **Classement des mains** ; visite guidée à la première partie.
 
 ## Question en ligne de commande
 
