@@ -151,3 +151,28 @@ par un test Vitest, un test Playwright ou un essai dans le navigateur.
    en calcul.
    - « Repères » affiche la somme à payer, la cote du pot, l'équité et les outs, calculés par le serveur.
    - Le verdict compare l'équité à la cote ; « À chaque décision » recalcule seul à chaque tour.
+
+**Suivi de la partie**
+
+1. En tant que joueur, je veux revoir une main finie étape par étape, afin de retrouver le moment où j'ai perdu.
+   - « Mains précédentes » liste chaque main avec mes cartes, ma combinaison et le gain ou la perte.
+   - « Revoir » montre le board street par street ; les cartes de l'IA n'apparaissent qu'à la fin.
+   - Les mains s'exportent en texte ou en JSON.
+2. En tant que joueur, je veux suivre mes résultats, afin de savoir si je progresse.
+   - « Statistiques » compte les mains, gagnées, perdues, partagées, les abattages, le bilan et les séries.
+   - « Depuis toujours » survit à la fermeture du navigateur ; sa remise à zéro demande une confirmation.
+   - La courbe du tapis et le bilan de fin de partie montrent l'évolution main après main.
+
+**Accueil et confort**
+
+1. En tant que joueur, je veux choisir la taille de la partie, afin de m'entraîner court ou profond.
+   - Blindes 5/10, 10/20 ou 25/50 ; tapis de 20 à 500 grosses blindes, refusé au-delà, par l'écran et le serveur.
+   - Les options choisies sont retenues pour la partie suivante.
+2. En tant que joueur qui a rechargé la page, je veux reprendre ma partie, afin de ne pas perdre mes jetons.
+   - « Reprendre la partie » rend les mêmes cartes et les mêmes tapis.
+   - Une partie que le serveur ne connaît plus est oubliée sans message d'erreur.
+3. En tant que joueur dont Ollama n'est pas prêt, je veux savoir ce qui manque, afin de le réparer seul.
+   - L'accueil dit si Ollama répond et si les modèles du coach et de l'adversaire sont installés.
+   - La commande `ollama pull` exacte se copie en un clic.
+4. En tant que joueur qui voit mal certaines couleurs, je veux adapter l'affichage, afin de lire les cartes.
+   - Jeu à quatre couleurs, grandes cartes, thème clair et animations coupées, retenus d'une visite à l'autre.
