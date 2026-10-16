@@ -254,6 +254,14 @@ def test_public_history_lists_the_actions_of_the_hand_by_street():
     assert game_post("/api/next-hand", game_id)[1]["state"]["history"] == []
 
 
+def test_new_game_takes_the_table_options():
+    status, [body] = post("/api/games", json.dumps({"options": {"blinds": "5/10", "stackBigBlinds": 100}}).encode())
+
+    assert status == 201 and body["state"]["blinds"] == {"small": 5, "big": 10}
+    status, [body] = post("/api/games", json.dumps({"options": {"blinds": "1/2"}}).encode())
+    assert status == 400 and body["error"] == "Unknown blind level."
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path

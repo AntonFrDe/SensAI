@@ -25,9 +25,8 @@ import ai
 import generation
 import poker_ai
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
-from poker_api import AI, HUMAN, apply_action, next_hand, player_controls, public_game_state
+from poker_api import AI, HUMAN, apply_action, create_game, next_hand, player_controls, public_game_state
 from poker_engine.game import Game
-from poker_engine.player import Player
 
 MAX_BODY = 1_000_000  # bytes
 MAX_COMPARED = 8      # models per comparison
@@ -160,8 +159,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _game_route(self, body: dict) -> tuple[int, dict]:
         if self.path == "/api/games":
-            game = Game([Player("Vous", 1000), Player("IA", 1000)])
-            game.start_hand()
+            game = create_game(body.get("options"))
             game_id = uuid4().hex
             with self.games_lock:
                 if len(self.games) >= 100:

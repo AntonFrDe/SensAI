@@ -4,9 +4,23 @@ import CoachPanel from './CoachPanel';
 import PokerTable from './PokerTable';
 import SessionStats from './SessionStats';
 import { useSessionStats } from './sessionStats';
-import { postGame, type Award, type GameResponse, type GameState, type OpponentAction } from './api';
+import {
+  defaultTableOptions, postGame, type Award, type GameResponse, type GameState, type OpponentAction, type TableOptions,
+} from './api';
+import HomeScreen from './HomeScreen';
 import { handLabels } from './HandBadge';
 import './styles.css';
+
+const optionsKey = 'sensai-table-options';
+
+function loadOptions(): TableOptions {
+  try {
+    const saved = JSON.parse(localStorage.getItem(optionsKey) ?? 'null');
+    return saved && typeof saved.stackBigBlinds === 'number' ? { ...defaultTableOptions, ...saved } : defaultTableOptions;
+  } catch {
+    return defaultTableOptions;
+  }
+}
 
 const verbs = { fold: 'se couche', check: 'checke', call: 'suit', bet: 'mise', raise: 'relance à' };
 
@@ -32,6 +46,13 @@ export default function App() {
   const [opponentMove, setOpponentMove] = useState('');
   const inFlight = useRef(false);
   const stats = useSessionStats(game);
+  const [options, setOptions] = useState<TableOptions>(loadOptions);
+
+  function startGame(chosen: TableOptions) {
+    setOptions(chosen);
+    localStorage.setItem(optionsKey, JSON.stringify(chosen));
+    void send('/api/games', { options: chosen }, 'player');
+  }
 
   async function send(path: string, body: object, by: 'player' | 'opponent') {
     if (inFlight.current) return;
@@ -63,14 +84,8 @@ export default function App() {
     <main>
       <h1>SensAI Poker</h1>
       {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
-      {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <section aria-label="Accueil">
-        <h2>Entraînez-vous au Texas Hold’em</h2>
-        <p>Affrontez une IA et apprenez à comprendre vos décisions.</p>
-        <button type="button" disabled={busy !== ''} onClick={() => void send('/api/games', {}, 'player')}>
-          {busy ? 'Distribution…' : 'Jouer'}
-        </button>
-        <button type="button" onClick={() => setView('banque')}>Banque de situations</button>
-      </section> : <section aria-label="Partie">
+      {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
+        onOpenBanque={() => setView('banque')} /> : <section aria-label="Partie">
         <h2>Table de poker</h2>
         <div className="game-layout">
           <PokerTable {...state}
@@ -90,7 +105,7 @@ export default function App() {
           {state.awards.map((award, index) => <p key={index}>{describeAward(award, state.hands)}</p>)}
           {state.gameOver && <p>Partie terminée : un joueur n’a plus de jetons.</p>}
           <button type="button" disabled={busy !== ''} onClick={() => state.gameOver
-            ? void send('/api/games', {}, 'player')
+            ? startGame(options)
             : void send('/api/next-hand', { gameId: game.gameId }, 'player')}>
             {state.gameOver ? 'Nouvelle partie' : 'Main suivante'}
           </button>

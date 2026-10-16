@@ -1,5 +1,5 @@
 """Public game state sent to the frontend, without Ollama. Run: python3 test_poker_api.py"""
-from poker_api import AI, HUMAN, apply_action, best_hand, next_hand, player_controls, public_game_state
+from poker_api import AI, HUMAN, apply_action, best_hand, create_game, next_hand, player_controls, public_game_state
 from poker_engine.card import Card, Suit
 from poker_engine.game import Game
 from poker_engine.player import Player
@@ -123,6 +123,31 @@ def test_opponent_hand_stays_hidden_until_the_showdown():
 
     assert game.state.phase.value == "flop" and len(hands["player"]["cards"]) == 5
     assert hands["opponent"] is None
+
+def test_default_game_keeps_the_classic_table():
+    state = public_game_state(create_game())
+
+    assert state["blinds"] == {"small": 10, "big": 20}
+    assert sum(seat["stack"] + seat["bet"] for seat in state["seats"].values()) == 2000
+
+
+def test_game_options_set_blinds_and_stack_depth():
+    game = create_game({"blinds": "25/50", "stackBigBlinds": 200})
+    state = public_game_state(game)
+
+    assert state["blinds"] == {"small": 25, "big": 50}
+    assert {seat["stack"] + seat["bet"] for seat in state["seats"].values()} == {10_000}
+
+
+def test_invalid_game_options_are_refused():
+    for options in ([], {"blinds": "1/2"}, {"stackBigBlinds": 19}, {"stackBigBlinds": 501}, {"stackBigBlinds": "100"},
+                    {"stackBigBlinds": True}):
+        try:
+            create_game(options)
+        except ValueError:
+            continue
+        raise AssertionError(f"accepted {options}")
+
 
 if __name__ == "__main__":
     for name, test in list(globals().items()):
