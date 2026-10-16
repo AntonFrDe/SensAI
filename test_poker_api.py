@@ -1,4 +1,3 @@
-"""Public game state sent to the frontend, without Ollama. Run: python3 test_poker_api.py"""
 import random
 
 from poker_api import (
@@ -144,9 +143,26 @@ def test_game_options_set_blinds_and_stack_depth():
     assert {seat["stack"] + seat["bet"] for seat in state["seats"].values()} == {10_000}
 
 
+def test_training_option_shows_the_opponent_cards_after_a_fold():
+    game = create_game({"revealAtEnd": True})
+    apply_action(game, to_act(game), "fold")
+
+    state = public_game_state(game)
+
+    assert len(state["opponentCards"]) == 2 and state["revealedForTraining"]
+    assert public_game_state(create_game())["revealedForTraining"] is False
+
+
+def test_folded_hands_stay_hidden_without_the_training_option():
+    game = create_game()
+    apply_action(game, to_act(game), "fold")
+
+    assert public_game_state(game)["opponentCards"] == []
+
+
 def test_invalid_game_options_are_refused():
     for options in ([], {"blinds": "1/2"}, {"stackBigBlinds": 19}, {"stackBigBlinds": 501}, {"stackBigBlinds": "100"},
-                    {"stackBigBlinds": True}):
+                    {"stackBigBlinds": True}, {"revealAtEnd": "yes"}):
         try:
             create_game(options)
         except ValueError:

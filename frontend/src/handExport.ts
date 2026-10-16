@@ -30,7 +30,9 @@ export function handToText(hand: PlayedHand): string {
   if (hand.opponentCards.length > 0) {
     const theirs = hand.opponentHand ? ` (${handLabels[hand.opponentHand.rank]})` : '';
     const yours = hand.playerHand ? ` ; vous : ${handLabels[hand.playerHand.rank]}` : '';
-    lines.push(`Abattage : l’IA montre ${cardsText(hand.opponentCards)}${theirs}${yours}`);
+    const byFold = hand.awards.some(award => award.reason === 'fold');
+    const intro = byFold ? 'Cartes de l’IA (dévoilées pour l’entraînement) :' : 'Abattage : l’IA montre';
+    lines.push(`${intro} ${cardsText(hand.opponentCards)}${theirs}${yours}`);
   }
   const result = hand.net > 0 ? `vous gagnez ${formatter.format(hand.net)} jetons`
     : hand.net < 0 ? `vous perdez ${formatter.format(-hand.net)} jetons` : 'ni gain ni perte';

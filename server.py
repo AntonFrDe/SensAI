@@ -59,7 +59,6 @@ def clean_messages(messages: object) -> list[dict]:
 
 
 def model_status(cfg: dict) -> dict:
-    """Whether Ollama answers and whether the coach and opponent models are installed."""
     names = {"coach": cfg["model"], "opponent": cfg.get("opponent_model", cfg["model"])}
     try:
         installed = {m["name"] for m in list_models(cfg)}
@@ -71,7 +70,6 @@ def model_status(cfg: dict) -> dict:
 
 
 def glossary_entries() -> list[dict]:
-    """Every glossary term with a definition, cross-references followed."""
     entries = ((entry, glossary.define(entry.term)) for entry in glossary.ENTRIES)
     return [{"term": entry.term, "aliases": list(entry.aliases), "definition": text} for entry, text in entries if text]
 

@@ -28,13 +28,14 @@ export default function HomeScreen({
 }: HomeScreenProps) {
   const [blinds, setBlinds] = useState<BlindLevel>(options.blinds);
   const [depth, setDepth] = useState(String(options.stackBigBlinds));
+  const [revealAtEnd, setRevealAtEnd] = useState(options.revealAtEnd ?? false);
   const value = Number(depth);
   const validDepth = Number.isSafeInteger(value) && value >= minDepth && value <= maxDepth;
   const bigBlind = Number(blinds.split('/')[1]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (validDepth && !busy) onPlay({ blinds, stackBigBlinds: value });
+    if (validDepth && !busy) onPlay({ blinds, stackBigBlinds: value, revealAtEnd });
   }
 
   return (
@@ -75,6 +76,10 @@ export default function HomeScreen({
             {validDepth ? `Chaque joueur commence avec ${formatter.format(value * bigBlind)} jetons.` : `Choisissez entre ${minDepth} et ${maxDepth} grosses blindes.`}
           </p>
         </fieldset>
+        <label className="training-toggle">
+          <input type="checkbox" checked={revealAtEnd} onChange={event => setRevealAtEnd(event.target.checked)} />
+          Montrer les cartes de l’IA à la fin de chaque main, même après un fold (entraînement)
+        </label>
         <div className="home-actions">
           <button type="submit" className="primary" disabled={busy || !validDepth}>{busy ? 'Distribution…' : 'Jouer'}</button>
           <button type="button" onClick={onOpenBanque}>Banque de situations</button>

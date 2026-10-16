@@ -11,7 +11,7 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('radio', { name: '10/20' })).toBeChecked();
     expect(screen.getByText(/^Chaque joueur commence avec 1\s000 jetons\.$/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    expect(onPlay).toHaveBeenCalledWith({ blinds: '10/20', stackBigBlinds: 50 });
+    expect(onPlay).toHaveBeenCalledWith({ blinds: '10/20', stackBigBlinds: 50, revealAtEnd: false });
   });
 
   it('plays with the chosen blinds and stack depth', async () => {
@@ -22,7 +22,7 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('button', { name: /^Profond/ })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText(/^Chaque joueur commence avec 5\s000 jetons\.$/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    expect(onPlay).toHaveBeenCalledWith({ blinds: '25/50', stackBigBlinds: 100 });
+    expect(onPlay).toHaveBeenCalledWith({ blinds: '25/50', stackBigBlinds: 100, revealAtEnd: false });
   });
 
   it('refuses a stack outside the allowed range', async () => {
@@ -43,4 +43,13 @@ describe('HomeScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Banque de situations' }));
     expect(onOpenBanque).toHaveBeenCalledOnce();
   });
+
+  it('turns on the training reveal of the opponent cards', async () => {
+    const onPlay = vi.fn();
+    render(<HomeScreen options={defaultTableOptions} busy={false} onPlay={onPlay} onOpenBanque={vi.fn()} />);
+    await userEvent.click(screen.getByRole('checkbox', { name: /Montrer les cartes de l’IA/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
+    expect(onPlay).toHaveBeenCalledWith({ blinds: '10/20', stackBigBlinds: 50, revealAtEnd: true });
+  });
 });
+

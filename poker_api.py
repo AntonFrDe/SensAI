@@ -15,11 +15,16 @@ from poker_engine.player import Player
 HUMAN, AI = 0, 1
 BLIND_LEVELS = {"5/10": (5, 10), "10/20": (10, 20), "25/50": (25, 50)}
 STACK_RANGE = (20, 500)
-DEFAULT_OPTIONS = {"blinds": "10/20", "stackBigBlinds": 50}
+DEFAULT_OPTIONS = {"blinds": "10/20", "stackBigBlinds": 50, "revealAtEnd": False}
+
+
+class TrainingGame(Game):
+    def __init__(self, players: list, small_blind: int, big_blind: int, reveal_at_end: bool = False):
+        super().__init__(players, small_blind=small_blind, big_blind=big_blind)
+        self.reveal_at_end = reveal_at_end
 
 
 def create_game(options: object = None) -> Game:
-    """A new heads-up game with the chosen blinds and starting stack in big blinds, or ValueError."""
     if options is None:
         options = {}
     if not isinstance(options, dict):
@@ -30,8 +35,12 @@ def create_game(options: object = None) -> Game:
         raise ValueError("Unknown blind level.")
     if type(depth) is not int or not STACK_RANGE[0] <= depth <= STACK_RANGE[1]:
         raise ValueError(f"Starting stack must be between {STACK_RANGE[0]} and {STACK_RANGE[1]} big blinds.")
+    reveal = options.get("revealAtEnd", DEFAULT_OPTIONS["revealAtEnd"])
+    if type(reveal) is not bool:
+        raise ValueError("revealAtEnd must be true or false.")
     small, big = BLIND_LEVELS[level]
-    game = Game([Player("Vous", depth * big), Player("IA", depth * big)], small_blind=small, big_blind=big)
+    players = [Player("Vous", depth * big), Player("IA", depth * big)]
+    game = TrainingGame(players, small_blind=small, big_blind=big, reveal_at_end=reveal)
     game.start_hand()
     return game
 
@@ -118,7 +127,6 @@ def _example_card(text: str) -> dict:
 
 
 def hand_rankings() -> list[dict]:
-    """Hand categories from the strongest, each with its French name, description and example cards."""
     rows = json.loads(RANKINGS_FILE.read_text(encoding="utf-8"))
     return [
         {"rank": row["rang"], "name": row["fr"], "description": row["description"],
@@ -136,7 +144,6 @@ def _equity_cards(cards: list) -> list[eq.Card]:
 
 
 def odds_summary(game: Game, seat: int = HUMAN, rng: random.Random | None = None) -> dict:
-    """Pot odds, equity against one random hand and outs for the seat to act, all computed by the code."""
     if not player_controls(game, seat)["allowedActions"]:
         raise ValueError("Odds are available on your turn.")
     state = game.state
@@ -186,7 +193,9 @@ def _seat(game: Game, seat: int, roles: dict[str, str]) -> dict:
 def public_game_state(game: Game) -> dict:
     state = game.state
     player, opponent = state.players
-    revealed = state.phase is GamePhase.SHOWDOWN and not player.folded and not opponent.folded
+    shown_down = state.phase is GamePhase.SHOWDOWN and not player.folded and not opponent.folded
+    for_training = state.phase is GamePhase.SHOWDOWN and isinstance(game, TrainingGame) and game.reveal_at_end
+    revealed = shown_down or for_training
     roles = _blind_roles(state.hand_history)
     return {
         "playerCards": _cards(player.hand),
@@ -211,4 +220,5 @@ def public_game_state(game: Game) -> dict:
         "seats": {"player": _seat(game, HUMAN, roles), "opponent": _seat(game, AI, roles)},
         "blinds": {"small": game.small_blind, "big": game.big_blind},
         "gameOver": is_game_over(game),
+        "revealedForTraining": for_training and not shown_down,
     }
