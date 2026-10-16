@@ -18,11 +18,15 @@ function state(overrides: Partial<GameState>): GameState {
   };
 }
 
+const bodies: unknown[] = [];
+
 function fakeServer(routes: Record<string, (body: Record<string, unknown>) => object>) {
   const calls: string[] = [];
+  bodies.length = 0;
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const path = String(input);
     calls.push(path);
+    bodies.push(JSON.parse(String(init?.body ?? '{}')));
     const reply = routes[path];
     if (!reply) return Response.json({ error: 'Not found.' }, { status: 404 });
     return Response.json(reply(JSON.parse(String(init?.body ?? '{}'))));
@@ -53,6 +57,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByText('L’IA relance à 60.')).toBeInTheDocument();
     expect(calls).toEqual(['/api/games', '/api/opponent']);
+    expect(bodies[0]).toEqual({ options: { blinds: '10/20', stackBigBlinds: 50 } });
 
     await userEvent.click(screen.getByRole('button', { name: 'Fold' }));
     expect(await screen.findByText('L’IA remporte 80 jetons (adversaire couché).')).toBeInTheDocument();
