@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import type { GameState } from './api';
 
@@ -37,6 +37,8 @@ function fakeServer(routes: Record<string, (body: Record<string, unknown>) => ob
 }
 
 describe('App', () => {
+  beforeEach(() => localStorage.clear());
+
   it('lets the AI speak first, then plays the human action and deals the next hand', async () => {
     const calls = fakeServer({
       '/api/games': () => ({ gameId: 'g1', state: state({ currentPlayer: 'opponent', controls: { allowedActions: [] } }) }),
@@ -91,6 +93,29 @@ describe('App', () => {
     render(<App />);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByText('Vous remportez 200 jetons avec : couleur.')).toBeInTheDocument();
+  });
+
+  it('resumes the game saved before a reload', async () => {
+    localStorage.setItem('sensai-game-id', 'g9');
+    fakeServer({
+      '/api/state': body => ({ gameId: String(body.gameId), state: state({ playerStack: 1500 }) }),
+    });
+    render(<App />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Reprendre la partie' }));
+    expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();
+    expect(bodies[0]).toEqual({ gameId: 'g9' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Retour à l’accueil' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Reprendre la partie' }));
+    expect(screen.getByRole('region', { name: 'Partie' })).toBeInTheDocument();
+  });
+
+  it('forgets a saved game the server no longer knows', async () => {
+    localStorage.setItem('sensai-game-id', 'gone');
+    fakeServer({});
+    render(<App />);
+    await waitFor(() => expect(localStorage.getItem('sensai-game-id')).toBeNull());
+    expect(screen.queryByRole('button', { name: 'Reprendre la partie' })).not.toBeInTheDocument();
   });
 });
 
