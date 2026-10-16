@@ -139,3 +139,26 @@ export async function fetchStatus(): Promise<ServerStatusData> {
   if (!response.ok) throw new Error(result.error || 'Serveur SensAI injoignable.');
   return result;
 }
+
+export type GlossaryEntry = { term: string; aliases: string[]; definition: string };
+const definitions = new Map<string, Promise<GlossaryEntry>>();
+
+export function defineTerm(term: string): Promise<GlossaryEntry> {
+  const cached = definitions.get(term);
+  if (cached) return cached;
+  const request = fetch(`/api/glossary?term=${encodeURIComponent(term)}`).then(async response => {
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error === 'Unknown term.' ? 'Terme absent du glossaire.' : 'Glossaire indisponible.');
+    return { term: result.term, aliases: [], definition: result.definition };
+  });
+  definitions.set(term, request);
+  request.catch(() => definitions.delete(term));
+  return request;
+}
+
+export async function fetchGlossary(): Promise<GlossaryEntry[]> {
+  const response = await fetch('/api/glossary');
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error('Glossaire indisponible.');
+  return result.entries;
+}
