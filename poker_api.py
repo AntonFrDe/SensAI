@@ -1,6 +1,10 @@
 """Public poker state consumed by the frontend; the human occupies seat zero, the AI opponent seat one."""
+import random
 from itertools import combinations
 
+import equity as eq
+import odds
+from poker_engine.card import RANK_VALUES
 from poker_engine.game import Game
 from poker_engine.game_state import GamePhase
 from poker_engine.hand_evaluator import HandEvaluator
@@ -97,6 +101,42 @@ def best_hand(cards: list) -> dict | None:
     scored = ((HandEvaluator.evaluate(list(combo)), combo) for combo in combinations(cards, 5))
     result, five = max(scored, key=lambda pair: pair[0])
     return {"rank": result.rank.name.lower(), "cards": _cards(five)}
+
+
+ODDS_SAMPLES = 3000
+SUIT_INDEX = {"spades": 0, "hearts": 1, "diamonds": 2, "clubs": 3}
+
+
+def _equity_cards(cards: list) -> list[eq.Card]:
+    return [(RANK_VALUES[card.rank], SUIT_INDEX[card.suit.value]) for card in cards]
+
+
+def odds_summary(game: Game, seat: int = HUMAN, rng: random.Random | None = None) -> dict:
+    """Pot odds, equity against one random hand and outs for the seat to act, all computed by the code."""
+    if not player_controls(game, seat)["allowedActions"]:
+        raise ValueError("Odds are available on your turn.")
+    state = game.state
+    player = state.players[seat]
+    hero, board = _equity_cards(player.hand), _equity_cards(state.community_cards)
+    to_call = player_controls(game, seat)["toCall"]
+    result = eq.equity(hero, board, samples=ODDS_SAMPLES, rng=rng or random.Random())
+    summary = {
+        "pot": state.pot,
+        "toCall": to_call,
+        "potOdds": odds.pot_odds(state.pot, to_call) if to_call > 0 else None,
+        "equity": {"win": result.win, "tie": result.tie, "share": result.equity, "exact": result.exact},
+        "outs": None,
+    }
+    if len(board) in (3, 4):
+        groups = odds.outs(hero, board)
+        count = sum(len(cards) for cards in groups.values())
+        summary["outs"] = {
+            "count": count,
+            "byHand": {name: len(cards) for name, cards in groups.items()},
+            "nextCard": odds.hit_chance(count, len(board))["prochaine carte"],
+            "byRiver": odds.hit_chance(count, len(board)).get("d'ici la river"),
+        }
+    return summary
 
 
 def _blind_roles(events: list[dict]) -> dict[str, str]:

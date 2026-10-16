@@ -262,6 +262,16 @@ def test_new_game_takes_the_table_options():
     assert status == 400 and body["error"] == "Unknown blind level."
 
 
+def test_odds_are_computed_on_the_humans_turn():
+    game_id = new_game()
+    assert game_post("/api/odds", game_id)[0] == 400
+    game_post("/api/opponent", game_id)
+
+    status, body = game_post("/api/odds", game_id)
+
+    assert status == 200 and 0 <= body["odds"]["equity"]["share"] <= 1 and body["odds"]["pot"] > 0
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path

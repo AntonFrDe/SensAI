@@ -112,3 +112,20 @@ export async function streamCoach(
     }
   }
 }
+
+export type OddsSummary = {
+  pot: number;
+  toCall: number;
+  potOdds: number | null;
+  equity: { win: number; tie: number; share: number; exact: boolean };
+  outs: { count: number; byHand: Record<string, number>; nextCard: number; byRiver: number | null } | null;
+};
+
+export async function fetchOdds(gameId: string): Promise<OddsSummary> {
+  const response = await fetch('/api/odds', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'Calcul des repères impossible.');
+  return result.odds;
+}

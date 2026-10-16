@@ -47,6 +47,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .coach { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
 .coach h3 { margin: 0; }
 .side-panel { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.odds { display: grid; gap: 10px; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
+.odds h3, .odds p { margin: 0; }
+.odds-figures { display: grid; gap: 8px; font-size: .9rem; line-height: 1.4; }
+.odds-verdict { color: #fde68a; }
+.meter { position: relative; height: 12px; border-radius: 999px; background: #0f1a24; overflow: hidden; }
+.meter-fill { position: absolute; inset: 0 auto 0 0; background: #22c55e; }
+.meter-mark { position: absolute; top: 0; bottom: 0; width: 3px; background: #fbbf24; }
+.odds-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.auto-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #cbd5e1; }
+.auto-toggle input { accent-color: #fbbf24; }
 .stats { display: grid; gap: 12px; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
 .stats h3 { margin: 0; }
 .stats-scope { display: flex; gap: 6px; }
