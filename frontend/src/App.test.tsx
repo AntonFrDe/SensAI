@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -70,11 +70,14 @@ describe('App', () => {
     expect(stats).toHaveTextContent('Mains jouées1');
     expect(stats).toHaveTextContent('Bilan-10 jetons');
 
-    expect(JSON.parse(localStorage.getItem('sensai-games') ?? '[]')).toMatchObject([{ gameId: 'g1', hands: 1, won: 0 }]);
-
     await userEvent.click(screen.getByRole('button', { name: 'Main suivante' }));
     expect(calls.at(-1)).toBe('/api/next-hand');
     expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Retour à l’accueil' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Mes parties' }));
+    const row = within(screen.getByRole('table')).getAllByRole('row')[1];
+    expect(within(row).getAllByRole('cell').slice(1).map(cell => cell.textContent)).toEqual(['10/20', '1', '0', '-10', 'En cours']);
   });
 
   it('shows a readable error when the server is down', async () => {
