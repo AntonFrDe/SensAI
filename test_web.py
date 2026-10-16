@@ -319,6 +319,12 @@ def test_state_of_a_game_can_be_read_back_without_playing():
     assert game_post("/api/state", "nope")[0] == 404
 
 
+def test_hand_rankings_are_served_from_the_strongest():
+    status, body = get("/api/hand-rankings")
+
+    assert status == 200 and len(body["rankings"]) == 10 and body["rankings"][-1]["name"] == "Carte haute"
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path

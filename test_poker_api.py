@@ -2,7 +2,8 @@
 import random
 
 from poker_api import (
-    AI, HUMAN, apply_action, best_hand, create_game, next_hand, odds_summary, player_controls, public_game_state,
+    AI, HUMAN, apply_action, best_hand, create_game, hand_rankings, next_hand, odds_summary, player_controls,
+    public_game_state,
 )
 from poker_engine.card import Card, Suit
 from poker_engine.game import Game
@@ -190,6 +191,25 @@ def test_odds_are_refused_out_of_turn():
     except ValueError:
         return
     raise AssertionError("odds given out of turn")
+
+
+def test_hand_rankings_come_with_readable_example_cards():
+    rankings = hand_rankings()
+
+    assert [row["rank"] for row in rankings] == sorted(row["rank"] for row in rankings)
+    assert rankings[0]["name"] == "Quinte flush royale"
+    assert rankings[0]["cards"][0] == {"rank": "A", "suit": "spades"}
+    assert all(len(row["cards"]) == 5 for row in rankings)
+
+
+def test_each_example_is_the_hand_it_illustrates():
+    names = {"Quinte flush royale": "straight_flush", "Quinte flush": "straight_flush", "Carré": "four_of_a_kind",
+             "Full": "full_house", "Couleur": "flush", "Quinte": "straight", "Brelan": "three_of_a_kind",
+             "Double paire": "two_pair", "Paire": "one_pair", "Carte haute": "high_card", "Hauteur": "high_card"}
+    suits = {"spades": "s", "hearts": "h", "diamonds": "d", "clubs": "c"}
+    for row in hand_rankings():
+        codes = [card["rank"] + suits[card["suit"]] for card in row["cards"]]
+        assert best_hand(cards(*codes))["rank"] == names[row["name"]], row["name"]
 
 
 if __name__ == "__main__":

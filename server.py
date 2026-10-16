@@ -27,7 +27,9 @@ import generation
 import glossary
 import poker_ai
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
-from poker_api import AI, HUMAN, apply_action, create_game, next_hand, odds_summary, player_controls, public_game_state
+from poker_api import (
+    AI, HUMAN, apply_action, create_game, hand_rankings, next_hand, odds_summary, player_controls, public_game_state,
+)
 from poker_engine.game import Game
 
 MAX_BODY = 1_000_000  # bytes
@@ -123,6 +125,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"default": self.cfg["model"], "models": models})
         elif urlsplit(self.path).path == "/api/glossary":
             self._glossary(parse_qs(urlsplit(self.path).query).get("term", [None])[0])
+        elif self.path == "/api/hand-rankings":
+            self._send_json(200, {"rankings": hand_rankings()})
         elif self.path == "/api/status":
             self._send_json(200, model_status(self.cfg))
         elif self.path == BANQUE_ROUTE:

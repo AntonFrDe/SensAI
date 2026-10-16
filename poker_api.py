@@ -1,6 +1,8 @@
 """Public poker state consumed by the frontend; the human occupies seat zero, the AI opponent seat one."""
+import json
 import random
 from itertools import combinations
+from pathlib import Path
 
 import equity as eq
 import odds
@@ -101,6 +103,28 @@ def best_hand(cards: list) -> dict | None:
     scored = ((HandEvaluator.evaluate(list(combo)), combo) for combo in combinations(cards, 5))
     result, five = max(scored, key=lambda pair: pair[0])
     return {"rank": result.rank.name.lower(), "cards": _cards(five)}
+
+
+RANKINGS_FILE = Path(__file__).parent / "data" / "hand_rankings.json"
+EXAMPLE_RANKS = {"As": "A", "Roi": "K", "Dame": "Q", "Valet": "J"}
+EXAMPLE_SUITS = {"♠": "spades", "♥": "hearts", "♦": "diamonds", "♣": "clubs"}
+
+
+def _example_card(text: str) -> dict:
+    rank, suit = text[:-1], text[-1]
+    if suit not in EXAMPLE_SUITS or EXAMPLE_RANKS.get(rank, rank) not in RANK_VALUES:
+        raise ValueError(f"Unreadable example card: {text}")
+    return {"rank": EXAMPLE_RANKS.get(rank, rank), "suit": EXAMPLE_SUITS[suit]}
+
+
+def hand_rankings() -> list[dict]:
+    """Hand categories from the strongest, each with its French name, description and example cards."""
+    rows = json.loads(RANKINGS_FILE.read_text(encoding="utf-8"))
+    return [
+        {"rank": row["rang"], "name": row["fr"], "description": row["description"],
+         "cards": [_example_card(card) for card in row["exemple"].split()]}
+        for row in sorted(rows, key=lambda row: row["rang"])
+    ]
 
 
 ODDS_SAMPLES = 3000
