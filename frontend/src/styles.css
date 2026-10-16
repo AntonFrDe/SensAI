@@ -83,6 +83,10 @@ kbd { padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; font
 .stat dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
 .stat.net.up dd { color: #86efac; }
 .stat.net.down dd { color: #fca5a5; }
+.note-form { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid #334155; }
+.note-form label { display: grid; gap: 6px; font-size: .85rem; }
+.note-form input { padding: 8px 10px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; color: inherit; background: transparent; }
+.note-saved { margin: 0; color: #bbf7d0; font-size: .85rem; overflow-wrap: anywhere; }
 .coach p { margin: 0; white-space: pre-wrap; line-height: 1.5; }
 .coach-error { color: #fca5a5; }
 .coach-messages { display: grid; gap: 10px; max-height: 420px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }

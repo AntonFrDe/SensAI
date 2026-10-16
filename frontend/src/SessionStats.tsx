@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { saveSessionNote } from './api';
 import type { Stats } from './sessionStats';
 
 export type SessionStatsProps = { session: Stats; lifetime: Stats; onResetLifetime: () => void };
@@ -18,6 +19,10 @@ function streakText(streak: number): string {
 export default function SessionStats({ session, lifetime, onResetLifetime }: SessionStatsProps) {
   const [scope, setScope] = useState<'session' | 'lifetime'>('session');
   const [confirming, setConfirming] = useState(false);
+  const [remark, setRemark] = useState('');
+  const [saved, setSaved] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const [saving, setSaving] = useState(false);
   const stats = scope === 'session' ? session : lifetime;
   const rows: [string, string][] = [
     ['Mains jouées', formatter.format(stats.hands)],
@@ -37,6 +42,20 @@ export default function SessionStats({ session, lifetime, onResetLifetime }: Ses
     }
     onResetLifetime();
     setConfirming(false);
+  }
+
+  async function saveNote(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setSaveError('');
+    try {
+      setSaved(await saveSessionNote(session.hands, session.won, session.net, remark));
+      setRemark('');
+    } catch (cause) {
+      setSaveError(cause instanceof Error ? cause.message : 'Impossible d’écrire dans les notes.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -59,6 +78,14 @@ export default function SessionStats({ session, lifetime, onResetLifetime }: Ses
       {scope === 'lifetime' && <button type="button" className="link-button" onClick={reset}>
         {confirming ? 'Confirmer la remise à zéro' : 'Remettre à zéro'}
       </button>}
+      {scope === 'session' && session.hands > 0 && <form className="note-form" onSubmit={event => void saveNote(event)}>
+        <label>Ce que je retiens (facultatif)
+          <input value={remark} maxLength={200} onChange={event => setRemark(event.target.value)} placeholder="Ex. : je paie trop les relances" />
+        </label>
+        <button type="submit" disabled={saving}>{saving ? 'Écriture…' : 'Ajouter à mes notes'}</button>
+        {saved && <p className="note-saved" role="status">Ajouté à notes/sessions.md, que le coach en ligne de commande peut lire : « {saved} »</p>}
+        {saveError && <p className="coach-error" role="alert">{saveError}</p>}
+      </form>}
     </section>
   );
 }
