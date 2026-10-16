@@ -206,5 +206,15 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .chart-table th, .chart-table td { padding: 4px 8px; border-bottom: 1px solid #243447; text-align: left; }
 .chart-table summary { cursor: pointer; color: #cbd5e1; font-size: .85rem; }
 .term { position: relative; display: inline; }
+.glossary { display: grid; gap: 16px; }
+.glossary h2, .glossary p { margin: 0; }
+.glossary > button { justify-self: start; }
+.glossary-search { display: grid; gap: 6px; max-width: 420px; }
+.glossary-search input { padding: 10px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; color: #f1f5f9; background: #0f1a24; }
+.glossary-list { display: grid; gap: 12px; margin: 0; }
+.glossary-list div { padding: 12px 16px; border: 1px solid #334155; border-radius: 10px; background: #172330; }
+.glossary-list dt { font-weight: 700; }
+.glossary-list dt small { color: #94a3b8; font-weight: 400; }
+.glossary-list dd { margin: 4px 0 0; color: #cbd5e1; line-height: 1.5; }
 .term-button { padding: 0; border: 0; border-bottom: 1px dotted currentColor; border-radius: 0; background: none; color: inherit; font: inherit; cursor: help; }
 .term-popover { position: absolute; z-index: 10; top: calc(100% + 6px); left: 50%; width: min(280px, 80vw); padding: 10px 12px; border: 1px solid #334155; border-radius: 8px; background: #0f1a24; color: #e2e8f0; font-size: .85rem; font-weight: 400; line-height: 1.4; text-align: left; transform: translateX(-50%); box-shadow: 0 8px 24px rgba(0, 0, 0, .4); }

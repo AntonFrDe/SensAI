@@ -8,6 +8,7 @@ import {
   defaultTableOptions, postGame, type Award, type GameResponse, type GameState, type OpponentAction, type TableOptions,
 } from './api';
 import GameSummary from './GameSummary';
+import GlossaryScreen from './GlossaryScreen';
 import HandLog from './HandLog';
 import { useHandLog } from './handLog';
 import HomeScreen from './HomeScreen';
@@ -42,7 +43,7 @@ function describeAward({ amount, winners, reason }: Award, hands?: GameState['ha
 }
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'game' | 'banque'>('home');
+  const [view, setView] = useState<'home' | 'game' | 'banque' | 'glossary'>('home');
   const [game, setGame] = useState<GameResponse | null>(null);
   const [version, setVersion] = useState(0);  // remounts the coach: its advice is about one table state
   const [busy, setBusy] = useState<'' | 'player' | 'opponent'>('');
@@ -89,8 +90,8 @@ export default function App() {
     <main>
       <h1>SensAI Poker</h1>
       {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
-      {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
-        onOpenBanque={() => setView('banque')} /> : <section aria-label="Partie">
+      {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'glossary' ? <GlossaryScreen onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
+        onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')} /> : <section aria-label="Partie">
         <h2>Table de poker</h2>
         <div className="game-layout">
           <PokerTable {...state}

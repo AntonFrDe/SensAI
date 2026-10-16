@@ -5,6 +5,7 @@ import ActionControls, { type ActionControlsProps } from './ActionControls';
 import HandInfo, { type GamePhase } from './HandInfo';
 import HandHistory, { type HistoryEntry } from './HandHistory';
 import Seat, { type SeatData } from './Seat';
+import Term from './Term';
 import HandBadge, { sameCard, type BestHand } from './HandBadge';
 
 export type Seats = { player: SeatData; opponent: SeatData };
@@ -62,7 +63,7 @@ export default function PokerTable({
       <p className="ai-note" aria-live="polite">{opponentNote}</p>
       <div className="table-center">
         <CommunityCards cards={communityCards} highlighted={best} />
-        <p className="chip-info pot" aria-live="polite">Pot : <ChipAmount amount={pot} /></p>
+        <p className="chip-info pot" aria-live="polite"><Term term="pot">Pot</Term> : <ChipAmount amount={pot} /></p>
         {blinds && <p className="blinds">Blindes : {blinds.small} / {blinds.big}</p>}
       </div>
       <Seat seat={seatOrStack(seats?.player, 'Vous', playerStack)} label="Vous" avatar="V" position="bottom"

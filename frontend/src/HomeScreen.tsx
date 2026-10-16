@@ -7,6 +7,7 @@ export type HomeScreenProps = {
   busy: boolean;
   onPlay: (options: TableOptions) => void;
   onOpenBanque: () => void;
+  onOpenGlossary?: () => void;
 };
 
 const blindLevels: BlindLevel[] = ['5/10', '10/20', '25/50'];
@@ -15,7 +16,7 @@ const minDepth = 20;
 const maxDepth = 500;
 const formatter = new Intl.NumberFormat('fr-FR');
 
-export default function HomeScreen({ options, busy, onPlay, onOpenBanque }: HomeScreenProps) {
+export default function HomeScreen({ options, busy, onPlay, onOpenBanque, onOpenGlossary }: HomeScreenProps) {
   const [blinds, setBlinds] = useState<BlindLevel>(options.blinds);
   const [depth, setDepth] = useState(String(options.stackBigBlinds));
   const value = Number(depth);
@@ -63,6 +64,7 @@ export default function HomeScreen({ options, busy, onPlay, onOpenBanque }: Home
         <div className="home-actions">
           <button type="submit" className="primary" disabled={busy || !validDepth}>{busy ? 'Distribution…' : 'Jouer'}</button>
           <button type="button" onClick={onOpenBanque}>Banque de situations</button>
+          {onOpenGlossary && <button type="button" onClick={onOpenGlossary}>Glossaire</button>}
         </div>
       </form>
       <ServerStatus />
