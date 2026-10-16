@@ -5,8 +5,17 @@ main { max-width: 900px; margin: auto; padding: 24px; }
 button { font: inherit; padding: 12px 20px; border: 0; border-radius: 8px; cursor: pointer; }
 button:focus-visible { outline: 3px solid #fbbf24; outline-offset: 4px; }
 .poker-table { display: grid; gap: 24px; margin: 24px 0; padding: 32px 16px; border: 12px solid #593b2c; border-radius: 100px; background: #14532d; }
-.seat { display: flex; justify-content: center; align-items: center; gap: 12px; }
-.seat span { font-size: 2rem; }
+.seat-box { display: grid; justify-items: center; gap: 8px; padding: 12px; border: 2px solid transparent; border-radius: 16px; }
+.seat-box.active { border-color: #fbbf24; background: rgba(251, 191, 36, .08); }
+.seat-box.folded { opacity: .55; }
+.seat-head { display: flex; align-items: center; gap: 10px; }
+.avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #0f3d22; border: 2px solid #bbf7d0; font-weight: 700; font-size: .9rem; }
+.dealer-button { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #f8fafc; color: #101820; font-weight: 800; font-size: .8rem; }
+.role-badge { padding: 2px 8px; border-radius: 999px; background: #1e3a5f; color: #bfdbfe; font-size: .75rem; font-weight: 700; }
+.seat-status { min-height: 1.2em; margin: 0; color: #fde68a; font-size: .9rem; }
+.bet-chip { margin: 0; padding: 4px 12px; border-radius: 999px; background: #78350f; color: #fde68a; font-variant-numeric: tabular-nums; }
+.table-center { display: grid; justify-items: center; gap: 12px; }
+.blinds { margin: 0; color: #cbd5e1; font-size: .85rem; }
 .board { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 .street { display: grid; justify-items: center; gap: 8px; }
 .cards { display: flex; justify-content: center; gap: 12px; }
