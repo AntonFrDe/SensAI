@@ -23,7 +23,11 @@ export default function CoachPanel({ gameId, available }: CoachPanelProps) {
   const [error, setError] = useState('');
   const [draft, setDraft] = useState('');
   const controller = useRef<AbortController | null>(null);
+  const list = useRef<HTMLOListElement | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
+  useEffect(() => {
+    if (list.current) list.current.scrollTop = list.current.scrollHeight;
+  }, [messages]);
 
   async function ask(question?: string) {
     const history: CoachMessage[] = question && messages.length > 0 ? [...messages, { role: 'user', content: question }] : [];
@@ -60,7 +64,7 @@ export default function CoachPanel({ gameId, available }: CoachPanelProps) {
       {messages.length === 0 && !loading && <p>
         {available ? 'Un doute ? Demandez un conseil sur cette décision.' : 'Le coach répond quand c’est à vous de jouer.'}
       </p>}
-      {messages.length > 0 && <ol className="coach-messages" aria-live="polite" aria-busy={loading}>
+      {messages.length > 0 && <ol ref={list} className="coach-messages" aria-live="polite" aria-busy={loading}>
         {messages.map((message, index) => (
           <li key={index} className={`coach-message ${message.role}`}>
             <span className="speaker">{speakers[message.role]}</span>
