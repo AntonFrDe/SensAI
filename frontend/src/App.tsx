@@ -7,6 +7,8 @@ import { useSessionStats } from './sessionStats';
 import {
   defaultTableOptions, postGame, type Award, type GameResponse, type GameState, type OpponentAction, type TableOptions,
 } from './api';
+import HandLog from './HandLog';
+import { useHandLog } from './handLog';
 import HomeScreen from './HomeScreen';
 import { handLabels } from './HandBadge';
 import './styles.css';
@@ -46,6 +48,7 @@ export default function App() {
   const [opponentMove, setOpponentMove] = useState('');
   const inFlight = useRef(false);
   const stats = useSessionStats(game);
+  const playedHands = useHandLog(game);
   const [options, setOptions] = useState<TableOptions>(loadOptions);
 
   function startGame(chosen: TableOptions) {
@@ -110,6 +113,7 @@ export default function App() {
             {state.gameOver ? 'Nouvelle partie' : 'Main suivante'}
           </button>
         </section>}
+        <HandLog hands={playedHands} />
         <button type="button" disabled={busy !== ''} onClick={() => setView('home')}>Retour à l’accueil</button>
       </section>}
     </main>
