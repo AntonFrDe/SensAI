@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import Banque from './Banque';
 import CoachPanel from './CoachPanel';
 import PokerTable from './PokerTable';
-import { postGame, type Award, type GameResponse, type OpponentAction } from './api';
+import { postGame, type Award, type GameResponse, type GameState, type OpponentAction } from './api';
+import { handLabels } from './HandBadge';
 import './styles.css';
 
 const verbs = { fold: 'se couche', check: 'checke', call: 'suit', bet: 'mise', raise: 'relance à' };
@@ -12,10 +13,12 @@ function describeMove({ action, amount, source }: OpponentAction): string {
   return `L’IA ${verbs[action]}${amount === undefined ? '' : ` ${amount}`}${fallback}.`;
 }
 
-function describeAward({ amount, winners, reason }: Award): string {
-  if (winners.length > 1) return `Égalité : pot de ${amount} jetons partagé.`;
+function describeAward({ amount, winners, reason }: Award, hands?: GameState['hands']): string {
+  const hand = reason === 'showdown' ? hands?.[winners[0] === 'Vous' ? 'player' : 'opponent'] : null;
+  const withHand = hand ? ` avec : ${handLabels[hand.rank].toLowerCase()}` : '';
+  if (winners.length > 1) return `Égalité : pot de ${amount} jetons partagé${withHand}.`;
   const who = winners[0] === 'Vous' ? 'Vous remportez' : 'L’IA remporte';
-  return `${who} ${amount} jetons${reason === 'fold' ? ' (adversaire couché)' : ''}.`;
+  return `${who} ${amount} jetons${reason === 'fold' ? ' (adversaire couché)' : withHand}.`;
 }
 
 export default function App() {
@@ -78,7 +81,7 @@ export default function App() {
           <CoachPanel key={version} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
         </div>
         {state.phase === 'showdown' && <section className="result" aria-label="Résultat de la main" aria-live="polite">
-          {state.awards.map((award, index) => <p key={index}>{describeAward(award)}</p>)}
+          {state.awards.map((award, index) => <p key={index}>{describeAward(award, state.hands)}</p>)}
           {state.gameOver && <p>Partie terminée : un joueur n’a plus de jetons.</p>}
           <button type="button" disabled={busy !== ''} onClick={() => state.gameOver
             ? void send('/api/games', {}, 'player')

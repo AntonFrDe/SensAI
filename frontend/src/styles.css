@@ -22,6 +22,8 @@ button:focus-visible { outline: 3px solid #fbbf24; outline-offset: 4px; }
 .cards { display: flex; justify-content: center; gap: 12px; }
 .playing-card { display: grid; place-items: center; width: 64px; height: 88px; border-radius: 8px; background: #fff; color: #101820; font-size: 1.5rem; font-weight: 700; }
 .playing-card.red { color: #b91c1c; }
+.playing-card.best { box-shadow: 0 0 0 3px #fbbf24, 0 0 16px rgba(251, 191, 36, .45); transform: translateY(-4px); }
+.hand-badge { margin: 0; padding: 2px 10px; border-radius: 999px; background: #fef3c7; color: #78350f; font-weight: 700; font-size: .85rem; }
 .chip-info { margin: 0; text-align: center; font-variant-numeric: tabular-nums; }
 .pot { color: #fde68a; font-size: 1.25rem; font-weight: 700; }
 .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
