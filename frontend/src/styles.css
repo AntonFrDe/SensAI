@@ -127,7 +127,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .replay-street { margin: 0; color: #bae6fd; font-weight: 700; text-align: center; }
 .replay-table { display: grid; gap: 12px; padding: 16px; border: 6px solid #593b2c; border-radius: 48px; background: #14532d; }
 .replay-action { margin: 0; min-height: 1.5em; text-align: center; font-weight: 700; }
-.replay-hands { display: flex; justify-content: center; gap: 12px; }
+.replay-hands { display: flex; justify-content: center; gap: 16px; }
+.replay-owner { display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; font-size: .85rem; }
 .replay-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
 .replay-controls button { padding: 8px 14px; }
 .replay-count { min-width: 8em; text-align: center; color: #94a3b8; font-variant-numeric: tabular-nums; }

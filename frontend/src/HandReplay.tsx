@@ -56,8 +56,8 @@ export default function HandReplay({ hand, onClose }: HandReplayProps) {
         {step.entry ? describeEntry(step.entry) : step.showdown ? resultText(hand) : 'Les cartes sont distribuées.'}
       </p>
       {step.showdown && <div className="replay-hands">
-        <HandBadge hand={hand.playerHand} owner="Votre main" />
-        <HandBadge hand={hand.opponentHand} owner="Main de l’IA" />
+        {hand.playerHand && <span className="replay-owner">Vous <HandBadge hand={hand.playerHand} owner="Votre main" /></span>}
+        {hand.opponentHand && <span className="replay-owner">IA <HandBadge hand={hand.opponentHand} owner="Main de l’IA" /></span>}
       </div>}
       <div className="replay-controls" role="group" aria-label="Navigation dans la main">
         <button type="button" onClick={() => go(0)} disabled={index === 0}>Début</button>
