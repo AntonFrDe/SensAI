@@ -1,6 +1,9 @@
 """Public poker state consumed by the frontend; the human occupies seat zero, the AI opponent seat one."""
+from itertools import combinations
+
 from poker_engine.game import Game
 from poker_engine.game_state import GamePhase
+from poker_engine.hand_evaluator import HandEvaluator
 
 HUMAN, AI = 0, 1
 
@@ -66,6 +69,14 @@ def _public_history(events: list[dict]) -> list[dict]:
     return entries
 
 
+def best_hand(cards: list) -> dict | None:
+    if len(cards) < 5:
+        return None
+    scored = ((HandEvaluator.evaluate(list(combo)), combo) for combo in combinations(cards, 5))
+    result, five = max(scored, key=lambda pair: pair[0])
+    return {"rank": result.rank.name.lower(), "cards": _cards(five)}
+
+
 def _blind_roles(events: list[dict]) -> dict[str, str]:
     for event in events:
         if event["type"] == "blinds_posted":
@@ -107,6 +118,10 @@ def public_game_state(game: Game) -> dict:
             for e in state.hand_history if e["type"] == "pot_awarded"
         ],
         "history": _public_history(state.hand_history),
+        "hands": {
+            "player": best_hand(player.hand + state.community_cards),
+            "opponent": best_hand(opponent.hand + state.community_cards) if revealed else None,
+        },
         "seats": {"player": _seat(game, HUMAN, roles), "opponent": _seat(game, AI, roles)},
         "blinds": {"small": game.small_blind, "big": game.big_blind},
         "gameOver": is_game_over(game),
