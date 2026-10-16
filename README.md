@@ -148,7 +148,11 @@ Le correcteur est le même petit modèle : relire les verdicts, il peut être in
 ```
 python3 test_cli.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
+cd frontend && npm test                    # composants React (Vitest, jsdom, serveur simulé)
 ```
+
+Les tests du frontend simulent `fetch` : ils ne demandent ni `server.py` ni Ollama. `npm run test:watch` les
+relance à chaque modification.
 
 ## Contenu
 
