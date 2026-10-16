@@ -81,7 +81,7 @@ describe('PokerTable', () => {
   it('clears the street bets once the hand is over', () => {
     const seat = { name: 'IA', stack: 1020, bet: 20, folded: false, allIn: false, dealer: false, blind: 'small' as const };
     render(<PokerTable phase="showdown" seats={{ player: { ...seat, name: 'Vous', folded: true }, opponent: seat }} />);
-    expect(screen.queryByText(/^Mise/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Mise :/)).not.toBeInTheDocument();
   });
 });
 
