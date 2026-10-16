@@ -154,6 +154,10 @@ cd frontend && npm test                    # composants React (Vitest, jsdom, se
 Les tests du frontend simulent `fetch` : ils ne demandent ni `server.py` ni Ollama. `npm run test:watch` les
 relance à chaque modification.
 
+`cd frontend && npm run test:e2e` joue les parcours principaux dans un vrai Chromium (Playwright 1.63) : il lance
+`server.py` sur le port 8791 avec le faux Ollama de `fake_ollama.py`, et Vite sur le port 5191. Première fois :
+`npx playwright install chromium` si le navigateur manque.
+
 ## Contenu
 
 | Fichier | Rôle |
