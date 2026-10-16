@@ -19,7 +19,6 @@ DEFAULT_OPTIONS = {"blinds": "10/20", "stackBigBlinds": 50}
 
 
 def create_game(options: object = None) -> Game:
-    """A new heads-up game with the chosen blinds and starting stack in big blinds, or ValueError."""
     if options is None:
         options = {}
     if not isinstance(options, dict):
@@ -118,7 +117,6 @@ def _example_card(text: str) -> dict:
 
 
 def hand_rankings() -> list[dict]:
-    """Hand categories from the strongest, each with its French name, description and example cards."""
     rows = json.loads(RANKINGS_FILE.read_text(encoding="utf-8"))
     return [
         {"rank": row["rang"], "name": row["fr"], "description": row["description"],
@@ -136,7 +134,6 @@ def _equity_cards(cards: list) -> list[eq.Card]:
 
 
 def odds_summary(game: Game, seat: int = HUMAN, rng: random.Random | None = None) -> dict:
-    """Pot odds, equity against one random hand and outs for the seat to act, all computed by the code."""
     if not player_controls(game, seat)["allowedActions"]:
         raise ValueError("Odds are available on your turn.")
     state = game.state

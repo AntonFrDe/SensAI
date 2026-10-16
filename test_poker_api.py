@@ -1,4 +1,3 @@
-"""Public game state sent to the frontend, without Ollama. Run: python3 test_poker_api.py"""
 import random
 
 from poker_api import (
