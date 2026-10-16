@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { GameResponse, GameState } from './api';
+import { useHandTracking } from './handTracking';
 
 export type HandOutcome = { result: 'won' | 'lost' | 'split'; byFold: boolean; pot: number; net: number };
 export type Stats = {
@@ -63,30 +64,18 @@ export function saveLifetime(stats: Stats, storage: Storage = localStorage): boo
   }
 }
 
-type Tracked = { gameId: string; stackAtStart: number; ended: boolean };
-
 export function useSessionStats(game: GameResponse | null) {
   const [session, setSession] = useState<Stats>(emptyStats);
   const [lifetime, setLifetime] = useState<Stats>(() => loadLifetime());
-  const tracked = useRef<Tracked | null>(null);
 
-  useEffect(() => {
-    if (!game) return;
-    const { gameId, state } = game;
-    const seat = state.seats.player;
-    const newGame = tracked.current?.gameId !== gameId;
-    if (newGame) setSession(emptyStats);
-    if (newGame || (tracked.current?.ended && state.phase !== 'showdown')) {
-      tracked.current = { gameId, stackAtStart: seat.stack + seat.bet, ended: false };
-    }
-    const current = tracked.current;
-    if (current && state.phase === 'showdown' && !current.ended) {
-      current.ended = true;
-      const outcome = handOutcome(state, current.stackAtStart);
+  useHandTracking(game, {
+    onNewGame: () => setSession(emptyStats),
+    onHandEnd: ({ state, stackAtStart }) => {
+      const outcome = handOutcome(state, stackAtStart);
       setSession(previous => recordHand(previous, outcome));
       setLifetime(previous => recordHand(previous, outcome));
-    }
-  }, [game]);
+    },
+  });
 
   useEffect(() => {
     saveLifetime(lifetime);
