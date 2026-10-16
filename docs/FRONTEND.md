@@ -66,3 +66,46 @@ L'état d'une partie contient en plus des cartes, du pot et des tapis : `control
 mise, `toCall`), `seats` (mise du tour, couché, tapis, donneur, blinde), `blinds`, `history` (actions publiques
 par street), `awards`, `hands` (meilleure main de 5 cartes de chaque joueur dévoilé, calculée par l'évaluateur
 du moteur) et `gameOver`. Les cartes de l'IA ne sont envoyées qu'à l'abattage.
+
+## Le code calcule, l'interface affiche
+
+- Les actions possibles et les bornes de mise viennent de `poker_api.player_controls` ; les montants rapides
+  (½ pot, ¾ pot, pot, tapis) sont seulement des raccourcis ramenés dans ces bornes.
+- Le nom des mains, les cartes de la meilleure main, l'équité et les outs sont calculés en Python ; le frontend
+  ne les recalcule jamais.
+- Le verdict du panneau « Repères » compare deux nombres du serveur (équité et cote du pot) ; aucun chiffre
+  n'est produit par le modèle.
+
+## Accessibilité et confort
+
+- Chaque carte a un nom lisible (« Q de cœur, dans la meilleure main ») ; la table, les sièges et les panneaux
+  sont des régions nommées ; les changements (tour, pot, conseil) sont annoncés par des zones `aria-live`.
+- Clavier : F se coucher, C checker ou suivre, R miser ou relancer (sinon aller au montant), T préparer un tapis,
+  Entrée dans le champ du montant ; flèches et Échap dans le revoir d'une main et dans la courbe du tapis.
+- Courbe du tapis : une seule série, ligne de 2 px, repère du tapis de départ, info-bulle au survol et au
+  clavier, tableau des valeurs pour qui ne lit pas le graphique.
+- Préférences : thème clair, jeu à quatre couleurs (♦ bleu, ♣ vert), grandes cartes, animations coupées ;
+  `prefers-reduced-motion` est aussi respecté.
+- Mise en page sur une colonne sous 600 px, cibles tactiles de 44 px.
+
+## Tests
+
+```
+cd frontend && npm run build      # tsc --noEmit + build Vite
+cd frontend && npm test           # Vitest : composants et logique, fetch simulé
+cd frontend && npm run test:e2e   # Playwright : parcours complets dans Chromium
+```
+
+Les tests Vitest sont à côté du code (`Xxx.test.tsx`). Les tests de bout en bout (`e2e/game.spec.ts`) lancent
+`e2e/e2e_server.py` : `server.py` sur le port 8791, branché sur `fake_ollama.py`, et Vite sur le port 5191.
+Côté Python, `test_poker_api.py` couvre l'état public, les options de partie, les mains, les repères et le
+classement des mains ; `test_web.py` couvre les routes.
+
+## Limites connues
+
+- Le moteur fait du donneur la grosse blinde en tête-à-tête et autorise une mise de 1 jeton après le flop :
+  ce sont des règles de `poker_engine/` (Alexandre), affichées telles quelles.
+- L'équité est calculée contre une main au hasard, pas contre la range probable de l'IA.
+- Une partie vit en mémoire du serveur : redémarrer `server.py` la perd, la reprise ne marche qu'avec le même
+  serveur.
+- Les statistiques « depuis toujours » et les préférences sont dans le `localStorage` du navigateur.
