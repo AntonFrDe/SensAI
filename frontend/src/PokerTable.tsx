@@ -43,6 +43,8 @@ export default function PokerTable({
       <p className="chip-info" aria-live="polite">Tour : {phase === 'showdown' ? 'main terminée' : currentPlayer === 'player' ? 'à vous de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>
       <ActionControls
         {...controls}
+        pot={pot}
+        currentBet={currentBet}
         allowedActions={currentPlayer === 'player' ? controls?.allowedActions : []}
       />
       <HandHistory entries={history} />
