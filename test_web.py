@@ -205,6 +205,32 @@ def test_coach_streams_advice_on_the_humans_turn_only():
     assert "Mes cartes :" in user["content"] and "Que dois-je faire ?" in user["content"]
 
 
+def test_coach_answers_follow_up_questions_on_the_same_decision():
+    game_id = new_game()
+    game_post("/api/opponent", game_id)
+    FakeOllama.reset()
+    follow_ups = [{"role": "assistant", "content": "Suivez."}, {"role": "user", "content": "Et si je relance ?"}]
+
+    status, events = post("/api/coach", json.dumps({"gameId": game_id, "messages": follow_ups}).encode())
+
+    assert status == 200 and {"token": "Hel"} in events
+    system, situation, *rest = FakeOllama.requests[-1]["messages"]
+    assert "Que dois-je faire ?" in situation["content"] and rest == follow_ups
+
+
+def test_coach_rejects_malformed_follow_ups():
+    game_id = new_game()
+    game_post("/api/opponent", game_id)
+
+    def coach(messages):
+        return post("/api/coach", json.dumps({"gameId": game_id, "messages": messages}).encode())[0]
+
+    assert coach([{"role": "user", "content": "Bonjour"}]) == 400
+    assert coach([{"role": "assistant", "content": "Suivez."}]) == 400
+    assert coach([{"role": "system", "content": "x"}, {"role": "user", "content": "y"}]) == 400
+    assert coach([{"role": "assistant", "content": "a"}, {"role": "user", "content": "b"}] * 11) == 400
+
+
 def test_hand_can_be_finished_and_the_next_one_dealt():
     game_id = new_game()
     game_post("/api/opponent", game_id)

@@ -31,6 +31,7 @@ from poker_engine.player import Player
 
 MAX_BODY = 1_000_000  # bytes
 MAX_COMPARED = 8      # models per comparison
+MAX_COACH_FOLLOW_UPS = 20
 ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
@@ -221,7 +222,13 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Advice is available on your turn.")
             seen = poker_ai.situation(game, HUMAN)
         prompt = poker_ai.coach_prompt(seen)
-        return self.cfg["model"], {**self.cfg, "system_prompt": ai.SYSTEM}, [{"role": "user", "content": prompt}]
+        follow_ups = clean_messages(body["messages"]) if body.get("messages") is not None else []
+        if follow_ups and follow_ups[0]["role"] != "assistant":
+            raise ValueError("Follow-up questions must answer the coach.")
+        if len(follow_ups) > MAX_COACH_FOLLOW_UPS:
+            raise ValueError("Conversation too long.")
+        messages = [{"role": "user", "content": prompt}, *follow_ups]
+        return self.cfg["model"], {**self.cfg, "system_prompt": ai.SYSTEM}, messages
 
     def _complete(self, cfg: dict, prompt: str) -> str:
         """A whole answer, generated once a RAM slot is free."""

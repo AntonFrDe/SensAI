@@ -81,9 +81,14 @@ export async function genererSituation(theme: Theme, niveau: Niveau): Promise<Si
 }
 
 /** Streams the coach's advice: calls onToken for each piece of text, throws on a server or model error. */
-export async function streamCoach(gameId: string, onToken: (text: string) => void, signal: AbortSignal) {
+export type CoachMessage = { role: 'user' | 'assistant'; content: string };
+
+export async function streamCoach(
+  gameId: string, onToken: (text: string) => void, signal: AbortSignal, messages: CoachMessage[] = [],
+) {
+  const body = messages.length > 0 ? { gameId, messages } : { gameId };
   const response = await fetch('/api/coach', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId }), signal,
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal,
   });
   if (!response.ok || !response.body) {
     const result = await response.json().catch(() => ({}));
