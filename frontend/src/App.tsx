@@ -3,6 +3,7 @@ import Banque from './Banque';
 import CoachPanel from './CoachPanel';
 import PokerTable from './PokerTable';
 import SessionStats from './SessionStats';
+import { rememberGame, useSavedGame } from './savedGame';
 import { useSessionStats } from './sessionStats';
 import {
   defaultTableOptions, postGame, type Award, type GameResponse, type GameState, type OpponentAction, type TableOptions,
@@ -53,6 +54,23 @@ export default function App() {
   const stats = useSessionStats(game);
   const playedHands = useHandLog(game);
   const [options, setOptions] = useState<TableOptions>(loadOptions);
+  const [savedGame, forgetSavedGame] = useSavedGame();
+
+  useEffect(() => {
+    if (game) rememberGame(game.gameId);
+  }, [game?.gameId]);
+
+  function resumeGame() {
+    if (game) {
+      setView('game');
+      return;
+    }
+    if (!savedGame) return;
+    setGame(savedGame);
+    setVersion(previous => previous + 1);
+    setView('game');
+    forgetSavedGame();
+  }
 
   function startGame(chosen: TableOptions) {
     setOptions(chosen);
@@ -91,7 +109,8 @@ export default function App() {
       <h1>SensAI Poker</h1>
       {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
       {view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'glossary' ? <GlossaryScreen onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
-        onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')} /> : <section aria-label="Partie">
+        onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')}
+        savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame} /> : <section aria-label="Partie">
         <h2>Table de poker</h2>
         <div className="game-layout">
           <PokerTable {...state}
