@@ -46,6 +46,10 @@ function lastActionOf(history: HistoryEntry[], player: string, phase: GamePhase 
   return entry && shortAction(entry);
 }
 
+function withoutBetAfterHand(seat: SeatData | undefined, phase: GamePhase | undefined): SeatData | undefined {
+  return seat && phase === 'showdown' ? { ...seat, bet: 0 } : seat;
+}
+
 function seatOrStack(seat: SeatData | undefined, name: string, stack: number | undefined): SeatData | undefined {
   if (seat || stack === undefined) return seat;
   return { name, stack, bet: 0, folded: false, allIn: false, dealer: false, blind: null };
@@ -61,7 +65,7 @@ export default function PokerTable({
   return (
     <section className="poker-table" aria-label="Table de Texas Hold’em à deux joueurs">
       <HandInfo phase={phase} currentBet={currentBet} />
-      <Seat seat={seatOrStack(seats?.opponent, 'IA', opponentStack)} label="Adversaire IA" avatar="IA" position="top"
+      <Seat seat={withoutBetAfterHand(seatOrStack(seats?.opponent, 'IA', opponentStack), phase)} label="Adversaire IA" avatar="IA" position="top"
         active={playing && currentPlayer === 'opponent'} lastAction={lastActionOf(history, 'IA', phase)}>
         {opponentCards.length > 0 && <div className="cards" role="group" aria-label="Cartes de l’IA">
           {opponentCards.map(card => <PlayingCard key={card.rank + card.suit} card={card} highlighted={isBest(card)} />)}
@@ -75,7 +79,7 @@ export default function PokerTable({
         <p className="chip-info pot" aria-live="polite"><Term term="pot">Pot</Term> : <ChipAmount amount={pot} /></p>
         {blinds && <p className="blinds">Blindes : {blinds.small} / {blinds.big}</p>}
       </div>
-      <Seat seat={seatOrStack(seats?.player, 'Vous', playerStack)} label="Vous" avatar="V" position="bottom"
+      <Seat seat={withoutBetAfterHand(seatOrStack(seats?.player, 'Vous', playerStack), phase)} label="Vous" avatar="V" position="bottom"
         active={playing && currentPlayer === 'player'} lastAction={lastActionOf(history, 'Vous', phase)}>
         <div className="cards" role="group" aria-label="Vos cartes privées">
           <PlayingCard card={playerCards[0]} highlighted={isBest(playerCards[0])} />

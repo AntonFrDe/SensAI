@@ -77,5 +77,11 @@ describe('PokerTable', () => {
     render(<PokerTable phase="showdown" revealedForTraining opponentCards={[{ rank: '7', suit: 'clubs' }, { rank: '2', suit: 'hearts' }]} />);
     expect(screen.getByRole('region', { name: 'Adversaire IA' })).toHaveTextContent('Dévoilées pour l’entraînement');
   });
+
+  it('clears the street bets once the hand is over', () => {
+    const seat = { name: 'IA', stack: 1020, bet: 20, folded: false, allIn: false, dealer: false, blind: 'small' as const };
+    render(<PokerTable phase="showdown" seats={{ player: { ...seat, name: 'Vous', folded: true }, opponent: seat }} />);
+    expect(screen.queryByText(/^Mise/)).not.toBeInTheDocument();
+  });
 });
 
