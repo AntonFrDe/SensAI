@@ -51,6 +51,20 @@ def next_hand(game: Game) -> None:
     game.start_hand()
 
 
+def _public_history(events: list[dict]) -> list[dict]:
+    street, entries = GamePhase.PRE_FLOP.value, []
+    for event in events:
+        if event["type"] == "street_dealt":
+            street = event["street"]
+        elif event["type"] == "action":
+            entry = {"street": street, "player": event["player"], "action": event["action"]}
+            amount = event.get("target_amount", event.get("amount"))
+            if amount is not None:
+                entry["amount"] = amount
+            entries.append(entry)
+    return entries
+
+
 def public_game_state(game: Game) -> dict:
     state = game.state
     player, opponent = state.players
@@ -70,5 +84,6 @@ def public_game_state(game: Game) -> dict:
             {"amount": e["amount"], "winners": e["winners"], "reason": e["reason"]}
             for e in state.hand_history if e["type"] == "pot_awarded"
         ],
+        "history": _public_history(state.hand_history),
         "gameOver": is_game_over(game),
     }
