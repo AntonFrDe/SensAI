@@ -48,6 +48,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .coach h3 { margin: 0; }
 .coach p { margin: 0; white-space: pre-wrap; line-height: 1.5; }
 .coach-error { color: #fca5a5; }
+.coach-messages { display: grid; gap: 10px; max-height: 420px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+.coach-message { display: grid; gap: 4px; padding: 10px 12px; border-radius: 10px; background: #0f1a24; }
+.coach-message.user { justify-self: end; max-width: 85%; background: #1e3a5f; }
+.coach-message .speaker { color: #94a3b8; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.coach-suggestions { display: flex; flex-wrap: wrap; gap: 6px; }
+.suggestion { padding: 6px 10px; border: 1px solid #334155; background: transparent; color: #e2e8f0; font-size: .85rem; }
+.coach-form { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 8px; }
+.coach-form label { display: grid; gap: 6px; font-size: .9rem; }
+.coach-form input { padding: 10px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; color: #f1f5f9; background: #0f1a24; }
+.link-button { justify-self: start; padding: 0; background: none; color: #93c5fd; text-decoration: underline; }
 .result { display: grid; gap: 8px; justify-items: center; margin-bottom: 24px; }
 .result p { margin: 0; font-weight: 700; }
 .banque-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 24px 0; }
