@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { handLabels } from './HandBadge';
 import HandReplay from './HandReplay';
-import type { PlayedHand } from './handLog';
+import { stackHistory, type PlayedHand } from './handLog';
+import StackChart from './StackChart';
 import type { CardData } from './PlayingCard';
 
 export type HandLogProps = { hands: PlayedHand[] };
@@ -35,6 +36,7 @@ export default function HandLog({ hands }: HandLogProps) {
           </li>
         ))}
       </ol>}
+      {hands.length > 0 && <StackChart points={stackHistory(hands)} title="Évolution de votre tapis" />}
       {selected && <HandReplay key={selected.number} hand={selected} onClose={() => setOpen(null)} />}
     </section>
   );
