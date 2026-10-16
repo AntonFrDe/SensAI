@@ -21,6 +21,10 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .game-layout { display: grid; gap: 24px; align-items: start; }
 @media (min-width: 900px) { main { max-width: 1200px; } .game-layout { grid-template-columns: minmax(0, 1fr) 320px; } }
 .ai-note { min-height: 1.5em; margin: 0; text-align: center; color: #bae6fd; }
+.hand-history { width: 100%; max-width: 360px; justify-self: center; color: #e2e8f0; }
+.hand-history summary { cursor: pointer; text-align: center; }
+.hand-history h3 { margin: 8px 0 2px; font-size: .9rem; color: #bae6fd; }
+.hand-history ol { margin: 0; padding-left: 20px; font-variant-numeric: tabular-nums; }
 .coach { display: grid; gap: 12px; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
 .coach h3 { margin: 0; }
 .coach p { margin: 0; white-space: pre-wrap; line-height: 1.5; }

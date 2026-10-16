@@ -3,6 +3,7 @@ import CommunityCards from './CommunityCards';
 import ChipAmount from './ChipAmount';
 import ActionControls, { type ActionControlsProps } from './ActionControls';
 import HandInfo, { type GamePhase } from './HandInfo';
+import HandHistory, { type HistoryEntry } from './HandHistory';
 
 type Props = {
   playerCards?: CardData[];
@@ -16,11 +17,12 @@ type Props = {
   currentPlayer?: 'player' | 'opponent';
   phase?: GamePhase;
   currentBet?: number;
+  history?: HistoryEntry[];
 };
 
 export default function PokerTable({
   playerCards = [], opponentCards = [], opponentNote, communityCards = [], pot, playerStack, opponentStack, controls,
-  currentPlayer, phase, currentBet,
+  currentPlayer, phase, currentBet, history = [],
 }: Props) {
   return (
     <section className="poker-table" aria-label="Table de Texas Hold’em à deux joueurs">
@@ -43,6 +45,7 @@ export default function PokerTable({
         {...controls}
         allowedActions={currentPlayer === 'player' ? controls?.allowedActions : []}
       />
+      <HandHistory entries={history} />
     </section>
   );
 }

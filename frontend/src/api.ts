@@ -1,4 +1,5 @@
 import type { PokerAction } from './ActionControls';
+import type { HistoryEntry } from './HandHistory';
 import type { GamePhase } from './HandInfo';
 import type { CardData } from './PlayingCard';
 
@@ -15,6 +16,7 @@ export type GameState = {
   currentBet: number;
   controls: { allowedActions: PokerAction[]; minAmount?: number; maxAmount?: number };
   awards: Award[];
+  history: HistoryEntry[];
   gameOver: boolean;
 };
 export type OpponentAction = { action: PokerAction; amount?: number; source: 'llm' | 'fallback' };

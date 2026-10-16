@@ -217,6 +217,17 @@ def test_hand_can_be_finished_and_the_next_one_dealt():
     assert status == 200 and body["state"]["phase"] == "pre_flop" and body["state"]["awards"] == []
 
 
+def test_public_history_lists_the_actions_of_the_hand_by_street():
+    game_id = new_game()
+    game_post("/api/opponent", game_id)
+    status, [body] = post("/api/actions", json.dumps({"gameId": game_id, "action": "fold"}).encode())
+    history = body["state"]["history"]
+
+    assert status == 200 and len(history) == 2 and history[0]["player"] == "IA"
+    assert history[-1] == {"street": "pre_flop", "player": "Vous", "action": "fold"}
+    assert game_post("/api/next-hand", game_id)[1]["state"]["history"] == []
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path
