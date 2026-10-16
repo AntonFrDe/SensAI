@@ -7,6 +7,7 @@ import { useSessionStats } from './sessionStats';
 import {
   defaultTableOptions, postGame, type Award, type GameResponse, type GameState, type OpponentAction, type TableOptions,
 } from './api';
+import GameSummary from './GameSummary';
 import HandLog from './HandLog';
 import { useHandLog } from './handLog';
 import HomeScreen from './HomeScreen';
@@ -108,7 +109,7 @@ export default function App() {
         </div>
         {state.phase === 'showdown' && <section className="result" aria-label="Résultat de la main" aria-live="polite">
           {state.awards.map((award, index) => <p key={index}>{describeAward(award, state.hands)}</p>)}
-          {state.gameOver && <p>Partie terminée : un joueur n’a plus de jetons.</p>}
+          {state.gameOver && <GameSummary hands={playedHands} playerWon={state.seats.opponent.stack === 0} />}
           <button type="button" disabled={busy !== ''} onClick={() => state.gameOver
             ? startGame(options)
             : void send('/api/next-hand', { gameId: game.gameId }, 'player')}>

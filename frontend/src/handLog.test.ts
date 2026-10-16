@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GameState } from './api';
-import { replaySteps, toPlayedHand, type PlayedHand } from './handLog';
+import { replaySteps, stackHistory, toPlayedHand, type PlayedHand } from './handLog';
 import type { CardData } from './PlayingCard';
 
 const board: CardData[] = [
@@ -11,6 +11,7 @@ const board: CardData[] = [
 function hand(overrides: Partial<PlayedHand>): PlayedHand {
   return {
     number: 1, playerCards: [], opponentCards: [], board, history: [], awards: [], playerHand: null, opponentHand: null, net: 0,
+    stackAfter: 1000,
     ...overrides,
   };
 }
@@ -23,8 +24,17 @@ describe('toPlayedHand', () => {
       seats: { player: { stack: 1120 } },
     } as unknown as GameState;
     expect(toPlayedHand({ gameId: 'g1', number: 4, state, stackAtStart: 1000 })).toMatchObject({
-      number: 4, playerCards: [board[0]], opponentCards: [board[1]], board, playerHand: { rank: 'one_pair' }, net: 120,
+      number: 4, playerCards: [board[0]], opponentCards: [board[1]], board, playerHand: { rank: 'one_pair' }, net: 120, stackAfter: 1120,
     });
+  });
+});
+
+describe('stackHistory', () => {
+  it('starts from the stack before the first hand and follows each hand in order', () => {
+    expect(stackHistory([
+      hand({ number: 2, net: -50, stackAfter: 1070 }), hand({ number: 1, net: 120, stackAfter: 1120 }),
+    ])).toEqual([{ hand: 0, stack: 1000 }, { hand: 1, stack: 1120 }, { hand: 2, stack: 1070 }]);
+    expect(stackHistory([])).toEqual([]);
   });
 });
 
