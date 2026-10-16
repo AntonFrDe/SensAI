@@ -19,10 +19,12 @@ import traceback
 from collections.abc import Callable
 from contextlib import closing
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlsplit
 from uuid import uuid4
 
 import ai
 import generation
+import glossary
 import poker_ai
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
 from poker_api import AI, HUMAN, apply_action, create_game, next_hand, odds_summary, player_controls, public_game_state
@@ -64,6 +66,12 @@ def model_status(cfg: dict) -> dict:
         installed, status = set(), {"ollama": False, "error": str(e)}
     status["models"] = {role: {"name": name, "installed": name in installed} for role, name in names.items()}
     return status
+
+
+def glossary_entries() -> list[dict]:
+    """Every glossary term with a definition, cross-references followed."""
+    entries = ((entry, glossary.define(entry.term)) for entry in glossary.ENTRIES)
+    return [{"term": entry.term, "aliases": list(entry.aliases), "definition": text} for entry, text in entries if text]
 
 
 def parse_json(raw: bytes) -> dict:
@@ -113,6 +121,8 @@ class Handler(BaseHTTPRequestHandler):
             except LLMError as e:
                 return self._send_json(502, {"error": str(e)})
             self._send_json(200, {"default": self.cfg["model"], "models": models})
+        elif urlsplit(self.path).path == "/api/glossary":
+            self._glossary(parse_qs(urlsplit(self.path).query).get("term", [None])[0])
         elif self.path == "/api/status":
             self._send_json(200, model_status(self.cfg))
         elif self.path == BANQUE_ROUTE:
@@ -162,6 +172,14 @@ class Handler(BaseHTTPRequestHandler):
             self.run_jobs(jobs, functools.partial(self._emit_event, tagged=self.path == "/api/compare"))
         except (BrokenPipeError, ConnectionResetError):
             pass  # the browser hit Stop or closed the tab
+
+    def _glossary(self, term: str | None) -> None:
+        if term is None:
+            return self._send_json(200, {"entries": glossary_entries()})
+        entry, definition = glossary.lookup(term), glossary.define(term)
+        if entry is None or definition is None:
+            return self._send_json(404, {"error": "Unknown term."})
+        self._send_json(200, {"term": entry.term, "definition": definition})
 
     def _game(self, body: dict) -> tuple[str, Game]:
         """The game named by the request. Call with games_lock held."""

@@ -1,5 +1,6 @@
 import PlayingCard, { type CardData } from './PlayingCard';
 import { sameCard } from './HandBadge';
+import Term from './Term';
 
 const stages = [{ name: 'Flop', slots: [0, 1, 2] }, { name: 'Turn', slots: [3] }, { name: 'River', slots: [4] }];
 
@@ -14,7 +15,7 @@ export default function CommunityCards({ cards, highlighted = [] }: CommunityCar
             const card = cards[slot];
             return <PlayingCard key={card ? `${card.rank}${card.suit}` : `slot-${slot}`} card={card} highlighted={card !== undefined && highlighted.some(best => sameCard(best, card))} />;
           })}</div>
-          <small>{name}</small>
+          <small><Term term={name}>{name}</Term></small>
         </div>
       ))}
     </div>

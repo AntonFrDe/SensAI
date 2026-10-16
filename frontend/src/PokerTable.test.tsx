@@ -6,7 +6,7 @@ describe('PokerTable', () => {
   it('shows the stacks, the pot and the private cards', () => {
     render(<PokerTable playerCards={[{ rank: 'A', suit: 'spades' }, { rank: 'K', suit: 'spades' }]}
       pot={60} playerStack={970} opponentStack={970} currentPlayer="player" phase="pre_flop" currentBet={20} />);
-    expect(screen.getByText(/^Pot/)).toHaveTextContent('Pot : 60 jetons');
+    expect(screen.getByText('Pot', { selector: 'button' }).closest('p')).toHaveTextContent('Pot : 60 jetons');
     expect(screen.getByRole('region', { name: 'Vous' })).toHaveTextContent('Stack : 970 jetons');
     expect(screen.getByRole('group', { name: 'Vos cartes privées' })).toHaveTextContent('A♠K♠');
     expect(screen.getByText(/^Tour/)).toHaveTextContent('à vous de jouer');

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import ChipAmount from './ChipAmount';
+import Term from './Term';
 
 export type SeatData = {
   name: string;
@@ -34,7 +35,7 @@ export default function Seat({ seat, label, avatar, active = false, position, ch
           {blindShort[seat.blind]}
         </span>}
       </div>
-      <p className="chip-info">Stack : <ChipAmount amount={seat?.stack} /></p>
+      <p className="chip-info"><Term term="stack">Stack</Term> : <ChipAmount amount={seat?.stack} /></p>
       {children}
       <p className="seat-status" aria-live="polite">
         {seat?.folded ? 'Couché' : seat?.allIn ? 'Tapis' : active ? 'Doit jouer' : ''}
