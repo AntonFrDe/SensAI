@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { handLabels } from './HandBadge';
+import { download, handsToJson, handsToText } from './handExport';
 import HandReplay from './HandReplay';
 import { stackHistory, type PlayedHand } from './handLog';
 import StackChart from './StackChart';
@@ -23,7 +24,17 @@ export default function HandLog({ hands }: HandLogProps) {
   const selected = hands.find(hand => hand.number === open);
   return (
     <section className="hand-log" aria-label="Mains précédentes">
-      <h3>Mains précédentes</h3>
+      <header className="hand-log-head">
+        <h3>Mains précédentes</h3>
+        {hands.length > 0 && <div className="export-actions" role="group" aria-label="Exporter les mains">
+          <button type="button" className="link-button" onClick={() => download('sensai-mains.txt', handsToText(hands), 'text/plain;charset=utf-8')}>
+            Exporter en texte
+          </button>
+          <button type="button" className="link-button" onClick={() => download('sensai-mains.json', handsToJson(hands), 'application/json')}>
+            Exporter en JSON
+          </button>
+        </div>}
+      </header>
       {hands.length === 0 ? <p>Les mains terminées apparaîtront ici.</p> : <ol className="hand-log-list">
         {hands.map(hand => (
           <li key={hand.number} className={open === hand.number ? 'selected' : undefined}>

@@ -75,4 +75,16 @@ describe('HandLog', () => {
     render(<HandLog hands={[]} />);
     expect(screen.getByText('Les mains terminées apparaîtront ici.')).toBeInTheDocument();
   });
+
+  it('downloads the hands as a text file', async () => {
+    const createObjectURL = vi.fn().mockReturnValue('blob:hands');
+    Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    render(<HandLog hands={[hand]} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Exporter en texte' }));
+    const blob = createObjectURL.mock.calls[0][0] as Blob;
+    expect(await blob.text()).toContain('Main n°3');
+    expect((click.mock.contexts[0] as HTMLAnchorElement).download).toBe('sensai-mains.txt');
+  });
 });
+

@@ -150,6 +150,8 @@ kbd { padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; font
 code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85em; }
 .hand-log { display: grid; gap: 12px; margin: 24px 0; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
 .hand-log h3, .hand-log p { margin: 0; }
+.hand-log-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.export-actions { display: flex; gap: 16px; font-size: .9rem; }
 .hand-log-list { display: grid; gap: 4px; max-height: 260px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
 .hand-log-list li { display: grid; grid-template-columns: 3.5em 6em 1fr 5em auto; align-items: center; gap: 12px; padding: 6px 8px; border-radius: 8px; font-variant-numeric: tabular-nums; }
 .hand-log-list li.selected { background: #243447; }
