@@ -1,5 +1,5 @@
 """Public game state sent to the frontend, without Ollama. Run: python3 test_poker_api.py"""
-from poker_api import AI, HUMAN, apply_action, player_controls, public_game_state
+from poker_api import AI, HUMAN, apply_action, next_hand, player_controls, public_game_state
 from poker_engine.game import Game
 from poker_engine.player import Player
 
@@ -49,6 +49,45 @@ def test_controls_are_empty_when_it_is_not_your_turn():
 
     assert player_controls(game, waiting) == {"allowedActions": []}
     assert public_game_state(game)["controls"] == player_controls(game, HUMAN)
+
+
+def test_seats_show_dealer_blinds_and_street_bets():
+    game = new_game()
+
+    state = public_game_state(game)
+    seats = state["seats"]
+
+    assert state["blinds"] == {"small": 10, "big": 20}
+    assert {seats["player"]["blind"], seats["opponent"]["blind"]} == {"small", "big"}
+    assert [seats["player"]["dealer"], seats["opponent"]["dealer"]].count(True) == 1
+    small = next(seat for seat in seats.values() if seat["blind"] == "small")
+    assert small["bet"] == 10 and small["stack"] == 990
+    assert seats["player"]["name"] == "Vous" and seats["opponent"]["name"] == "IA"
+
+
+def test_seats_flag_folded_and_all_in_players():
+    game = new_game()
+    first = AI if game.state.current_player is game.state.players[AI] else HUMAN
+    raiser, folder = ("opponent", "player") if first == AI else ("player", "opponent")
+    apply_action(game, first, "raise", player_controls(game, first)["maxAmount"])
+
+    assert public_game_state(game)["seats"][raiser]["allIn"]
+
+    apply_action(game, 1 - first, "fold")
+    seats = public_game_state(game)["seats"]
+
+    assert seats[folder]["folded"] and not seats[folder]["allIn"]
+    assert not seats[raiser]["allIn"] and seats[raiser]["stack"] > 0
+
+
+def test_dealer_moves_with_the_next_hand():
+    game = new_game()
+    dealer_before = public_game_state(game)["seats"]["player"]["dealer"]
+    first = AI if game.state.current_player is game.state.players[AI] else HUMAN
+    apply_action(game, first, "fold")
+    next_hand(game)
+
+    assert public_game_state(game)["seats"]["player"]["dealer"] is not dealer_before
 
 
 if __name__ == "__main__":

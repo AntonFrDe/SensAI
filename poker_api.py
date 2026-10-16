@@ -66,10 +66,31 @@ def _public_history(events: list[dict]) -> list[dict]:
     return entries
 
 
+def _blind_roles(events: list[dict]) -> dict[str, str]:
+    for event in events:
+        if event["type"] == "blinds_posted":
+            return {event["small_blind"]: "small", event["big_blind"]: "big"}
+    return {}
+
+
+def _seat(game: Game, seat: int, roles: dict[str, str]) -> dict:
+    player = game.state.players[seat]
+    return {
+        "name": player.name,
+        "stack": player.chips,
+        "bet": player.current_bet,
+        "folded": player.folded,
+        "allIn": player.chips == 0 and not player.folded,
+        "dealer": game.state.dealer_index == seat,
+        "blind": roles.get(player.name),
+    }
+
+
 def public_game_state(game: Game) -> dict:
     state = game.state
     player, opponent = state.players
     revealed = state.phase is GamePhase.SHOWDOWN and not player.folded and not opponent.folded
+    roles = _blind_roles(state.hand_history)
     return {
         "playerCards": _cards(player.hand),
         "opponentCards": _cards(opponent.hand) if revealed else [],
@@ -86,5 +107,7 @@ def public_game_state(game: Game) -> dict:
             for e in state.hand_history if e["type"] == "pot_awarded"
         ],
         "history": _public_history(state.hand_history),
+        "seats": {"player": _seat(game, HUMAN, roles), "opponent": _seat(game, AI, roles)},
+        "blinds": {"small": game.small_blind, "big": game.big_blind},
         "gameOver": is_game_over(game),
     }

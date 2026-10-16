@@ -2,6 +2,7 @@ import type { PokerAction } from './ActionControls';
 import type { HistoryEntry } from './HandHistory';
 import type { GamePhase } from './HandInfo';
 import type { CardData } from './PlayingCard';
+import type { Blinds, Seats } from './PokerTable';
 
 export type Award = { amount: number; winners: string[]; reason: 'fold' | 'showdown' };
 export type GameState = {
@@ -17,6 +18,8 @@ export type GameState = {
   controls: { allowedActions: PokerAction[]; minAmount?: number; maxAmount?: number; toCall?: number };
   awards: Award[];
   history: HistoryEntry[];
+  seats: Seats;
+  blinds: Blinds;
   gameOver: boolean;
 };
 export type OpponentAction = { action: PokerAction; amount?: number; source: 'llm' | 'fallback' };
