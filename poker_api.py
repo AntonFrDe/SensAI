@@ -4,8 +4,30 @@ from itertools import combinations
 from poker_engine.game import Game
 from poker_engine.game_state import GamePhase
 from poker_engine.hand_evaluator import HandEvaluator
+from poker_engine.player import Player
 
 HUMAN, AI = 0, 1
+BLIND_LEVELS = {"5/10": (5, 10), "10/20": (10, 20), "25/50": (25, 50)}
+STACK_RANGE = (20, 500)
+DEFAULT_OPTIONS = {"blinds": "10/20", "stackBigBlinds": 50}
+
+
+def create_game(options: object = None) -> Game:
+    """A new heads-up game with the chosen blinds and starting stack in big blinds, or ValueError."""
+    if options is None:
+        options = {}
+    if not isinstance(options, dict):
+        raise ValueError("Invalid game options.")
+    level = options.get("blinds", DEFAULT_OPTIONS["blinds"])
+    depth = options.get("stackBigBlinds", DEFAULT_OPTIONS["stackBigBlinds"])
+    if level not in BLIND_LEVELS:
+        raise ValueError("Unknown blind level.")
+    if type(depth) is not int or not STACK_RANGE[0] <= depth <= STACK_RANGE[1]:
+        raise ValueError(f"Starting stack must be between {STACK_RANGE[0]} and {STACK_RANGE[1]} big blinds.")
+    small, big = BLIND_LEVELS[level]
+    game = Game([Player("Vous", depth * big), Player("IA", depth * big)], small_blind=small, big_blind=big)
+    game.start_hand()
+    return game
 
 
 def _cards(cards):
