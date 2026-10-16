@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import Banque from './Banque';
 import CoachPanel from './CoachPanel';
 import PokerTable from './PokerTable';
+import SessionStats from './SessionStats';
+import { useSessionStats } from './sessionStats';
 import { postGame, type Award, type GameResponse, type GameState, type OpponentAction } from './api';
 import { handLabels } from './HandBadge';
 import './styles.css';
@@ -29,6 +31,7 @@ export default function App() {
   const [error, setError] = useState('');
   const [opponentMove, setOpponentMove] = useState('');
   const inFlight = useRef(false);
+  const stats = useSessionStats(game);
 
   async function send(path: string, body: object, by: 'player' | 'opponent') {
     if (inFlight.current) return;
@@ -78,7 +81,10 @@ export default function App() {
                 void send('/api/actions', { gameId: game.gameId, action, amount }, 'player');
               },
             }} />
-          <CoachPanel key={version} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
+          <div className="side-panel">
+            <CoachPanel key={version} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
+            <SessionStats session={stats.session} lifetime={stats.lifetime} onResetLifetime={stats.resetLifetime} />
+          </div>
         </div>
         {state.phase === 'showdown' && <section className="result" aria-label="Résultat de la main" aria-live="polite">
           {state.awards.map((award, index) => <p key={index}>{describeAward(award, state.hands)}</p>)}
