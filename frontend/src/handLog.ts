@@ -16,6 +16,7 @@ export type PlayedHand = {
   playerHand: BestHand | null;
   opponentHand: BestHand | null;
   net: number;
+  stackAfter: number;
 };
 export type ReplayStep = { street: GamePhase; board: CardData[]; entry?: HistoryEntry; showdown: boolean };
 
@@ -33,6 +34,7 @@ export function toPlayedHand({ number, state, stackAtStart }: FinishedHand): Pla
     playerHand: state.hands.player,
     opponentHand: state.hands.opponent,
     net: state.seats.player.stack - stackAtStart,
+    stackAfter: state.seats.player.stack,
   };
 }
 
@@ -48,6 +50,15 @@ export function replaySteps(hand: PlayedHand): ReplayStep[] {
   }
   steps.push({ street: 'showdown', board: hand.board, showdown: true });
   return steps;
+}
+
+export type StackPoint = { hand: number; stack: number };
+
+export function stackHistory(hands: PlayedHand[]): StackPoint[] {
+  const ordered = [...hands].sort((first, second) => first.number - second.number);
+  if (ordered.length === 0) return [];
+  const start = { hand: 0, stack: ordered[0].stackAfter - ordered[0].net };
+  return [start, ...ordered.map(hand => ({ hand: hand.number, stack: hand.stackAfter }))];
 }
 
 export function useHandLog(game: GameResponse | null) {

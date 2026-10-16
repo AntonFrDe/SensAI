@@ -21,6 +21,7 @@ const hand: PlayedHand = {
   playerHand: { rank: 'one_pair', cards: [] },
   opponentHand: { rank: 'one_pair', cards: [] },
   net: 1000,
+  stackAfter: 2000,
 };
 
 describe('HandReplay', () => {
