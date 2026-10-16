@@ -47,4 +47,24 @@ describe('SessionStats', () => {
     expect(value('Taux de victoire')).toBe('—');
     expect(value('Bilan')).toBe('0 jetons');
   });
+
+  it('adds the session to the game notes with a remark', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ line: '- 2026-10-16 : partie web, 4 mains.' }, { status: 201 }));
+    render(<SessionStats session={session} lifetime={lifetime} onResetLifetime={vi.fn()} />);
+    await userEvent.type(screen.getByRole('textbox', { name: 'Ce que je retiens (facultatif)' }), 'Je relance mieux.');
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter à mes notes' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('partie web, 4 mains.');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ hands: 4, won: 3, net: 250, remark: 'Je relance mieux.' });
+    expect(screen.getByRole('textbox')).toHaveValue('');
+  });
+
+  it('reports a refused note and hides the form before the first hand', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'Invalid session numbers.' }, { status: 400 }));
+    const { rerender } = render(<SessionStats session={session} lifetime={lifetime} onResetLifetime={vi.fn()} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Ajouter à mes notes' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Invalid session numbers.');
+    rerender(<SessionStats session={emptyStats} lifetime={lifetime} onResetLifetime={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Ajouter à mes notes' })).not.toBeInTheDocument();
+  });
 });
+
