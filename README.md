@@ -66,6 +66,20 @@ cd frontend && npm install && npm run dev          # puis http://localhost:5173 
 - Les deux passent par le sémaphore RAM de `server.py` et le modèle de `config.json`. La logique est dans
   `poker_ai.py` (testée sans Ollama par `test_poker_ai.py`).
 
+L'interface (détails, routes et user stories dans `docs/FRONTEND.md`) :
+
+- **Accueil** : blindes et tapis de départ au choix, reprise de la partie en cours après un rechargement, état
+  d'Ollama et des modèles avec la commande `ollama pull` à copier, préférences d'affichage (thème clair, jeu à
+  quatre couleurs, grandes cartes, animations).
+- **Table** : donneur, blindes, mises du tour et dernière action sur chaque siège ; nom de votre main et de ses
+  cinq cartes, calculé par l'évaluateur du moteur ; termes reliés au glossaire.
+- **Actions** : seules les actions légales sont actives ; montants rapides (½ pot, ¾ pot, pot, tapis), curseur,
+  raccourcis clavier F, C, R, T.
+- **Coach** en chat (questions de suite, arrêt), **Repères** chiffrés par le code (cote du pot, équité, outs),
+  **Statistiques** de la partie et depuis toujours.
+- **Mains précédentes** : revoir une main étape par étape, courbe du tapis, export texte ou JSON, bilan de fin
+  de partie. Pages **Glossaire** et **Classement des mains**.
+
 ## Question en ligne de commande
 
 ```
