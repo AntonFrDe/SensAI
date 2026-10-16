@@ -20,7 +20,8 @@ def player_controls(game: Game, seat: int = HUMAN) -> dict:
     maximum = player.current_bet + player.chips
     if maximum >= minimum:
         actions.append("raise" if state.current_bet else "bet")
-    return {"allowedActions": actions, "minAmount": minimum, "maxAmount": maximum}
+    to_call = min(state.current_bet - player.current_bet, player.chips)
+    return {"allowedActions": actions, "minAmount": minimum, "maxAmount": maximum, "toCall": to_call}
 
 
 def apply_action(game: Game, seat: int, action: object, amount: object = None) -> None:
