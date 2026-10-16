@@ -39,6 +39,7 @@ dans des modules `camelCase.ts` testés à part. Tous les appels HTTP sont dans 
 | Actions | `ActionControls` (boutons, montant, curseur, montants rapides, raccourcis) | `betSizing.ts`, `shortcuts.ts` |
 | Colonne de droite | `CoachPanel` (chat), `OddsPanel` (repères), `SessionStats` | `sessionStats.ts` |
 | Après les mains | `HandHistory`, `HandLog`, `HandReplay`, `StackChart`, `GameSummary` | `handTracking.ts`, `handLog.ts`, `handExport.ts` |
+| Mes parties | `GameRecords` (date, blindes, mains, gagnées, bilan, résultat) | `gameRecords.ts` |
 | Pages d'aide | `GlossaryScreen`, `HandRankings`, `Banque` (situations générées, partie d'Anton) | — |
 
 `App.tsx` tient la partie en cours, envoie les actions et demande à l'IA de jouer quand c'est son tour.
@@ -110,7 +111,8 @@ classement des mains ; `test_web.py` couvre les routes.
 - L'équité est calculée contre une main au hasard, pas contre la range probable de l'IA.
 - Une partie vit en mémoire du serveur : redémarrer `server.py` la perd, la reprise ne marche qu'avec le même
   serveur.
-- Les statistiques « depuis toujours » et les préférences sont dans le `localStorage` du navigateur.
+- Les statistiques « depuis toujours », « Mes parties » et les préférences sont dans le `localStorage` du
+  navigateur.
 
 ## User stories de l'interface (X1)
 
@@ -165,6 +167,7 @@ par un test Vitest, un test Playwright ou un essai dans le navigateur.
    - « Depuis toujours » survit à la fermeture du navigateur ; sa remise à zéro demande une confirmation.
    - « Ajouter à mes notes » écrit une ligne datée dans `notes/sessions.md`, avec ce que je retiens.
    - La courbe du tapis et le bilan de fin de partie montrent l'évolution main après main.
+   - « Mes parties » garde les 30 dernières parties avec leur bilan et leur résultat, même après fermeture.
 
 **Accueil et confort**
 
