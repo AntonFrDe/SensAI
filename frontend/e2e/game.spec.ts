@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 
+test.beforeEach(async ({ page }, testInfo) => {
+  if (!testInfo.title.includes('guided tour')) {
+    await page.addInitScript(() => localStorage.setItem('sensai-tour-done', 'true'));
+  }
+});
+
 async function startGame(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Jouer' }).click();
@@ -73,3 +79,17 @@ test('finds a term in the glossary and shows the hand rankings', async ({ page }
   await page.getByRole('button', { name: 'Classement des mains' }).click();
   await expect(page.getByRole('listitem')).toHaveCount(10);
 });
+
+test('shows the guided tour on the first game', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Jouer' }).click();
+  const tour = page.getByRole('dialog');
+  await expect(tour).toContainText('Vos cartes et le board');
+  await expect(page.locator('.tour-target')).toHaveCount(1);
+  for (let step = 0; step < 3; step++) await tour.getByRole('button', { name: 'Suivant' }).click();
+  await tour.getByRole('button', { name: 'Terminer' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'Reprendre la partie' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+

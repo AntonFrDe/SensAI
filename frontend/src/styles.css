@@ -249,6 +249,14 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .glossary-list dd { margin: 4px 0 0; color: #cbd5e1; line-height: 1.5; }
 .term-button { padding: 0; border: 0; border-bottom: 1px dotted currentColor; border-radius: 0; background: none; color: inherit; font: inherit; cursor: help; }
 .term-popover { position: absolute; z-index: 10; top: calc(100% + 6px); left: 50%; width: min(280px, 80vw); padding: 10px 12px; border: 1px solid #334155; border-radius: 8px; background: #0f1a24; color: #e2e8f0; font-size: .85rem; font-weight: 400; line-height: 1.4; text-align: left; transform: translateX(-50%); box-shadow: 0 8px 24px rgba(0, 0, 0, .4); }
+.guided-tour { position: fixed; z-index: 20; right: 24px; bottom: 24px; display: grid; gap: 10px; width: min(380px, calc(100vw - 32px)); padding: 20px; border: 2px solid #fbbf24; border-radius: 14px; background: #101820; color: #f1f5f9; box-shadow: 0 16px 40px rgba(0, 0, 0, .5); }
+.guided-tour h3, .guided-tour p { margin: 0; }
+.guided-tour h3:focus { outline: none; }
+.tour-count { color: #94a3b8; font-size: .8rem; }
+.tour-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
+.tour-actions .link-button { margin-right: auto; }
+.tour-target { outline: 3px solid #fbbf24; outline-offset: 6px; border-radius: 12px; }
+.game-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
 .preferences { padding: 12px 16px; border: 1px solid #334155; border-radius: 12px; }
 .preferences summary { cursor: pointer; font-weight: 700; }
 .preferences-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
