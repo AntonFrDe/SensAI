@@ -1,4 +1,3 @@
-import ChipAmount from './ChipAmount';
 import type { PokerAction } from './ActionControls';
 import { phaseLabels, type GamePhase } from './HandInfo';
 
@@ -9,6 +8,13 @@ const verbs = {
   ai: { fold: 'se couche', check: 'checke', call: 'suit', bet: 'mise', raise: 'relance à' },
   you: { fold: 'vous couchez', check: 'checkez', call: 'suivez', bet: 'misez', raise: 'relancez à' },
 };
+
+const formatter = new Intl.NumberFormat('fr-FR');
+
+export function describeEntry(entry: HistoryEntry): string {
+  const sentence = entry.player === 'Vous' ? `Vous ${verbs.you[entry.action]}` : `L’IA ${verbs.ai[entry.action]}`;
+  return entry.amount === undefined ? sentence : `${sentence} ${formatter.format(entry.amount)} jetons`;
+}
 
 export default function HandHistory({ entries }: HandHistoryProps) {
   const streets = entries.reduce<{ street: GamePhase; entries: HistoryEntry[] }[]>((groups, entry) => {
@@ -24,10 +30,7 @@ export default function HandHistory({ entries }: HandHistoryProps) {
         <section key={group.street} aria-label={phaseLabels[group.street]}>
           <h3>{phaseLabels[group.street]}</h3>
           <ol>
-            {group.entries.map((entry, index) => <li key={index}>
-              {entry.player === 'Vous' ? `Vous ${verbs.you[entry.action]}` : `L’IA ${verbs.ai[entry.action]}`}
-              {entry.amount !== undefined && <> <ChipAmount amount={entry.amount} /></>}
-            </li>)}
+            {group.entries.map((entry, index) => <li key={index}>{describeEntry(entry)}</li>)}
           </ol>
         </section>
       ))}
