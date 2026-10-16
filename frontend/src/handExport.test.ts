@@ -58,4 +58,10 @@ describe('handsToText and handsToJson', () => {
     expect(text.indexOf('Main n°1')).toBeLessThan(text.indexOf('Main n°2'));
     expect(JSON.parse(handsToJson([showdown, folded])).map((hand: PlayedHand) => hand.number)).toEqual([1, 2]);
   });
+
+  it('says when the opponent cards were shown after a fold', () => {
+    const text = handToText({ ...folded, opponentCards: showdown.opponentCards });
+    expect(text).toContain('Cartes de l’IA (dévoilées pour l’entraînement) : Q♥ Q♣');
+  });
 });
+

@@ -72,5 +72,10 @@ describe('PokerTable', () => {
     expect(screen.getByRole('img', { name: 'A de cœur, dans la meilleure main' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Q de trèfle' })).toBeInTheDocument();
   });
+
+  it('labels opponent cards revealed for training', () => {
+    render(<PokerTable phase="showdown" revealedForTraining opponentCards={[{ rank: '7', suit: 'clubs' }, { rank: '2', suit: 'hearts' }]} />);
+    expect(screen.getByRole('region', { name: 'Adversaire IA' })).toHaveTextContent('Dévoilées pour l’entraînement');
+  });
 });
 

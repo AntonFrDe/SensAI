@@ -32,6 +32,7 @@ type Props = {
   blinds?: Blinds;
   hands?: Hands;
   awards?: PotAward[];
+  revealedForTraining?: boolean;
 };
 
 function highlightedCards(phase: GamePhase | undefined, hands: Hands | undefined, awards: PotAward[]): CardData[] {
@@ -52,7 +53,7 @@ function seatOrStack(seat: SeatData | undefined, name: string, stack: number | u
 
 export default function PokerTable({
   playerCards = [], opponentCards = [], opponentNote, opponentThinking = false, communityCards = [], pot, playerStack, opponentStack, controls,
-  currentPlayer, phase, currentBet, history = [], seats, blinds, hands, awards = [],
+  currentPlayer, phase, currentBet, history = [], seats, blinds, hands, awards = [], revealedForTraining = false,
 }: Props) {
   const playing = phase !== undefined && phase !== 'showdown';
   const best = highlightedCards(phase, hands, awards);
@@ -65,6 +66,7 @@ export default function PokerTable({
         {opponentCards.length > 0 && <div className="cards" role="group" aria-label="Cartes de l’IA">
           {opponentCards.map(card => <PlayingCard key={card.rank + card.suit} card={card} highlighted={isBest(card)} />)}
         </div>}
+        {revealedForTraining && opponentCards.length > 0 && <p className="training-note">Dévoilées pour l’entraînement</p>}
         <HandBadge hand={hands?.opponent} owner="Main de l’IA" />
       </Seat>
       <OpponentNote thinking={opponentThinking} note={opponentNote} />

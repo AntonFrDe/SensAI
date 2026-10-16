@@ -22,9 +22,10 @@ export type GameState = {
   blinds: Blinds;
   hands: Hands;
   gameOver: boolean;
+  revealedForTraining?: boolean;
 };
 export type BlindLevel = '5/10' | '10/20' | '25/50';
-export type TableOptions = { blinds: BlindLevel; stackBigBlinds: number };
+export type TableOptions = { blinds: BlindLevel; stackBigBlinds: number; revealAtEnd?: boolean };
 export const defaultTableOptions: TableOptions = { blinds: '10/20', stackBigBlinds: 50 };
 export type OpponentAction = { action: PokerAction; amount?: number; source: 'llm' | 'fallback' };
 export type GameResponse = { gameId: string; state: GameState; opponentAction?: OpponentAction };
