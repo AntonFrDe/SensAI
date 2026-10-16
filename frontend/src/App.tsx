@@ -10,6 +10,7 @@ import {
 import HandLog from './HandLog';
 import { useHandLog } from './handLog';
 import HomeScreen from './HomeScreen';
+import OddsPanel from './OddsPanel';
 import { handLabels } from './HandBadge';
 import './styles.css';
 
@@ -101,6 +102,7 @@ export default function App() {
             }} />
           <div className="side-panel">
             <CoachPanel key={version} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
+            <OddsPanel key={`odds-${version}`} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
             <SessionStats session={stats.session} lifetime={stats.lifetime} onResetLifetime={stats.resetLifetime} />
           </div>
         </div>
