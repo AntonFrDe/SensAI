@@ -18,6 +18,7 @@ import threading
 import traceback
 from collections.abc import Callable
 from contextlib import closing
+from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 from uuid import uuid4
@@ -40,6 +41,8 @@ ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
 GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand", "/api/odds", "/api/state")
 BANQUE_ROUTE = "/api/banque"
+NOTES_ROUTE = "/api/notes"
+MAX_NOTE = 200
 
 
 class UnknownGame(Exception):
@@ -72,6 +75,19 @@ def model_status(cfg: dict) -> dict:
 def glossary_entries() -> list[dict]:
     entries = ((entry, glossary.define(entry.term)) for entry in glossary.ENTRIES)
     return [{"term": entry.term, "aliases": list(entry.aliases), "definition": text} for entry, text in entries if text]
+
+
+def session_note(body: dict, today: date) -> str:
+    counts = [body.get(key) for key in ("hands", "won", "net")]
+    if any(type(value) is not int for value in counts) or not 0 <= counts[1] <= counts[0] <= 10_000:
+        raise ValueError("Invalid session numbers.")
+    remark = body.get("remark", "")
+    if not isinstance(remark, str) or len(remark) > MAX_NOTE:
+        raise ValueError(f"The remark must be text of at most {MAX_NOTE} characters.")
+    hands, won, net = counts
+    line = f"- {today.isoformat()} : partie web, {hands} mains, {won} gagnées, bilan {net:+d} jetons."
+    remark = " ".join(remark.split())
+    return f"{line} {remark}" if remark else line
 
 
 def parse_json(raw: bytes) -> dict:
@@ -134,7 +150,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Not found."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/api/chat", "/api/compare", "/api/coach", BANQUE_ROUTE, *GAME_ROUTES):
+        if self.path not in ("/api/chat", "/api/compare", "/api/coach", BANQUE_ROUTE, NOTES_ROUTE, *GAME_ROUTES):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -148,6 +164,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_json(*self._game_route(parse_json(raw)))
             if self.path == BANQUE_ROUTE:
                 return self._send_json(*self._banque_route(parse_json(raw)))
+            if self.path == NOTES_ROUTE:
+                return self._send_json(*self._notes_route(parse_json(raw)))
             if self.path == "/api/coach":
                 jobs = [self._coach_job(parse_json(raw))]
             elif self.path == "/api/chat":
@@ -213,6 +231,14 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 next_hand(game)
             return 200, {"gameId": game_id, "state": public_game_state(game)}
+
+    def _notes_route(self, body: dict) -> tuple[int, dict]:
+        line = session_note(body, date.today())
+        path = ROOT / self.cfg.get("notes_file", "notes/sessions.md")
+        with self.games_lock:
+            existing = path.read_text(encoding="utf-8") if path.exists() else "# Notes de jeu\n"
+            path.write_text(existing.rstrip("\n") + "\n" + line + "\n", encoding="utf-8")
+        return 201, {"line": line, "file": self.cfg.get("notes_file", "notes/sessions.md")}
 
     def _banque_route(self, body: dict) -> tuple[int, dict]:
         """One generated situation, one model call at a time (RAM guard)."""
