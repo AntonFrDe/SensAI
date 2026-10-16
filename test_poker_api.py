@@ -1,5 +1,9 @@
 """Public game state sent to the frontend, without Ollama. Run: python3 test_poker_api.py"""
-from poker_api import AI, HUMAN, apply_action, best_hand, create_game, next_hand, player_controls, public_game_state
+import random
+
+from poker_api import (
+    AI, HUMAN, apply_action, best_hand, create_game, next_hand, odds_summary, player_controls, public_game_state,
+)
 from poker_engine.card import Card, Suit
 from poker_engine.game import Game
 from poker_engine.player import Player
@@ -147,6 +151,45 @@ def test_invalid_game_options_are_refused():
         except ValueError:
             continue
         raise AssertionError(f"accepted {options}")
+
+
+def to_act(game) -> int:
+    return AI if game.state.current_player is game.state.players[AI] else HUMAN
+
+
+def test_odds_give_pot_odds_when_facing_a_bet():
+    game = new_game()
+    game.state.players[to_act(game)].hand[:] = cards("Ah", "Ad")
+
+    summary = odds_summary(game, to_act(game), random.Random(7))
+
+    assert summary["toCall"] == 10 and summary["pot"] == 30
+    assert summary["potOdds"] == 10 / 40
+    assert 0.8 < summary["equity"]["share"] < 0.9 and summary["outs"] is None
+
+
+def test_odds_count_outs_on_the_flop():
+    game = new_game()
+    apply_action(game, to_act(game), "call")
+    apply_action(game, to_act(game), "check")
+    seat = to_act(game)
+    game.state.players[seat].hand[:] = cards("Ah", "Kh")
+    game.state.community_cards[:] = cards("Qh", "7h", "2c")
+
+    summary = odds_summary(game, seat, random.Random(7))
+
+    assert summary["potOdds"] is None
+    assert summary["outs"]["byHand"] == {"Couleur": 9, "Paire": 6} and summary["outs"]["count"] == 15
+    assert summary["outs"]["nextCard"] == 15 / 47 and summary["outs"]["byRiver"] > 0.5
+
+
+def test_odds_are_refused_out_of_turn():
+    game = new_game()
+    try:
+        odds_summary(game, 1 - to_act(game))
+    except ValueError:
+        return
+    raise AssertionError("odds given out of turn")
 
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ import ai
 import generation
 import poker_ai
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
-from poker_api import AI, HUMAN, apply_action, create_game, next_hand, player_controls, public_game_state
+from poker_api import AI, HUMAN, apply_action, create_game, next_hand, odds_summary, player_controls, public_game_state
 from poker_engine.game import Game
 
 MAX_BODY = 1_000_000  # bytes
@@ -34,7 +34,7 @@ MAX_COACH_FOLLOW_UPS = 20
 ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
-GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand")
+GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand", "/api/odds")
 BANQUE_ROUTE = "/api/banque"
 
 
@@ -170,6 +170,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._opponent_turn(body)
         with self.games_lock:
             game_id, game = self._game(body)
+            if self.path == "/api/odds":
+                return 200, {"gameId": game_id, "odds": odds_summary(game)}
             if self.path == "/api/actions":
                 apply_action(game, HUMAN, body.get("action"), body.get("amount"))
             else:
