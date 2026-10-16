@@ -288,6 +288,25 @@ def test_status_reports_an_unreachable_ollama():
     assert body["models"]["opponent"] == {"name": "ok", "installed": False}
 
 
+def test_glossary_defines_a_term_and_lists_every_entry():
+    status, body = get("/api/glossary?term=big%20blind")
+    assert status == 200 and body["term"] == "BB" and "Grosse Blind" in body["definition"]
+
+    status, body = get("/api/glossary")
+    terms = {entry["term"] for entry in body["entries"]}
+    assert status == 200 and {"Pot", "Flop", "Out"} <= terms
+    assert all(entry["definition"] for entry in body["entries"])
+
+
+def test_glossary_answers_404_for_an_unknown_term():
+    try:
+        get("/api/glossary?term=zzz")
+    except urllib.error.HTTPError as e:
+        assert e.code == 404 and json.loads(e.read())["error"] == "Unknown term."
+    else:
+        raise AssertionError("unknown term accepted")
+
+
 def test_unknown_games_are_404():
     for path in ("/api/opponent", "/api/coach", "/api/actions", "/api/next-hand"):
         assert game_post(path, "nope")[0] == 404, path
