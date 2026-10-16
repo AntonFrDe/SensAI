@@ -109,3 +109,45 @@ classement des mains ; `test_web.py` couvre les routes.
 - Une partie vit en mémoire du serveur : redémarrer `server.py` la perd, la reprise ne marche qu'avec le même
   serveur.
 - Les statistiques « depuis toujours » et les préférences sont dans le `localStorage` du navigateur.
+
+## User stories de l'interface (X1)
+
+Format du sujet : *En tant que…, je veux…, afin de…*, puis des critères observables. Chaque critère est vérifié
+par un test Vitest, un test Playwright ou un essai dans le navigateur.
+
+**Table et actions**
+
+1. En tant que joueur débutant, je veux ne voir que les actions permises, afin de ne jamais tenter un coup
+   illégal.
+   - Les boutons des actions interdites sont grisés ; « Call » affiche la somme à payer.
+   - Un montant hors des bornes du serveur grise « Bet » et « Raise ».
+   - L'IA ne peut pas être interrompue : pendant son tour, tous les boutons sont grisés.
+2. En tant que joueur, je veux choisir une mise en un clic, afin de ne pas calculer « trois quarts du pot » de tête.
+   - Les boutons Min, ½ pot, ¾ pot, Pot et Tapis remplissent le montant, toujours dans les bornes.
+   - Le curseur et le champ restent synchronisés ; le bouton affiche « Raise à 120 » ou « Raise tapis ».
+   - Le montant se vide quand les bornes changent d'un tour à l'autre.
+3. En tant que joueur au clavier, je veux jouer sans souris, afin d'enchaîner les mains vite.
+   - F, C, R et T jouent ou préparent l'action ; Entrée dans le champ mise le montant.
+   - Une lettre tapée dans une question au coach ne déclenche aucune action.
+
+**Lecture de la table**
+
+1. En tant que joueur, je veux voir qui est donneur, qui a payé les blindes et combien chacun a misé, afin de
+   comprendre le pot.
+   - Badges D, SB et BB sur les sièges ; mise du tour devant chaque joueur ; « Couché » et « Tapis » affichés.
+   - Le joueur qui doit parler est encadré et annoncé.
+2. En tant que débutant, je veux savoir quelle main j'ai, afin d'apprendre les combinaisons en jouant.
+   - Dès le flop, le nom de ma main s'affiche (« Double paire ») et ses 5 cartes sont mises en évidence.
+   - À l'abattage, la main gagnante de l'IA est mise en évidence et nommée dans le résultat.
+   - « Pot », « Stack », « Flop », « Turn » et « River » ouvrent leur définition du glossaire.
+
+**Coach et repères**
+
+1. En tant que joueur qui doute, je veux discuter de ma décision avec le coach, afin de comprendre le conseil.
+   - Le conseil s'affiche au fil de l'eau ; « Arrêter » coupe la réponse et garde ce qui est écrit.
+   - Une question de suite (« Et si je relance ? ») est envoyée avec la conversation.
+   - Une erreur du modèle s'affiche et « Redemander » relance.
+2. En tant que joueur, je veux des chiffres sûrs pour décider, afin de ne pas dépendre d'un modèle qui se trompe
+   en calcul.
+   - « Repères » affiche la somme à payer, la cote du pot, l'équité et les outs, calculés par le serveur.
+   - Le verdict compare l'équité à la cote ; « À chaque décision » recalcule seul à chaque tour.
