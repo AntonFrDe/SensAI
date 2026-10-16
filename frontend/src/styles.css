@@ -251,6 +251,7 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 [data-card-size='large'] .poker-table .playing-card { width: 80px; height: 112px; font-size: 1.9rem; }
 [data-motion='off'] *, [data-motion='off'] *::before, [data-motion='off'] *::after { animation: none !important; transition: none !important; }
 [data-theme='light'] { color: #0f172a; background: #f1f5f9; }
+[data-theme='light'] :is(.poker-table, .replay-table, .mini-table) { color: #f1f5f9; }
 [data-theme='light'] :is(.coach, .stats, .odds, .hand-log, .situation, .glossary-list div, .rankings-list li, .game-summary, .choice, .stats-scope button, .suggestion) { border-color: #cbd5e1; background: #fff; color: #0f172a; }
 [data-theme='light'] :is(.server-status, .preferences, .table-options fieldset, .preferences fieldset) { border-color: #cbd5e1; }
 [data-theme='light'] :is(.coach-message, .hand-replay, .chart-tooltip, .term-popover, code) { border-color: #cbd5e1; background: #e2e8f0; color: #0f172a; }
