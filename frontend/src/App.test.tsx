@@ -57,6 +57,10 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Fold' }));
     expect(await screen.findByText('L’IA remporte 80 jetons (adversaire couché).')).toBeInTheDocument();
 
+    const stats = screen.getByRole('region', { name: 'Statistiques' });
+    expect(stats).toHaveTextContent('Mains jouées1');
+    expect(stats).toHaveTextContent('Bilan-10 jetons');
+
     await userEvent.click(screen.getByRole('button', { name: 'Main suivante' }));
     expect(calls.at(-1)).toBe('/api/next-hand');
     expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();

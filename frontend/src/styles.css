@@ -46,6 +46,18 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .hand-history ol { margin: 0; padding-left: 20px; font-variant-numeric: tabular-nums; }
 .coach { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
 .coach h3 { margin: 0; }
+.side-panel { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.stats { display: grid; gap: 12px; padding: 20px; border: 1px solid #334155; border-radius: 12px; background: #172330; }
+.stats h3 { margin: 0; }
+.stats-scope { display: flex; gap: 6px; }
+.stats-scope button { flex: 1; padding: 6px 10px; border: 1px solid #334155; background: transparent; color: #e2e8f0; font-size: .85rem; }
+.stats-scope button[aria-pressed='true'] { border-color: #fbbf24; color: #fde68a; }
+.stats dl { display: grid; gap: 6px; margin: 0; }
+.stat { display: flex; justify-content: space-between; gap: 12px; font-size: .9rem; }
+.stat dt { color: #94a3b8; }
+.stat dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.stat.net.up dd { color: #86efac; }
+.stat.net.down dd { color: #fca5a5; }
 .coach p { margin: 0; white-space: pre-wrap; line-height: 1.5; }
 .coach-error { color: #fca5a5; }
 .coach-messages { display: grid; gap: 10px; max-height: 420px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
