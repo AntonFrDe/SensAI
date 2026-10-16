@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { betPresets } from './betSizing';
+import { isTypingTarget, shortcutAction, shortcutHelp, shortcutKeys } from './shortcuts';
 
 export type PokerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
 export type ActionControlsProps = {
@@ -37,6 +38,24 @@ export default function ActionControls({
   const presets = canSize && maxAmount !== undefined
     ? betPresets({ pot, toCall: toCall ?? 0, currentBet, minAmount, maxAmount }) : [];
 
+  const amountInput = useRef<HTMLInputElement | null>(null);
+  const sizingAction = allowedActions.find(action => action === 'bet' || action === 'raise');
+
+  useEffect(() => {
+    if (!onAction || allowedActions.length === 0) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.ctrlKey || event.metaKey || event.altKey || isTypingTarget(event.target)) return;
+      const result = shortcutAction(event.key, allowedActions, validAmount);
+      if (!result) return;
+      event.preventDefault();
+      if (result.type === 'play') onAction?.(result.action, result.action === 'bet' || result.action === 'raise' ? value : undefined);
+      else if (result.type === 'all-in' && maxAmount !== undefined) setAmount(String(maxAmount));
+      else amountInput.current?.focus();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onAction, allowedActions, validAmount, value, maxAmount]);
+
   function amountOf(action: PokerAction): number | undefined {
     if (action === 'call') return toCall;
     if (action === 'bet' || action === 'raise') return validAmount ? value : undefined;
@@ -47,8 +66,11 @@ export default function ActionControls({
     <div className="actions" role="group" aria-label="Actions du joueur">
       <div className="bet-sizing">
         <label>Montant total (Bet / Raise)
-          <input type="number" min={minAmount} max={maxAmount} step="1" value={amount}
-            disabled={!canSize} onChange={event => setAmount(event.target.value)} />
+          <input ref={amountInput} type="number" min={minAmount} max={maxAmount} step="1" value={amount}
+            disabled={!canSize} onChange={event => setAmount(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' && validAmount && sizingAction) onAction?.(sizingAction, value);
+            }} />
         </label>
         {canSize && <input type="range" aria-label="Curseur du montant" min={minAmount} max={maxAmount} step="1"
           value={validAmount ? value : minAmount} onChange={event => setAmount(event.target.value)} />}
@@ -64,13 +86,20 @@ export default function ActionControls({
       {actions.map(action => {
         const shown = allowedActions.includes(action) ? amountOf(action) : undefined;
         return (
-          <button key={action} type="button" className={`action ${action}`}
+          <button key={action} type="button" className={`action ${action}`} aria-keyshortcuts={shortcutKeys[action]}
             disabled={!onAction || !allowedActions.includes(action) || ((action === 'bet' || action === 'raise') && !validAmount)}
             onClick={() => onAction?.(action, action === 'bet' || action === 'raise' ? value : undefined)}>
             {actionLabel(action, shown, shown !== undefined && action !== 'call' && shown === maxAmount)}
+            {shortcutKeys[action] && <kbd aria-hidden="true">{shortcutKeys[action]}</kbd>}
           </button>
         );
       })}
+      <details className="shortcut-help">
+        <summary>Raccourcis clavier</summary>
+        <dl>
+          {shortcutHelp.map(([key, text]) => <div key={key}><dt><kbd>{key}</kbd></dt><dd>{text}</dd></div>)}
+        </dl>
+      </details>
     </div>
   );
 }
