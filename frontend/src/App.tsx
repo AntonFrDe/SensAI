@@ -11,6 +11,7 @@ import {
 } from './api';
 import GameSummary from './GameSummary';
 import GlossaryScreen from './GlossaryScreen';
+import GuidedTour, { tourDoneKey } from './GuidedTour';
 import HandLog from './HandLog';
 import HandRankings from './HandRankings';
 import { useHandLog } from './handLog';
@@ -58,6 +59,11 @@ export default function App() {
   const [options, setOptions] = useState<TableOptions>(loadOptions);
   const [savedGame, forgetSavedGame] = useSavedGame();
   const [preferences, setPreferences] = usePreferences();
+  const [touring, setTouring] = useState(false);
+
+  function offerTour() {
+    if (localStorage.getItem(tourDoneKey) !== 'true') setTouring(true);
+  }
 
   useEffect(() => {
     if (game) rememberGame(game.gameId);
@@ -73,11 +79,13 @@ export default function App() {
     setVersion(previous => previous + 1);
     setView('game');
     forgetSavedGame();
+    offerTour();
   }
 
   function startGame(chosen: TableOptions) {
     setOptions(chosen);
     localStorage.setItem(optionsKey, JSON.stringify(chosen));
+    offerTour();
     void send('/api/games', { options: chosen }, 'player');
   }
 
@@ -142,7 +150,11 @@ export default function App() {
           </button>
         </section>}
         <HandLog hands={playedHands} />
-        <button type="button" disabled={busy !== ''} onClick={() => setView('home')}>Retour à l’accueil</button>
+        <div className="game-footer">
+          <button type="button" disabled={busy !== ''} onClick={() => setView('home')}>Retour à l’accueil</button>
+          <button type="button" className="link-button" onClick={() => setTouring(true)}>Visite guidée</button>
+        </div>
+        {touring && <GuidedTour onClose={() => setTouring(false)} />}
       </section>}
     </main>
   );
