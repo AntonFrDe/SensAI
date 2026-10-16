@@ -16,6 +16,7 @@ export type SeatProps = {
   label: string;
   avatar: string;
   active?: boolean;
+  lastAction?: string;
   position: 'top' | 'bottom';
   children?: ReactNode;
 };
@@ -23,7 +24,7 @@ export type SeatProps = {
 const blindLabels = { small: 'Petite blinde', big: 'Grosse blinde' };
 const blindShort = { small: 'SB', big: 'BB' };
 
-export default function Seat({ seat, label, avatar, active = false, position, children }: SeatProps) {
+export default function Seat({ seat, label, avatar, active = false, lastAction, position, children }: SeatProps) {
   const classes = ['seat-box', position, active ? 'active' : '', seat?.folded ? 'folded' : ''].filter(Boolean).join(' ');
   return (
     <section className={classes} aria-label={label} aria-current={active ? 'true' : undefined}>
@@ -35,6 +36,7 @@ export default function Seat({ seat, label, avatar, active = false, position, ch
           {blindShort[seat.blind]}
         </span>}
       </div>
+      {lastAction && <p className="action-bubble" aria-label={`Dernière action : ${lastAction}`}>{lastAction}</p>}
       <p className="chip-info"><Term term="stack">Stack</Term> : <ChipAmount amount={seat?.stack} /></p>
       {children}
       <p className="seat-status" aria-live="polite">

@@ -114,7 +114,7 @@ export default function App() {
         <h2>Table de poker</h2>
         <div className="game-layout">
           <PokerTable {...state}
-            opponentNote={busy === 'opponent' ? 'L’IA réfléchit…' : opponentMove}
+            opponentNote={opponentMove} opponentThinking={busy === 'opponent'}
             controls={{
               ...state.controls,
               onAction: busy ? undefined : (action, amount) => {
