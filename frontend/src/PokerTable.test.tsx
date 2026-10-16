@@ -49,5 +49,28 @@ describe('PokerTable', () => {
     render(<PokerTable phase="showdown" currentPlayer="player" playerStack={1000} opponentStack={1000} />);
     expect(screen.getByRole('region', { name: 'Vous' })).not.toHaveAttribute('aria-current');
   });
+
+  it('highlights your best five cards and names your hand', () => {
+    render(<PokerTable phase="flop" playerCards={[{ rank: 'Q', suit: 'hearts' }, { rank: '2', suit: 'clubs' }]}
+      communityCards={[{ rank: 'Q', suit: 'spades' }, { rank: '9', suit: 'diamonds' }, { rank: '5', suit: 'clubs' }]}
+      hands={{ player: { rank: 'one_pair', cards: [
+        { rank: 'Q', suit: 'hearts' }, { rank: 'Q', suit: 'spades' }, { rank: '9', suit: 'diamonds' },
+        { rank: '5', suit: 'clubs' }, { rank: '2', suit: 'clubs' },
+      ] }, opponent: null }} />);
+    expect(screen.getByLabelText('Votre main : Paire')).toBeInTheDocument();
+    expect(screen.getAllByRole('img', { name: /dans la meilleure main/ })).toHaveLength(5);
+  });
+
+  it('highlights the winning opponent hand at the showdown', () => {
+    const flush = [{ rank: 'A', suit: 'hearts' }, { rank: 'K', suit: 'hearts' }, { rank: '8', suit: 'hearts' },
+      { rank: '6', suit: 'hearts' }, { rank: '3', suit: 'hearts' }] as const;
+    render(<PokerTable phase="showdown" opponentCards={[flush[0], flush[1]]} communityCards={[flush[2], flush[3], flush[4]]}
+      playerCards={[{ rank: 'Q', suit: 'clubs' }, { rank: 'Q', suit: 'spades' }]}
+      awards={[{ amount: 200, winners: ['IA'] }]}
+      hands={{ player: { rank: 'one_pair', cards: [] }, opponent: { rank: 'flush', cards: [...flush] } }} />);
+    expect(screen.getByLabelText('Main de l’IA : Couleur')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'A de cœur, dans la meilleure main' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Q de trèfle' })).toBeInTheDocument();
+  });
 });
 

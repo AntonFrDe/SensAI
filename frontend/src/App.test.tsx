@@ -68,4 +68,18 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to fetch');
   });
+
+  it('names the winning hand at the showdown', async () => {
+    fakeServer({
+      '/api/games': () => ({ gameId: 'g2', state: state({
+        phase: 'showdown', controls: { allowedActions: [] },
+        awards: [{ amount: 200, winners: ['Vous'], reason: 'showdown' }],
+        hands: { player: { rank: 'flush', cards: [] }, opponent: { rank: 'two_pair', cards: [] } },
+      }) }),
+    });
+    render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
+    expect(await screen.findByText('Vous remportez 200 jetons avec : couleur.')).toBeInTheDocument();
+  });
 });
+
