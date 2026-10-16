@@ -82,4 +82,44 @@ describe('ActionControls', () => {
     expect(screen.queryByRole('slider')).not.toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'Montants rapides' })).not.toBeInTheDocument();
   });
+
+  it('plays with the keyboard shortcuts', async () => {
+    const onAction = vi.fn();
+    render(<ActionControls allowedActions={['fold', 'call', 'raise']} toCall={10} minAmount={40} maxAmount={1000} onAction={onAction} />);
+    await userEvent.keyboard('c');
+    expect(onAction).toHaveBeenLastCalledWith('call', undefined);
+    await userEvent.keyboard('f');
+    expect(onAction).toHaveBeenLastCalledWith('fold', undefined);
+    expect(screen.getByRole('button', { name: 'Fold' })).toHaveAttribute('aria-keyshortcuts', 'F');
+  });
+
+  it('moves to the amount, prepares an all-in and raises with Enter', async () => {
+    const onAction = vi.fn();
+    render(<ActionControls allowedActions={['fold', 'call', 'raise']} toCall={10} minAmount={40} maxAmount={1000} onAction={onAction} />);
+    await userEvent.keyboard('r');
+    const amount = screen.getByRole('spinbutton');
+    expect(amount).toHaveFocus();
+    expect(onAction).not.toHaveBeenCalled();
+    await userEvent.type(amount, 'f150{Enter}');
+    expect(onAction).toHaveBeenCalledOnce();
+    expect(onAction).toHaveBeenCalledWith('raise', 150);
+    amount.blur();
+    await userEvent.keyboard('t');
+    expect(amount).toHaveValue(1000);
+    await userEvent.keyboard('r');
+    expect(onAction).toHaveBeenLastCalledWith('raise', 1000);
+  });
+
+  it('ignores shortcuts without a legal action or while typing elsewhere', async () => {
+    const onAction = vi.fn();
+    render(<>
+      <input aria-label="Question" />
+      <ActionControls allowedActions={['fold', 'check']} onAction={onAction} />
+    </>);
+    await userEvent.type(screen.getByRole('textbox', { name: 'Question' }), 'fc');
+    await userEvent.click(document.body);
+    await userEvent.keyboard('r');
+    expect(onAction).not.toHaveBeenCalled();
+  });
 });
+
