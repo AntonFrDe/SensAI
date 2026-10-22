@@ -8,6 +8,7 @@ The model can call the tools of the MCP servers listed under "mcp_servers" in th
 import argparse
 import json
 import sys
+from collections.abc import Iterator
 from contextlib import closing
 
 import coach
@@ -42,13 +43,18 @@ def ensure_model(cfg: dict) -> None:
 
 
 def answer(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> list[dict] | None:
-    """Print the coach's reply to `text` as it streams, with the tools it runs on the way.
+    """Print the reply to `text` as it streams, with the tools it runs on the way."""
+    return show(coach.repondre(history, text, cfg, toolbox))
+
+
+def show(events: Iterator[tuple[str, object]]) -> list[dict] | None:
+    """Print the events of coach.repondre as they come.
 
     Returns the turn's messages (user, tool calls and results, final answer), or None if it failed or was cut.
     """
     turn, stats, thinking, line = None, None, False, ""
     try:
-        with closing(coach.repondre(history, text, cfg, toolbox)) as events:  # closing stops Ollama's generation
+        with closing(events) as events:  # closing stops Ollama's generation
             for kind, data in events:
                 if kind == "thinking" and not thinking:
                     thinking = True
@@ -79,19 +85,33 @@ def answer(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> list[
     return turn
 
 
+def read_line() -> str | None:
+    """The next line typed, stripped; None at the end of the input (Ctrl-D). Ctrl-C asks again."""
+    while True:
+        try:
+            return input("> ").strip()
+        except EOFError:
+            print()
+            return None
+        except KeyboardInterrupt:
+            print("\n(Ctrl-D ou /quit pour quitter)")
+
+
+def list_tools(toolbox: Toolbox) -> None:
+    for spec in toolbox.specs:
+        print(f"- {spec['function']['name']} ({toolbox.routes[spec['function']['name']].name})")
+    if not toolbox.specs:
+        print("Aucun outil.")
+
+
 def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
     history: list[dict] = []  # replaced, never edited in place
     tools = f" · {len(toolbox.specs)} outils (/tools)" if toolbox.specs else ""
     print(f"SensAI · {cfg['model']}{tools} · /reset : oublier la conversation · /quit : quitter")
     while True:
-        try:
-            text = input("> ").strip()
-        except EOFError:
-            print()
+        text = read_line()
+        if text is None:
             return 0
-        except KeyboardInterrupt:
-            print("\n(Ctrl-D ou /quit pour quitter)")
-            continue
         if not text:
             print("Message vide : écris quelque chose.")
         elif text in ("/quit", "/exit"):
@@ -100,10 +120,7 @@ def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
             history = []
             print("Conversation oubliée.")
         elif text == "/tools":
-            for spec in toolbox.specs:
-                print(f"- {spec['function']['name']} ({toolbox.routes[spec['function']['name']].name})")
-            if not toolbox.specs:
-                print("Aucun outil.")
+            list_tools(toolbox)
         elif (turn := answer(history, text, cfg, toolbox)) is not None:
             history = [*history, *turn]
 
