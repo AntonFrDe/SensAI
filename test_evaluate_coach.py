@@ -80,6 +80,15 @@ def test_render_gives_the_score_and_each_situation():
     assert "**1/1 débriefs sans contradiction**" in page and f"### {situation['id']}" in page
 
 
+def test_present_par_code_finds_the_action_and_the_numbers():
+    assert evaluate_coach.present_par_code("La bonne réponse est : suivre ou se coucher.", "Tu peux te coucher.") is False
+    assert evaluate_coach.present_par_code("La bonne réponse est : suivre ou se coucher.", "Il faut Se coucher.")
+    fait = "Cote du pot : il faut 30,0 % d'équité (payer 6 pour un pot de 14)"
+    assert evaluate_coach.present_par_code(fait, "payer 6 bb dans un pot de 14 bb, soit 30.0 %")
+    assert not evaluate_coach.present_par_code(fait, "payer 6 bb pour 14 bb, soit 33 %")
+    assert evaluate_coach.present_par_code("Ta meilleure main : Couleur", "une couleur") is None
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

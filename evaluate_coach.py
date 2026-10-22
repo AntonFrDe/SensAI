@@ -12,6 +12,7 @@ contradiction. Le script remplit evaluation/coach_resultats.md et evaluation/coa
 import argparse
 import json
 import random
+import re
 import sys
 import time
 from datetime import datetime
@@ -29,6 +30,8 @@ JUGE = "llama3.2:3b"   # une autre famille que le coach (qwen3) : il ne se corri
 QUESTION = "Pourquoi ? Explique-moi."
 NIVEAU_DU_THEME = {"ouverture": "intermediaire", "tirage": "intermediaire", generation.QUI_GAGNE: "debutant",
                    generation.DEFENSE: "avance"}
+NOMBRE_RE = re.compile(r"\d+(?:[.,]\d+)?")
+BONNE_REPONSE = "La bonne réponse est : "
 HORS_FAITS = ("Référence :", "Hypothèse :", "Règle :")   # le cadre de la référence, pas un fait à expliquer
 
 
@@ -84,6 +87,22 @@ def juger(situation: dict, reponse: str, cfg: dict) -> list[str]:
     return ["illisible"] * len(attendus)
 
 
+def _nombres(texte: str) -> set[float]:
+    return {float(n.replace(",", ".")) for n in NOMBRE_RE.findall(texte)}
+
+
+def present_par_code(fait: str, reponse: str) -> bool | None:
+    """Vérification sans modèle : la bonne action est nommée, ou tous les nombres du fait sont dans la réponse.
+
+    None si le fait n'a ni action ni nombre à chercher. Ne voit pas les contradictions : c'est le rôle du juge.
+    """
+    if fait.startswith(BONNE_REPONSE):
+        actions = fait.removeprefix(BONNE_REPONSE).rstrip(".").split(" ou ")
+        return any(action.lower() in reponse.lower() for action in actions)
+    nombres = _nombres(fait) - {6, 100}   # « 6-max, 100 blindes » : le cadre, pas un résultat
+    return nombres <= _nombres(reponse) if nombres else None
+
+
 def evaluer(situation: dict, cfg: dict) -> dict:
     debut = time.monotonic()
     action = mauvaise_action(situation)
@@ -92,7 +111,8 @@ def evaluer(situation: dict, cfg: dict) -> dict:
     return {
         "id": situation["id"], "theme": situation["theme"], "situation": generation.decrire(situation),
         "action": action, "reponse": reponse,
-        "faits": [{"fait": fait, "verdict": v} for fait, v in zip(faits(situation), verdicts)],
+        "faits": [{"fait": fait, "verdict": v, "code": present_par_code(fait, reponse)}
+                  for fait, v in zip(faits(situation), verdicts)],
         "contredit": "contredit" in verdicts, "illisible": "illisible" in verdicts,
         "secondes": round(time.monotonic() - debut, 1),
     }
@@ -101,9 +121,11 @@ def evaluer(situation: dict, cfg: dict) -> dict:
 def score(resultats: list[dict]) -> dict:
     juges = [r for r in resultats if not r["illisible"]]
     presents = [f["verdict"] == "présent" for r in juges for f in r["faits"]]
+    verifies = [f["code"] for r in resultats for f in r["faits"] if f.get("code") is not None]
     return {"situations": len(resultats), "jugees": len(juges),
             "sans_contradiction": sum(not r["contredit"] for r in juges),
-            "faits_presents": sum(presents), "faits": len(presents)}
+            "faits_presents": sum(presents), "faits": len(presents),
+            "faits_retrouves_par_code": sum(verifies), "faits_verifiables": len(verifies)}
 
 
 def render(resultats: list[dict], coach_modele: str, juge: str) -> str:
@@ -111,7 +133,9 @@ def render(resultats: list[dict], coach_modele: str, juge: str) -> str:
     lignes = ["# Évaluation du coach (EV1)", "",
               f"Coach : `{coach_modele}` — juge : `{juge}` — {datetime.now():%Y-%m-%d %H:%M} — "
               f"**{s['sans_contradiction']}/{s['jugees']} débriefs sans contradiction**, "
-              f"{s['faits_presents']}/{s['faits']} faits de la référence présents.", ""]
+              f"{s['faits_presents']}/{s['faits']} faits de la référence présents selon le juge ; "
+              f"**{s['faits_retrouves_par_code']}/{s['faits_verifiables']} retrouvés par le code** (bonne action "
+              "nommée, chiffres cités).", ""]
     if s["jugees"] < s["situations"]:
         lignes += [f"{s['situations'] - s['jugees']} verdicts illisibles, non comptés.", ""]
     lignes += ["Fichier généré par `python3 evaluate_coach.py` : ne pas modifier à la main. Le joueur prend la "
@@ -140,13 +164,30 @@ def enregistrer(resultats: list[dict], cfg: dict, juge: str, graine: int) -> Non
                                                 encoding="utf-8")
 
 
+def relire() -> int:
+    """Recalcule la vérification par le code et la page à partir de coach_resultats.json, sans appeler de modèle."""
+    payload = json.loads((FOLDER / "coach_resultats.json").read_text(encoding="utf-8"))
+    resultats = [{**r, "faits": [{**f, "code": present_par_code(f["fait"], r["reponse"])} for f in r["faits"]]}
+                 for r in payload["resultats"]]
+    (FOLDER / "coach_resultats.md").write_text(render(resultats, payload["coach"], payload["juge"]), encoding="utf-8")
+    payload = {**payload, "score": score(resultats), "resultats": resultats}
+    (FOLDER / "coach_resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n",
+                                                encoding="utf-8")
+    print(json.dumps(payload["score"], ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Évalue le débrief du coach contre la référence calculée.")
     parser.add_argument("--modele", help="coach (sinon celui de config.json)")
     parser.add_argument("--juge", help=f"correcteur (sinon judge_model de config.json, ou {JUGE})")
     parser.add_argument("--nombre", type=int, default=NOMBRE, help=f"situations (défaut : {NOMBRE})")
     parser.add_argument("--graine", type=int, default=GRAINE, help=f"tirage des situations (défaut : {GRAINE})")
+    parser.add_argument("--relire", action="store_true",
+                        help="recalculer la vérification par le code sur les résultats enregistrés, sans modèle")
     args = parser.parse_args(argv)
+    if args.relire:
+        return relire()
     cfg = load_config()
     cfg = {**cfg, **({"model": args.modele} if args.modele else {}), **({"judge_model": args.juge} if args.juge else {})}
     juge = cfg.get("judge_model", JUGE)
