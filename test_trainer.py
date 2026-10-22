@@ -2,7 +2,10 @@
 
     python3 test_trainer.py
 """
+import json
 import random
+import tempfile
+from pathlib import Path
 
 import generation
 import trainer
@@ -10,7 +13,8 @@ from fake_ollama import FakeOllama, start
 from llm import LLMError
 
 OLLAMA = f"http://127.0.0.1:{start(FakeOllama)}"
-CFG = {"model": "ok", "ollama_url": OLLAMA, "num_ctx": 1024, "system_prompt": "test"}
+CFG = {"model": "ok", "ollama_url": OLLAMA, "num_ctx": 1024, "system_prompt": "test",
+       "banque_file": "/nonexistent/banque.jsonl"}   # situations drawn by the code only
 
 
 def session(niveau="debutant", seed=0):
@@ -50,6 +54,19 @@ def test_a_situation_is_never_given_twice_in_a_session():
     s = session()
     cles = [generation.cle("ouverture", s.nouvelle_situation()) for _ in range(30)]
     assert len(set(cles)) == 30 and s.numero == 30
+
+
+def test_the_generated_bank_comes_first():
+    generee = {**generation.tirer("ouverture", "debutant", random.Random(1)), "source": "llm"}
+    autre_niveau = {**generation.tirer("ouverture", "avance", random.Random(2)), "source": "llm"}
+    with tempfile.TemporaryDirectory() as tmp:
+        banque = Path(tmp) / "banque.jsonl"
+        banque.write_text("".join(json.dumps(s) + "\n" for s in (generee, autre_niveau)))
+        s = trainer.Session({**CFG, "banque_file": str(banque)}, rng=random.Random(0))
+        s.choisir_niveau("debutant")
+        first, second = s.nouvelle_situation(), s.nouvelle_situation()
+    assert first == generee
+    assert second["source"] == "code"   # the bank has nothing left for this level
 
 
 def test_decider_gives_the_verdict_of_the_reference():

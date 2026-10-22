@@ -28,7 +28,7 @@ def noter(reference: dict, action: str) -> str:
 
 
 class Session:
-    """Une session d'un joueur. Les situations se tirent sans le modèle : elles arrivent tout de suite."""
+    """Une session d'un joueur. Les situations ne demandent pas d'appel au modèle : elles arrivent tout de suite."""
 
     def __init__(self, cfg: dict, toolbox: Toolbox | None = None, rng: random.Random | None = None):
         self.cfg = cfg
@@ -54,11 +54,16 @@ class Session:
         return choix
 
     def nouvelle_situation(self) -> dict:
-        """Une situation d'un thème du niveau, jamais vue dans la session ; oublie la décision précédente."""
+        """Une situation d'un thème du niveau, jamais vue dans la session ; oublie la décision précédente.
+
+        D'abord celles de la banque générée par le modèle, puis des situations tirées par le code.
+        """
         if self.niveau is None:
             raise ValueError("choisis d'abord un niveau")
         theme = self.rng.choice(THEMES_PAR_NIVEAU[self.niveau])
-        situation = generation.tirer(theme, self.niveau, self.rng, self.vues)
+        banque = [s for s in generation.lire_banque(self.cfg)
+                  if s["theme"] == theme and s["niveau"] == self.niveau and generation.cle(theme, s) not in self.vues]
+        situation = self.rng.choice(banque) if banque else generation.tirer(theme, self.niveau, self.rng, self.vues)
         self.vues = {*self.vues, generation.cle(theme, situation)}
         self.situation, self.action, self.verdict, self.debrief = situation, None, None, []
         self.numero += 1
