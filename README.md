@@ -274,6 +274,7 @@ relance à chaque modification.
 | `config.json`, `prompts/system.txt` | Réglages de l'interface web et prompt système |
 | `data/` | Données du poker, voir « Données » ci-dessous |
 | `docs/` | Sujet, bootstrap et catalogue de features |
+| `docs/DEMO.md` | Démo de la keynote, rejouable avec `--seed 187` |
 | `USER_STORIES.md` | Deux user stories par feature, avec l'état de chaque critère |
 
 ## Données
