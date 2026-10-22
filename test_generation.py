@@ -90,6 +90,10 @@ def test_valider_reports_each_kind_of_mistake():
     sans_tirage = {**TIRAGE, "cartes": ["2c", "3d"], "board": ["As", "Kh", "9c"], "pot": 6, "a_payer": 2}
     assert "pas de tirage couleur ou quinte" in valider(sans_tirage)
 
+    paire_max = {**TIRAGE, "cartes": ["Qh", "Ks"], "board": ["Tc", "Ad", "2d", "Kh"], "pot": 13.3, "a_payer": 3.3}
+    assert "le joueur a déjà une paire" in valider(paire_max)   # outs alone would say fold with top pair
+    assert "le joueur a déjà une paire" in valider({**TIRAGE, "cartes": ["9h", "9d"], "board": ["Th", "Jh", "2c"]})
+
     assert "situation déjà dans la banque" in valider(TIRAGE, deja_vues={generation.cle("tirage", TIRAGE)})
 
     assert valider("texte") == ["la réponse doit être un objet JSON"]

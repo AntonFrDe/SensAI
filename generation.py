@@ -51,6 +51,8 @@ RELANCE_DEFENSE = 0.55   # au-dessus, relancer (3-bet) est aussi acceptable
 # Une petite mise rend « suivre » évident : au-delà du niveau débutant, l'adversaire mise au moins ~un tiers du pot
 MISE_MIN = 0.3
 MISE_TROP_PETITE = "mise trop petite pour ce niveau"
+# Avec une paire, la décision ne se joue plus sur les outs seuls : la référence (outs contre cote du pot) serait fausse
+MAIN_FAITE = "le joueur a déjà une paire"
 PROMPT = ROOT / "prompts" / "generation.txt"
 _verrou = threading.Lock()
 
@@ -66,6 +68,7 @@ AIDES = {
     "pas de tirage couleur ou quinte": "il faut 4 cartes de même couleur, ou 4 hauteurs qui se suivent, entre les "
                                        "2 cartes du joueur et le board, sans main déjà faite",
     "situation déjà dans la banque": "change les cartes du joueur ou le board",
+    MAIN_FAITE: "ni paire en main, ni carte du joueur de la même hauteur qu'une carte du board",
     MISE_TROP_PETITE: "a_payer doit valoir au moins un tiers du pot d'avant la mise (pot - a_payer)",
 }
 CONSIGNES_NIVEAU = {
@@ -161,6 +164,9 @@ def valider(brut, theme: str, niveau: str, deja_vues: set[str]) -> list[str]:
         groupes = odds.outs(_cartes(cartes), _cartes(board))
         if "Couleur" not in groupes and "Quinte" not in groupes:
             problemes.append("pas de tirage couleur ou quinte")
+        hauteurs = [c[0] for c in cartes]
+        if hauteurs[0] == hauteurs[1] or any(c[0] in hauteurs for c in board):
+            problemes.append(MAIN_FAITE)
     if cle(theme, brut) in deja_vues:
         problemes.append("situation déjà dans la banque")
     return problemes
