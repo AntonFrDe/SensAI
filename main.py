@@ -1,20 +1,31 @@
-"""SensAI in the terminal: chat with a local Ollama model, answers streamed as they are written.
+"""SensAI in the terminal: a poker trainer. It asks your level, deals a situation, grades your decision against a
+reference computed by the code, then the coach (a local Ollama model) debriefs it, answers streamed as written.
 
-    python3 main.py [--model M] [--config config.json] [--no-tools]
+    python3 main.py [--model M] [--config config.json] [--no-tools] [--seed N] [--pseudo P] [--libre]
 
-Commands: /reset forgets the conversation, /tools lists the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an answer.
+Commands: /exercice deals the next situation, /fiche writes what to remember, /niveau changes the level,
+/reprendre brings back the last debrief of the profile, /reset forgets the debrief, /tools lists the tools,
+/quit (or Ctrl-D) leaves, Ctrl-C stops an answer. --pseudo keeps the level and the results in
+profiles/<pseudo>.json. --libre is the plain chat.
 The model can call the tools of the MCP servers listed under "mcp_servers" in the config (see mcp_client.py).
 """
 import argparse
 import json
+import random
 import sys
+from collections.abc import Iterator
 from contextlib import closing
 
-from llm import ROOT, LLMError, list_models, load_config, stream_chat
+import coach
+import generation
+import profils
+import trainer
+from llm import ROOT, LLMError, list_models, load_config
 from mcp_client import Toolbox
 
 DIM, RED, RESET = "\033[2m", "\033[31m", "\033[0m"
-MAX_TOOL_ROUNDS = 5  # then the model must answer with what it has
+KEYS = {"fold": "f", "call": "c", "raise": "r", "moi": "m", "adversaire": "a", "egalite": "e"}
+ICONS = {"bon": "✅", "acceptable": "🟡", "erreur": "❌"}
 
 
 def style(text: str, code: str, stream) -> str:
@@ -41,43 +52,42 @@ def ensure_model(cfg: dict) -> None:
         )
 
 
-def generate(messages: list[dict], cfg: dict) -> tuple[str, list[dict], dict | None]:
-    """One model call, printed as it streams: (text, tool calls, stats)."""
-    reply, calls, stats, thinking = "", [], None, False
-    with closing(stream_chat(messages, cfg)) as chunks:  # closing stops Ollama's generation
-        for kind, data in chunks:
-            if kind == "thinking" and not thinking:
-                thinking = True
-                note("[réflexion…]")
-            elif kind == "token":
-                reply += data
-                print(data, end="", flush=True)
-            elif kind == "tool_calls":
-                calls = [*calls, *data]
-            elif kind == "done":
-                stats = data
-    return reply, calls, stats
-
-
 def answer(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> list[dict] | None:
-    """Stream the reply to `text`, running the tools the model asks for on the way.
+    """Print the reply to `text` as it streams, with the tools it runs on the way."""
+    return show(coach.repondre(history, text, cfg, toolbox))
+
+
+def show(events: Iterator[tuple[str, object]]) -> list[dict] | None:
+    """Print the events of coach.repondre as they come.
 
     Returns the turn's messages (user, tool calls and results, final answer), or None if it failed or was cut.
     """
-    turn = [{"role": "user", "content": text}]
+    turn, stats, thinking, line = None, None, False, ""
     try:
-        for round_ in range(MAX_TOOL_ROUNDS + 1):
-            round_cfg = cfg if round_ < MAX_TOOL_ROUNDS else {**cfg, "tools": []}
-            reply, calls, stats = generate([*history, *turn], round_cfg)
-            turn = [*turn, {"role": "assistant", "content": reply, **({"tool_calls": calls} if calls else {})}]
-            if not calls:
-                break
-            if reply:
-                print()
-            for call in calls:
-                name, arguments = call["function"]["name"], call["function"].get("arguments", {})
-                note(f"[outil] {name}({json.dumps(arguments, ensure_ascii=False)})")
-                turn = [*turn, {"role": "tool", "tool_name": name, "content": toolbox.call(name, arguments)}]
+        with closing(events) as events:  # closing stops Ollama's generation
+            for kind, data in events:
+                if kind == "thinking" and not thinking:
+                    thinking = True
+                    note("[réflexion…]")
+                elif kind == "token":
+                    line += data
+                    print(data, end="", flush=True)
+                elif kind == "question":
+                    if line:
+                        print()
+                    line = ""
+                    print(f"\n{data['question']}")
+                    for number, choice in enumerate(data["choix"], 1):
+                        print(f"  {number}. {choice}")
+                    note("(réponds par un numéro, ou écris ta réponse)")
+                elif kind == "outil":
+                    if line:
+                        print()
+                    thinking, line = False, ""
+                    name, arguments = data
+                    note(f"[outil] {name}({json.dumps(arguments, ensure_ascii=False)})")
+                elif kind == "fin":
+                    turn, stats = data
     except LLMError as e:
         print()  # end a half-printed answer's line
         fail(str(e))
@@ -93,19 +103,33 @@ def answer(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> list[
     return turn
 
 
+def read_line() -> str | None:
+    """The next line typed, stripped; None at the end of the input (Ctrl-D). Ctrl-C asks again."""
+    while True:
+        try:
+            return input("> ").strip()
+        except EOFError:
+            print()
+            return None
+        except KeyboardInterrupt:
+            print("\n(Ctrl-D ou /quit pour quitter)")
+
+
+def list_tools(toolbox: Toolbox) -> None:
+    for spec in toolbox.specs:
+        print(f"- {spec['function']['name']} ({toolbox.routes[spec['function']['name']].name})")
+    if not toolbox.specs:
+        print("Aucun outil.")
+
+
 def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
     history: list[dict] = []  # replaced, never edited in place
     tools = f" · {len(toolbox.specs)} outils (/tools)" if toolbox.specs else ""
     print(f"SensAI · {cfg['model']}{tools} · /reset : oublier la conversation · /quit : quitter")
     while True:
-        try:
-            text = input("> ").strip()
-        except EOFError:
-            print()
+        text = read_line()
+        if text is None:
             return 0
-        except KeyboardInterrupt:
-            print("\n(Ctrl-D ou /quit pour quitter)")
-            continue
         if not text:
             print("Message vide : écris quelque chose.")
         elif text in ("/quit", "/exit"):
@@ -114,25 +138,168 @@ def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
             history = []
             print("Conversation oubliée.")
         elif text == "/tools":
-            for spec in toolbox.specs:
-                print(f"- {spec['function']['name']} ({toolbox.routes[spec['function']['name']].name})")
-            if not toolbox.specs:
-                print("Aucun outil.")
+            list_tools(toolbox)
         elif (turn := answer(history, text, cfg, toolbox)) is not None:
             history = [*history, *turn]
 
 
+def ask_level(session: trainer.Session) -> bool:
+    """Ask the level until the answer is one, by number or in plain words; False if the player leaves instead."""
+    print("Quel est ton niveau au poker ? (un numéro, ou dis-le avec tes mots)")
+    for number, label in enumerate(trainer.NIVEAUX.values(), 1):
+        print(f"  {number}. {label}")
+    while True:
+        text = read_line()
+        if text is None or text in ("/quit", "/exit"):
+            return False
+        try:
+            session.choisir_niveau(text)
+            return True
+        except ValueError:
+            pass
+        if text.isdigit():
+            print(f"Réponds par un numéro de 1 à {len(trainer.NIVEAUX)}.")
+            continue
+        note("[classement de ta réponse…]")
+        try:
+            level = session.niveau_libre(text)
+        except (ValueError, LLMError):
+            print(f"Je n'ai pas compris. Réponds par un numéro de 1 à {len(trainer.NIVEAUX)}.")
+            continue
+        print(f"Niveau retenu : {trainer.NIVEAUX[level['niveau']]}. {level['raison']}")
+        return True
+
+
+def choices(situation: dict) -> str:
+    return "   ".join(f"[{KEYS[a]}] {generation.LIBELLES[a]}" for a in situation["actions"])
+
+
+def deal(session: trainer.Session) -> None:
+    situation = session.nouvelle_situation()
+    print(f"\nSituation {session.numero} · {generation.decrire(situation)}")
+    print(f"{generation.QUESTIONS.get(situation['theme'], 'Que fais-tu ?')}  {choices(situation)}")
+
+
+def or_list(actions: list[str]) -> str:
+    return " ou ".join(generation.LIBELLES[a] for a in actions)
+
+
+def decide(session: trainer.Session, text: str) -> None:
+    """Grade the action of the key typed, then show the reference it was graded against."""
+    action = {KEYS[a]: a for a in session.situation["actions"]}.get(text.lower())
+    if action is None:
+        print(f"Choisis une action : {choices(session.situation)}")
+        return
+    verdict = session.decider(action)
+    reference = session.situation["reference"]
+    if verdict == "bon":
+        print(f"{ICONS[verdict]} Bon : {generation.LIBELLES[action]}, c'est la bonne réponse.")
+    elif verdict == "acceptable":
+        print(f"{ICONS[verdict]} Acceptable : situation limite, {or_list(reference['acceptables'])} se défendent.")
+    else:
+        best = reference["bonnes"] or reference["acceptables"]
+        print(f"{ICONS[verdict]} Erreur : la bonne réponse était {or_list(best)}.")
+    for fact in reference["faits"]:
+        print(f"- {fact}")
+    note("Pose tes questions au coach · /fiche : ce qu'il faut retenir · /exercice : situation suivante")
+
+
+def greet(profil: dict) -> None:
+    """Welcome back a known player: level, themes to work on, how to resume."""
+    done = profils.nombre_exercices(profil)
+    print(f"Re-bonjour {profil['pseudo']} · niveau : {trainer.NIVEAUX[profil['niveau']]} (/niveau pour changer)")
+    print(f"{done} exercice{'s' if done > 1 else ''} fait{'s' if done > 1 else ''} jusqu'ici.")
+    if weak := profils.themes_faibles(profil):
+        print(f"Thèmes à revoir : {', '.join(weak)}. Ils reviendront plus souvent.")
+    if profil["dernier_debrief"]:
+        note("/reprendre : reprendre le dernier débrief")
+
+
+def resume(session: trainer.Session) -> None:
+    """Show the debrief brought back from the profile: the situation, the decision and the last answer."""
+    try:
+        last = session.reprendre()
+    except ValueError as e:
+        print(f"Rien à reprendre : {e}.")
+        return
+    print(f"\nDernière situation · {generation.decrire(last['situation'])}")
+    print(f"Ta décision : {generation.LIBELLES[last['action']]} ({ICONS[last['verdict']]} {last['verdict']}).")
+    answers = [m["content"] for m in last["debrief"] if m["role"] == "assistant" and m["content"]]
+    if answers:
+        print(f"Coach : {answers[-1]}")
+    note("Continue le débrief, ou /exercice pour une nouvelle situation")
+
+
+def card(session: trainer.Session) -> None:
+    """Print the end-of-exercise card written by the model."""
+    note("[fiche de fin d'exercice…]")
+    try:
+        fiche = session.ecrire_fiche()
+    except (ValueError, LLMError) as e:
+        print(f"Fiche impossible : {e}.")
+        return
+    print(f"À retenir : {fiche['a_retenir']}")
+    print(f"Thème à revoir : {fiche['theme_a_revoir']}")
+
+
+def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None, profil: dict | None = None) -> int:
+    session = trainer.Session(cfg, toolbox, rng, profil)
+    tools = f" · {len(toolbox.specs)} outils (/tools)" if toolbox.specs else ""
+    print(f"SensAI · {cfg['model']}{tools} · /exercice · /fiche · /niveau · /reprendre · /reset · /quit")
+    if session.niveau:
+        greet(session.profil)
+    elif not ask_level(session):
+        return 0
+    deal(session)
+    while True:
+        text = read_line()
+        if text is None or text in ("/quit", "/exit"):
+            return 0
+        if not text:
+            print("Message vide : écris quelque chose.")
+        elif text == "/tools":
+            list_tools(toolbox)
+        elif text == "/exercice":
+            deal(session)
+        elif text == "/niveau":
+            if not ask_level(session):
+                return 0
+            deal(session)
+        elif text == "/reprendre":
+            resume(session)
+        elif text == "/fiche":
+            card(session)
+        elif text == "/reset":
+            session.oublier()
+            print("Débrief oublié.")
+        elif session.action is None:
+            decide(session, text)
+        else:
+            show(session.discuter(session.reponse(text)))
+
+
 def main() -> int:
-    ap = argparse.ArgumentParser(description="SensAI : chat en ligne de commande avec un modèle Ollama local")
+    ap = argparse.ArgumentParser(
+        description="SensAI : entraîneur de poker en ligne de commande, avec un modèle Ollama local")
     ap.add_argument("--model", help="modèle à utiliser (sinon celui de la config)")
     ap.add_argument("--config", default=str(ROOT / "config.json"), help="fichier de configuration (défaut : config.json)")
     ap.add_argument("--no-tools", action="store_true", help="ne lancer aucun serveur MCP")
+    ap.add_argument("--seed", type=int, help="graine du tirage des situations, pour rejouer la même session")
+    ap.add_argument("--pseudo", help="garder le niveau et les résultats dans profiles/<pseudo>.json")
+    ap.add_argument("--libre", action="store_true", help="chat libre avec le modèle, sans le parcours d'exercices")
     args = ap.parse_args()
+    try:
+        if args.pseudo:
+            profils.valider_pseudo(args.pseudo)
+    except ValueError as e:
+        fail(str(e))
+        return 1
 
     try:
         cfg = load_config(args.config)
         if args.model:
             cfg = {**cfg, "model": args.model}
+        profil = profils.charger(args.pseudo, cfg) if args.pseudo else None
         ensure_model(cfg)
     except (OSError, ValueError, KeyError) as e:
         fail(f"Configuration illisible ({args.config}) : {e!r}")
@@ -145,7 +312,10 @@ def main() -> int:
     try:
         for warning in toolbox.warnings:  # a broken tool server must not stop the chat
             fail(f"outils indisponibles, {warning}")
-        return chat_loop({**cfg, "tools": toolbox.specs}, toolbox)
+        cfg = {**cfg, "tools": toolbox.specs}
+        if args.libre:
+            return chat_loop(cfg, toolbox)
+        return trainer_loop(cfg, toolbox, random.Random(args.seed), profil)
     finally:
         toolbox.close()
 

@@ -47,6 +47,14 @@ def hand_range(hand: str) -> dict[str, str | tuple[str, str]]:
     return {pos: chart.get(cell, "fold") for pos, chart in _RANGES.items()}
 
 
+def opening_range(position: str) -> dict[str, float]:
+    """The hands a position opens, with a weight: 1 if always opened, 0.5 if mixed. Folded hands are left out."""
+    if position not in _RANGES:
+        raise ValueError(f"unknown opening position {position!r}: expected one of {', '.join(_RANGES)}")
+    return {cell: 0.5 if isinstance(action, tuple) else 1.0
+            for cell, action in _RANGES[position].items() if action != "fold"}
+
+
 if __name__ == "__main__":
     import sys
 

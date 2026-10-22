@@ -54,10 +54,12 @@ def test_ouverture_reference_follows_the_ranges():
 
 
 def test_tirage_reference_compares_the_pot_odds():
-    flush = generation.reference(sit("tirage"))
-    assert flush["bonnes"] == ["call"] and any("25,0 %" in fait for fait in flush["faits"])
+    flush = generation.reference(sit("tirage", pot=10, a_payer=2))
+    assert flush["bonnes"] == ["call"] and any("16,7 %" in fait for fait in flush["faits"])
+    assert flush["faits"][0] == "Outs : 9 (9 pour couleur)"   # an ace or a 5 only pairs: not counted
+    assert "ne comptent pas" in flush["faits"][1]
 
-    limite = generation.reference(sit("tirage", cartes=["8h", "9d"], board=["7c", "6s", "2h"], pot=10, a_payer=8))
+    limite = generation.reference(sit("tirage", cartes=["8h", "9d"], board=["7c", "6s", "2h"], pot=10, a_payer=4))
     assert limite["acceptables"] == ["call", "fold"] and limite["bonnes"] == []
 
     perdu = generation.reference(sit("tirage", board=["Kh", "7h", "2c", "Qd"], pot=10, a_payer=9))
@@ -77,6 +79,10 @@ def test_valider_reports_each_kind_of_mistake():
     avec_board = {**OUVERTURE, "board": ["Kh"]}
     assert "board de 1 cartes impossible pour ce thème" in valider(avec_board, "ouverture")
 
+    petite_mise = {**TIRAGE, "pot": 11, "a_payer": 1}   # 1 bb into a pot of 10
+    assert "mise trop petite pour ce niveau" in valider(petite_mise)
+    assert "mise trop petite pour ce niveau" not in valider(petite_mise, niveau="debutant")
+
     tout_paye = {**TIRAGE, "a_payer": 6}
     assert "a_payer doit être positif et plus petit que pot" in valider(tout_paye)
 
@@ -86,9 +92,20 @@ def test_valider_reports_each_kind_of_mistake():
     sans_tirage = {**TIRAGE, "cartes": ["2c", "3d"], "board": ["As", "Kh", "9c"], "pot": 6, "a_payer": 2}
     assert "pas de tirage couleur ou quinte" in valider(sans_tirage)
 
+    paire_max = {**TIRAGE, "cartes": ["Qh", "Ks"], "board": ["Tc", "Ad", "2d", "Kh"], "pot": 13.3, "a_payer": 3.3}
+    assert "le joueur a déjà une paire" in valider(paire_max)   # outs alone would say fold with top pair
+    assert "le joueur a déjà une paire" in valider({**TIRAGE, "cartes": ["9h", "9d"], "board": ["Th", "Jh", "2c"]})
+
     assert "situation déjà dans la banque" in valider(TIRAGE, deja_vues={generation.cle("tirage", TIRAGE)})
 
     assert valider("texte") == ["la réponse doit être un objet JSON"]
+
+
+def test_refus_explains_how_to_fix_a_missing_draw():
+    message = generation.refus(["pas de tirage couleur ou quinte", "carte en double : Ah"])
+    assert message.startswith("Situation refusée : pas de tirage couleur ou quinte; carte en double : Ah.")
+    assert "Pour corriger : pas de tirage couleur ou quinte : il faut 4 cartes de même couleur" in message
+    assert "Pour corriger" not in generation.refus(["carte en double : Ah"])
 
 
 def test_historique_is_written_by_the_code():
@@ -97,12 +114,72 @@ def test_historique_is_written_by_the_code():
     assert generation.historique("tirage", TIRAGE) == "Au flop, ton adversaire mise 2 bb dans un pot de 4 bb."
 
 
+def test_decrire_shows_the_cards_and_the_amounts():
+    ouverture = generation.decrire(OUVERTURE)
+    assert ouverture == ("Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\n"
+                         "Tout le monde s'est couché jusqu'à toi. Tu as K♦ 9♦.")
+    tirage = generation.decrire(TIRAGE)
+    assert tirage.endswith("Tu as A♥ 5♥.\nBoard : K♥ 7♥ 2♣ · pot 6 bb, à payer 2 bb.")
+
+
+def test_qui_gagne_reference_compares_the_best_five_cards():
+    base = {"theme": "qui_gagne", "board": ["Kh", "7h", "2h", "9c", "3d"]}
+    couleur = generation.reference({**base, "cartes": ["Ah", "5h"], "adversaire": ["Ks", "Kd"]})
+    assert couleur["bonnes"] == ["moi"] and couleur["faits"][:2] == ["Ta meilleure main : Couleur",
+                                                                    "Celle de ton adversaire : Brelan"]
+    kicker = generation.reference({**base, "cartes": ["Kc", "4s"], "adversaire": ["Ks", "Qd"]})
+    assert kicker["bonnes"] == ["adversaire"] and "kicker" in kicker["faits"][2]
+    partage = generation.reference({**base, "board": ["Ac", "Kd", "Qs", "Jh", "Td"], "cartes": ["2c", "3d"],
+                                    "adversaire": ["4s", "5h"]})
+    assert partage["bonnes"] == ["egalite"]
+
+
+def test_tirer_qui_gagne_gives_a_clear_showdown_to_a_beginner():
+    for seed in range(20):
+        sit = generation.tirer("qui_gagne", "debutant", random.Random(seed))
+        assert len(sit["board"]) == 5 and len({*sit["cartes"], *sit["adversaire"], *sit["board"]}) == 9
+        moi, lui = generation._scores(sit)
+        assert moi[0] != lui[0] and sit["reference"]["bonnes"] != ["egalite"]
+        assert sit["actions"] == ["moi", "adversaire", "egalite"]
+    texte = generation.decrire(sit)
+    assert texte.startswith("Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre")
+    assert "pot" not in texte and "blinde" not in texte
+
+
+def test_defense_reference_compares_the_realised_equity_with_the_pot_odds():
+    base = {"theme": "defense_bb", "position": "BB", "board": [], "pot": 4, "a_payer": 1.5}
+    assert generation.reference({**base, "ouvreur": "CO", "cartes": ["5s", "2c"]})["bonnes"] == ["fold"]
+    roi = generation.reference({**base, "ouvreur": "CO", "cartes": ["Kh", "9c"]})
+    assert roi["bonnes"] == ["call"] and "Cote du pot : il faut 27,3 % d'équité" in roi["faits"][2]
+    paire = generation.reference({**base, "ouvreur": "BTN", "cartes": ["Qh", "Qd"]})
+    assert paire["bonnes"] == ["call"] and paire["acceptables"] == ["raise"]   # strong enough to 3-bet
+    assert generation.reference({**base, "ouvreur": "CO", "cartes": ["Kh", "9c"]}) == roi   # same draw, same answer
+
+
+def test_tirer_defense_puts_the_player_in_the_big_blind():
+    sit = generation.tirer("defense_bb", "avance", random.Random(5))
+    assert sit["position"] == "BB" and sit["ouvreur"] in generation.OUVREURS and sit["actions"] == ["fold", "call", "raise"]
+    expected_pot = 3.5 if sit["ouvreur"] == "SB" else 4
+    assert sit["pot"] == expected_pot and sit["a_payer"] == 1.5
+    assert generation.decrire(sit).endswith(f"Avant le flop · pot {expected_pot:g} bb, à payer 1.5 bb.")
+
+
 def test_repli_gives_a_valid_situation_for_every_theme():
     for seed in range(30):
         for theme in generation.THEMES:
             for niveau in generation.NIVEAUX:
                 brut = generation.repli(theme, niveau, random.Random(seed), set())
                 assert valider(brut, theme, niveau) == [], (seed, theme, niveau, brut)
+
+
+def test_tirer_gives_a_full_situation_without_the_model():
+    deja = {generation.cle("ouverture", generation.repli("ouverture", "debutant", random.Random(1), set()))}
+    situation = generation.tirer("ouverture", "debutant", random.Random(1), deja)
+
+    assert situation["source"] == "code" and situation["tentatives"] == 0
+    assert generation.cle("ouverture", situation) not in deja
+    assert situation["reference"] == generation.reference(situation)
+    assert situation["actions"] == ["fold", "raise"]
 
 
 def test_generer_retries_after_a_refused_answer():

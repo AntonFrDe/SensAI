@@ -12,3 +12,6 @@ graphify-out/
 /frontend/dist/
 /frontend/test-results/
 /frontend/playwright-report/
+
+# Player profiles (profils.py): personal, never committed
+/profiles/

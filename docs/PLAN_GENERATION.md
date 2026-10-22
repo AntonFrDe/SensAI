@@ -291,7 +291,8 @@ Les tâches A et B ne partagent aucun fichier : elles tournent en parallèle. En
 - Afficher les essais en direct (streaming NDJSON) : pour l'instant, on les voit une fois la situation finie.
 - Brancher la banque sur le parcours d'exercice (`trainer.py`, phase 1).
 - `odds.outs` compte aussi les cartes qui donnent une paire : la référence « suivre » est donc un peu
-  optimiste (limite déjà notée dans `odds.py`).
+  optimiste (limite déjà notée dans `odds.py`). Corrigé le 2026-10-22 dans la référence : seuls les outs de quinte et de
+  couleur comptent (`MAINS_DU_TIRAGE`), et une situation où le joueur a déjà une paire est refusée.
 
 ## Bilan après l'essai avec le vrai modèle (2026-10-08)
 
@@ -318,3 +319,8 @@ Pistes suivantes :
   suivent »), pour que le modèle réussisse mieux le thème tirage.
 - Le modèle choisit de petites mises (10 bb dans un pot de 90 bb) : la décision « suivre » devient évidente.
   On peut exiger une mise d'au moins un tiers du pot pour les niveaux intermédiaire et avancé.
+
+Fait le 2026-10-22 (`feat/trainer-loop`) : le message de refus donne la correction quand on la connaît
+(`generation.AIDES`, `generation.refus`), et au-delà du niveau débutant une mise de tirage doit valoir au moins
+0,3 fois le pot d'avant la mise (`MISE_MIN`). Le thème « qui gagne ? » est tiré par le code seulement
+(`generation.tirer`), le modèle ne le génère pas.

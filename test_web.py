@@ -1,5 +1,6 @@
 """Web server checks against a fake Ollama, so no model is needed. Run: python3 test_web.py"""
 import json
+import sys
 import tempfile
 import threading
 import time
@@ -375,6 +376,129 @@ def test_banque_falls_back_when_ollama_is_unreachable():
                           url="http://127.0.0.1:1")
 
     assert status == 201 and body["situation"]["source"] == "repli" and body["situation"]["tentatives"] == 1
+
+
+def session_post(path, body=None, **kw):
+    return post(path, json.dumps(body or {}).encode(), **kw)
+
+
+def new_session(**body):
+    status, [created] = session_post("/api/sessions", body)
+    assert status == 201
+    return created["sessionId"], created
+
+
+def test_trainer_session_from_the_level_to_the_verdict():
+    sid, created = new_session()
+    assert created["niveau"] is None and created["profil"] is None and len(created["niveaux"]) == 3
+
+    assert session_post(f"/api/sessions/{sid}/niveau", {"reponse": "2"}) == (200, [{"niveau": "intermediaire",
+                                                                                     "raison": None}])
+    status, [dealt] = session_post(f"/api/sessions/{sid}/situations")
+    situation = dealt["situation"]
+    assert status == 201 and dealt["numero"] == 1
+    assert "reference" not in situation and situation["texte"].startswith("Table 6 joueurs")
+
+    status, [graded] = session_post(f"/api/sessions/{sid}/decision", {"action": "fold"})
+    assert status == 200 and graded["verdict"] in ("bon", "acceptable", "erreur") and graded["reference"]["faits"]
+
+
+def test_trainer_steps_are_refused_out_of_order_or_unknown():
+    sid, _ = new_session()
+    assert session_post(f"/api/sessions/{sid}/situations")[0] == 400   # no level yet
+    assert session_post(f"/api/sessions/{sid}/niveau", {"reponse": "7"})[0] == 400
+    session_post(f"/api/sessions/{sid}/niveau", {"reponse": "1"})
+    assert session_post(f"/api/sessions/{sid}/decision", {"action": "fold"})[0] == 400   # no situation yet
+    session_post(f"/api/sessions/{sid}/situations")
+    assert session_post(f"/api/sessions/{sid}/decision", {"action": "call"})[0] == 400
+    assert session_post(f"/api/sessions/{sid}/messages", {"texte": "pourquoi ?"})[0] == 400   # before deciding
+    assert session_post(f"/api/sessions/{'0' * 32}/situations")[0] == 404
+    assert session_post(f"/api/sessions/{sid}/ghost")[0] == 404
+
+
+def test_trainer_debrief_streams_and_keeps_its_history():
+    FakeOllama.reset()
+    sid, _ = new_session()
+    session_post(f"/api/sessions/{sid}/niveau", {"reponse": "2"})
+    session_post(f"/api/sessions/{sid}/situations")
+    session_post(f"/api/sessions/{sid}/decision", {"action": "fold"})
+
+    status, events = session_post(f"/api/sessions/{sid}/messages", {"texte": "pourquoi ?"})
+    assert status == 200 and events == [{"thinking": "hmm"}, {"token": "Hel"}, {"token": "lo"},
+                                        {"done": {"tokens": 20, "tok_s": 10.0}}]
+    session_post(f"/api/sessions/{sid}/messages", {"texte": "et au bouton ?"})
+    sent = FakeOllama.requests[-1]
+    assert "Décision du joueur : se coucher." in sent["messages"][0]["content"]
+    assert [m["content"] for m in sent["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
+    assert session_post(f"/api/sessions/{sid}/messages", {"texte": "  "})[0] == 400
+
+
+def test_trainer_debrief_sends_the_coach_question():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}}
+    sid, _ = new_session()
+    for path, body in (("niveau", {"reponse": "2"}), ("situations", {}), ("decision", {"action": "fold"})):
+        session_post(f"/api/sessions/{sid}/{path}", body)
+    try:
+        _, events = session_post(f"/api/sessions/{sid}/messages", {"texte": "pourquoi ?"})
+        session_post(f"/api/sessions/{sid}/messages", {"texte": "2"})
+    finally:
+        FakeOllama.tool_call = None
+    assert {"question": {"question": "Outs ?", "choix": ["9", "15"]}} in events
+    assert FakeOllama.requests[-1]["messages"][-1]["content"] == "Je réponds : 15"
+
+
+def test_trainer_free_answer_about_the_level_off_schema_is_refused():
+    sid, _ = new_session()
+    status, [body] = session_post(f"/api/sessions/{sid}/niveau", {"reponse": "je joue le vendredi"})
+    assert status == 400 and "choisis un des niveaux" in body["error"]
+
+
+def test_trainer_session_with_a_pseudo_keeps_the_profile():
+    with tempfile.TemporaryDirectory() as profiles:
+        status, [first] = session_post("/api/sessions", {"pseudo": "amine"}, profiles_dir=profiles)
+        sid = first["sessionId"]   # the session keeps the config it was created with, profiles_dir included
+        for path, body in (("niveau", {"reponse": "2"}), ("situations", {}), ("decision", {"action": "fold"})):
+            session_post(f"/api/sessions/{sid}/{path}", body)
+
+        status, [created] = session_post("/api/sessions", {"pseudo": "Amine"}, profiles_dir=profiles)
+        assert status == 201 and created["niveau"] == "intermediaire" and created["profil"]["reprise"]
+        assert created["profil"]["exercices"] == 1
+        status, [resumed] = session_post(f"/api/sessions/{created['sessionId']}/reprendre")
+    assert status == 200 and resumed["action"] == "fold" and "reference" not in resumed["situation"]
+    assert session_post("/api/sessions", {"pseudo": "../x"})[0] == 400
+
+
+def test_trainer_debrief_runs_the_mcp_tools():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "preflop_open", "arguments": {"hand": "K9s"}}
+    server.Handler.toolbox = server.Toolbox({"poker": {"command": [sys.executable, "mcp_server.py"]}})
+    try:
+        sid, _ = new_session()
+        for path, body in (("niveau", {"reponse": "2"}), ("situations", {}), ("decision", {"action": "fold"})):
+            session_post(f"/api/sessions/{sid}/{path}", body)
+        _, events = session_post(f"/api/sessions/{sid}/messages", {"texte": "et K9s ?"})
+    finally:
+        FakeOllama.tool_call = None
+        server.Handler.toolbox.close()
+        server.Handler.toolbox = server.Toolbox({})
+    assert {"outil": {"name": "preflop_open", "arguments": {"hand": "K9s"}}} in events
+    tools = {t["function"]["name"] for t in FakeOllama.requests[0]["tools"]}
+    assert {"preflop_open", "poser_question"} <= tools
+    assert "K9s" in FakeOllama.requests[1]["messages"][-1]["content"]   # the tool result reached the model
+
+
+def test_trainer_seed_deals_the_same_situations_as_the_cli_core():
+    def deal(**body):
+        sid, _ = new_session(**body)
+        session_post(f"/api/sessions/{sid}/niveau", {"reponse": "2"})
+        return [session_post(f"/api/sessions/{sid}/situations")[1][0]["situation"]["texte"] for _ in range(3)]
+
+    core = server.trainer.Session({"banque_file": BANQUE}, rng=server.random.Random(7))   # what main.py --seed 7 runs
+    core.choisir_niveau("2")
+    expected = [server.generation.decrire(core.nouvelle_situation()) for _ in range(3)]
+    assert deal(graine=7) == deal(graine=7) == expected != deal(graine=8)
+    assert session_post("/api/sessions", {"graine": "7"})[0] == 400
 
 
 if __name__ == "__main__":

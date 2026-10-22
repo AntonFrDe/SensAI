@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { postGame, streamCoach, toCard } from './api';
+import {
+  creerSession, decider, ecrireFiche, envoyerDebrief, nouvelleSituation, postGame, streamCoach, toCard, type DebriefEvent,
+} from './api';
 
 function streamOf(chunks: string[]): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
@@ -53,5 +55,57 @@ describe('streamCoach', () => {
   it('reports a refused request', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'Advice is available on your turn.' }, { status: 400 }));
     await expect(streamCoach('g1', () => {}, new AbortController().signal)).rejects.toThrow('Advice is available on your turn.');
+  });
+});
+
+describe('trainer api', () => {
+  it('creates a session with the pseudo only when there is one', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ sessionId: 's1', niveau: null, niveaux: [], profil: null }, { status: 201 }));
+    await creerSession('sam');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ pseudo: 'sam' });
+    await creerSession();
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toEqual({});
+  });
+
+  it('returns the situation from the situations route', async () => {
+    const situation = { id: 'a1', theme: 'ouverture', texte: 'Table 6 joueurs', actions: [{ action: 'fold', libelle: 'se coucher' }] };
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ numero: 1, situation }, { status: 201 }));
+    await expect(nouvelleSituation('s1')).resolves.toEqual(situation);
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/sessions/s1/situations');
+  });
+
+  it('sends the chosen action and returns the verdict', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ verdict: 'bon', reference: { bonnes: ['raise'], acceptables: [], faits: [] } }));
+    await expect(decider('s1', 'raise')).resolves.toMatchObject({ verdict: 'bon' });
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ action: 'raise' });
+  });
+
+  it('turns a refused step into a readable message', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'Décide d’abord.' }, { status: 400 }));
+    await expect(ecrireFiche('s1')).rejects.toThrow('Décide d’abord.');
+  });
+
+  it('reads the debrief events of the NDJSON stream, in order', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(streamOf([
+      '{"queued": true}\n{"thinking": "..."}\n{"outil": {"name": "calc", "arguments": {}}}\n',
+      '{"token": "Bien"}\n{"question": {"question": "Combien ?", "choix": ["1", "2"]}}\n{"done": null}\n',
+    ])));
+    const events: DebriefEvent[] = [];
+    await envoyerDebrief('s1', 'bonjour', event => events.push(event), new AbortController().signal);
+    expect(events).toEqual([
+      { type: 'queued' },
+      { type: 'thinking' },
+      { type: 'outil', nom: 'calc' },
+      { type: 'token', texte: 'Bien' },
+      { type: 'question', question: 'Combien ?', choix: ['1', '2'] },
+      { type: 'done' },
+    ]);
+  });
+
+  it('passes a model error of the stream to the caller', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(streamOf(['{"error": "Ollama absent"}'])));
+    const events: DebriefEvent[] = [];
+    await envoyerDebrief('s1', 'bonjour', event => events.push(event));
+    expect(events).toEqual([{ type: 'error', message: 'Ollama absent' }]);
   });
 });

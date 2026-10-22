@@ -11,6 +11,7 @@ config.json:
 """
 import json
 import subprocess
+import threading
 
 from llm import ROOT
 
@@ -22,7 +23,7 @@ class MCPError(Exception):
 
 
 class MCPServer:
-    """One server process. Requests are sequential: one call at a time, as the chat loop needs."""
+    """One server process. Requests are sequential: a lock lets the web server's threads share it."""
 
     def __init__(self, name: str, command: list[str]):
         self.name = name
@@ -34,6 +35,7 @@ class MCPServer:
         except OSError as e:
             raise MCPError(f"{name} : impossible de lancer {command[0]!r} ({e.strerror})") from None
         self._next_id = 0
+        self._lock = threading.Lock()
         self.request("initialize", {
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {},
@@ -42,6 +44,10 @@ class MCPServer:
         self._send({"jsonrpc": "2.0", "method": "notifications/initialized"})
 
     def request(self, method: str, params: dict) -> dict:
+        with self._lock:  # one request and its answer at a time on the pipe
+            return self._request(method, params)
+
+    def _request(self, method: str, params: dict) -> dict:
         # ponytail: no timeout, a hung server blocks the turn until Ctrl-C; add a reader thread if it happens
         self._next_id += 1
         self._send({"jsonrpc": "2.0", "id": self._next_id, "method": method, "params": params})

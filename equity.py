@@ -90,7 +90,7 @@ def evaluate7(cards: list[Card]) -> tuple[int, ...]:
         if group is not None:
             group.append(rank)
     if quads:
-        return (8, quads[0], max(rank for rank in range(14, 1, -1) if counts[rank] and rank != quads[0]))
+        return (8, quads[0], max((rank for rank in range(14, 1, -1) if counts[rank] and rank != quads[0]), default=0))
     if trips and (len(trips) > 1 or pairs):
         return (7, trips[0], max(trips[1] if len(trips) > 1 else 0, pairs[0] if pairs else 0))
     if flush >= 0:
@@ -233,6 +233,33 @@ def versus(first: str, second: str, samples: int = SAMPLES, rng: random.Random |
     wins = ties = 0
     for _ in range(samples):
         hero, villain = rng.choice(deals)
+        board = rng.sample([card for card in DECK if card not in hero and card not in villain], 5)
+        mine, theirs = evaluate7(hero + board), evaluate7(villain + board)
+        wins += mine > theirs
+        ties += mine == theirs
+    return Equity(wins / samples, ties / samples, (samples - wins - ties) / samples,
+                  (wins + ties / 2) / samples, samples, False)
+
+
+def versus_range(hero: list[Card], weights: dict[str, float], samples: int = SAMPLES,
+                 rng: random.Random | None = None) -> Equity:
+    """Équité avant le flop de `hero` contre une main tirée dans une range ({"AKs": 1.0, "22": 0.5, ...}).
+
+    Chaque combinaison compatible avec nos cartes pèse le poids de sa classe : une main mixte sort deux fois moins
+    souvent. Puis le board est tiré au hasard : Monte Carlo.
+    """
+    hero = list(hero)
+    _check(hero, [], 1)
+    if samples < 1:
+        raise ValueError("Il faut au moins 1 tirage.")
+    combos = [(combo, weight) for name, weight in weights.items() for combo in class_combos(name)
+              if weight > 0 and not set(combo) & set(hero)]
+    if not combos:
+        raise ValueError("Aucune main de la range n'est compatible avec nos cartes.")
+    rng = rng or random.Random()
+    hands, poids = zip(*combos)
+    wins = ties = 0
+    for villain in rng.choices(hands, weights=poids, k=samples):
         board = rng.sample([card for card in DECK if card not in hero and card not in villain], 5)
         mine, theirs = evaluate7(hero + board), evaluate7(villain + board)
         wins += mine > theirs

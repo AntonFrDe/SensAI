@@ -82,7 +82,7 @@ Conséquences sur l'architecture :
 | Pas de framework LLM (LangChain…) | ✅ HTTP direct, MCP écrit à la main | — |
 | README : installation, features, exemples | ⚠️ décrit l'ancien produit | Réécrire en phase 5 |
 | `requirements.txt` | ✅ `requests`, `pytest` | — |
-| User stories (2 par feature) | ❌ | Brouillon en annexe A, puis `USER_STORIES.md` |
+| User stories (2 par feature) | ❌ | Brouillon en annexe A, puis `USER_STORIES.md` (fait le 2026-10-22, avec l'état de chaque critère) |
 | Cas d'usage, liste de features, architecture écrits | ❌ jusqu'ici | Ce document |
 | Keynote sur un scénario concret | ❌ | Trame en annexe B |
 
@@ -212,6 +212,11 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
 - `main.py` affiche le parcours ; `/exercice`, `/niveau`.
 - **Fini quand** : `python3 main.py` déroule le parcours complet avec le vrai modèle, et `test_trainer.py` le
   déroule contre le faux Ollama.
+- **État (2026-10-22, `feat/trainer-loop`)** : fait. `situations.py` n'a pas été créé : `generation.py` porte
+  déjà la situation et sa référence, `generation.tirer` tire une situation par le code sans le modèle et
+  `trainer.py` sert d'abord la banque générée. Le thème débutant « qui gagne ? » est fait (quiz d'abattage, deux combinaisons
+  différentes pour un débutant). Le chat
+  libre reste accessible par `python3 main.py --libre`.
 
 ### Phase 2 : questions, sorties structurées, profil (M) : X4, T5, M1
 
@@ -222,6 +227,10 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
 - M1 : `profiles/<pseudo>.json` (niveau, préférences, résultats par thème) injecté dans le prompt au démarrage ;
   `/reprendre` recharge le dernier débrief ; les situations suivantes visent les thèmes faibles.
 - **Fini quand** : on quitte, on relance, SensAI connaît le niveau et propose un thème raté la veille.
+- **État (2026-10-22, `feat/trainer-loop`)** : fait en CLI. Le module s'appelle `profils.py` (et non
+  `profile.py`, qui masquerait le module `profile` de la bibliothèque standard) ; le pseudo se donne par
+  `--pseudo`. La fiche s'écrit à la demande (`/fiche`), pas à chaque fin d'exercice : un appel au modèle de plus
+  coûte 15 à 40 s sur CPU.
 
 ### Phase 3 : le web sur le même cœur (M) : X1
 
@@ -229,11 +238,18 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
 - React : écran niveau (boutons X4), situation (table existante, position affichée), débrief (chat en
   streaming, questions du coach en boutons, appels d'outils visibles).
 - **Fini quand** : le même parcours marche dans le navigateur, et le CLI n'a pas changé.
+- **État (2026-10-22, `feat/trainer-loop`)** : routes faites et testées (`test_web.py`), à côté des routes
+  actuelles du frontend, qui restent en place tant que la décision 2 n'est pas prise. Les outils MCP sont branchés (un
+  verrou par serveur MCP). Reste : les écrans React.
 
 ### Phase 4 : niveaux intermédiaire et avancé (M)
 
 - Thèmes tirage et ouvertures mixtes ; équité contre une range dans `equity.py`, avec tests.
 - **Fini quand** : chaque niveau a au moins deux thèmes avec référence testée.
+- **État (2026-10-22, `feat/trainer-loop`)** : fait. `equity.versus_range` (range pondérée : 0,5 pour une main
+  mixte) et `preflop.opening_range`. Thèmes par niveau : débutant ouverture et « qui gagne ? », intermédiaire
+  ouverture et tirage, avancé tirage et défense de grosse blinde. La défense compare l'équité *réalisée* (80 %
+  de l'équité hors position, hypothèse affichée) à la cote du pot : sans ce facteur, presque tout se suivait.
 
 ### Phase 5 : évaluation, livrables, keynote (M) : EV1
 

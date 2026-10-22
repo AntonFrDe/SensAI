@@ -181,3 +181,131 @@ export async function saveSessionNote(hands: number, won: number, net: number, r
   if (!response.ok) throw new Error(result.error || 'Impossible d’écrire dans les notes.');
   return result.line;
 }
+
+export type TrainerNiveau = 'debutant' | 'intermediaire' | 'avance';
+export type TrainerTheme = 'ouverture' | 'tirage' | 'qui_gagne' | 'defense_bb';
+export type TrainerVerdict = 'bon' | 'acceptable' | 'erreur';
+export type TrainerActionKey = 'fold' | 'call' | 'raise' | 'moi' | 'adversaire' | 'egalite';
+export type TrainerAction = { action: TrainerActionKey; libelle: string };
+export type TrainerSituation = {
+  id: string;
+  theme: TrainerTheme;
+  niveau: TrainerNiveau;
+  position: string;
+  cartes: string[];
+  adversaire?: string[];
+  board: string[];
+  pot: number;
+  a_payer: number;
+  historique: string;
+  texte: string;
+  question: string;
+  actions: TrainerAction[];
+};
+export type TrainerReference = { bonnes: TrainerActionKey[]; acceptables: TrainerActionKey[]; faits: string[] };
+export type TrainerDecision = { verdict: TrainerVerdict; reference: TrainerReference };
+export type TrainerResultatsTheme = Record<TrainerVerdict, number>;
+export type TrainerResultats = Partial<Record<TrainerTheme, TrainerResultatsTheme>>;
+export type TrainerProfil = {
+  pseudo: string;
+  resultats: TrainerResultats;
+  exercices: number;
+  themesARevoir: TrainerTheme[];
+  reprise: boolean;
+};
+export type TrainerSession = {
+  sessionId: string;
+  niveau: TrainerNiveau | null;
+  niveaux: { niveau: TrainerNiveau; libelle: string }[];
+  profil: TrainerProfil | null;
+};
+export type TrainerFiche = { a_retenir: string; theme_a_revoir: string };
+export type TrainerMessage = { role: 'user' | 'assistant'; content: string };
+export type TrainerReprise = TrainerDecision & { situation: TrainerSituation; action: TrainerActionKey; debrief: TrainerMessage[] };
+export type DebriefEvent =
+  | { type: 'queued' }
+  | { type: 'thinking' }
+  | { type: 'token'; texte: string }
+  | { type: 'outil'; nom: string }
+  | { type: 'question'; question: string; choix: string[] }
+  | { type: 'done' }
+  | { type: 'error'; message: string };
+
+async function postTrainer<T>(chemin: string, corps: object): Promise<T> {
+  const response = await fetch(chemin, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corps),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'L’entraîneur est indisponible.');
+  return result as T;
+}
+
+export function creerSession(pseudo?: string): Promise<TrainerSession> {
+  return postTrainer<TrainerSession>('/api/sessions', pseudo ? { pseudo } : {});
+}
+
+export function choisirNiveau(sessionId: string, reponse: string): Promise<{ niveau: TrainerNiveau; raison: string | null }> {
+  return postTrainer(`/api/sessions/${sessionId}/niveau`, { reponse });
+}
+
+export async function nouvelleSituation(sessionId: string): Promise<TrainerSituation> {
+  const { situation } = await postTrainer<{ numero: number; situation: TrainerSituation }>(`/api/sessions/${sessionId}/situations`, {});
+  return situation;
+}
+
+export function decider(sessionId: string, action: TrainerActionKey): Promise<TrainerDecision> {
+  return postTrainer<TrainerDecision>(`/api/sessions/${sessionId}/decision`, { action });
+}
+
+export async function ecrireFiche(sessionId: string): Promise<TrainerFiche> {
+  const { fiche } = await postTrainer<{ fiche: TrainerFiche }>(`/api/sessions/${sessionId}/fiche`, {});
+  return fiche;
+}
+
+export function reprendreDebrief(sessionId: string): Promise<TrainerReprise> {
+  return postTrainer<TrainerReprise>(`/api/sessions/${sessionId}/reprendre`, {});
+}
+
+function lireEvenement(ligne: string): DebriefEvent | null {
+  const evenement = JSON.parse(ligne) as Record<string, unknown>;
+  if ('error' in evenement) return { type: 'error', message: String(evenement.error) };
+  if ('queued' in evenement) return { type: 'queued' };
+  if ('thinking' in evenement) return { type: 'thinking' };
+  if (typeof evenement.token === 'string') return { type: 'token', texte: evenement.token };
+  if ('done' in evenement) return { type: 'done' };
+  if (evenement.outil && typeof evenement.outil === 'object') {
+    return { type: 'outil', nom: String((evenement.outil as { name?: unknown }).name ?? 'outil') };
+  }
+  if (evenement.question && typeof evenement.question === 'object') {
+    const { question, choix } = evenement.question as { question?: unknown; choix?: unknown };
+    return { type: 'question', question: String(question), choix: Array.isArray(choix) ? choix.map(String) : [] };
+  }
+  return null;
+}
+
+export async function envoyerDebrief(
+  sessionId: string, texte: string, onEvent: (event: DebriefEvent) => void, signal?: AbortSignal,
+): Promise<void> {
+  const response = await fetch(`/api/sessions/${sessionId}/messages`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texte }), signal,
+  });
+  if (!response.ok || !response.body) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result.error || 'Le débrief est indisponible.');
+  }
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = '';
+  const traiter = (ligne: string) => {
+    const evenement = lireEvenement(ligne);
+    if (evenement) onEvent(evenement);
+  };
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += value;
+    const lignes = buffer.split('\n');
+    buffer = lignes.pop() ?? '';
+    lignes.filter(Boolean).forEach(traiter);
+  }
+  if (buffer.trim()) traiter(buffer);
+}

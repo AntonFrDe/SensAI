@@ -16,12 +16,22 @@ import odds
 import preflop
 from llm import ROOT, LLMError, complete
 
-THEMES = ("ouverture", "tirage")
+THEMES = ("ouverture", "tirage")   # ceux que le modèle sait générer
+QUI_GAGNE = "qui_gagne"   # quiz d'abattage (débutant) : tiré par le code seulement
+DEFENSE = "defense_bb"   # défendre sa grosse blinde face à une ouverture (avancé) : tiré par le code seulement
+TOUS_THEMES = (*THEMES, QUI_GAGNE, DEFENSE)
 NIVEAUX = ("debutant", "intermediaire", "avance")
 CARTES = [r + s for r in "AKQJT98765432" for s in "shdc"]  # les 52 codes
+MAINS_DU_TIRAGE = ("Quinte", "Couleur", "Quinte flush", "Quinte flush royale")   # les seuls outs « propres »
 POSITIONS = {"ouverture": ["UTG", "MP", "CO", "BTN", "SB"],  # la BB n'ouvre jamais
              "tirage": ["UTG", "MP", "CO", "BTN", "SB", "BB"]}
-ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"]}
+ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"],
+           QUI_GAGNE: ["moi", "adversaire", "egalite"], DEFENSE: ["fold", "call", "raise"]}
+LIBELLES = {"fold": "se coucher", "call": "suivre", "raise": "relancer",
+            "moi": "tu gagnes", "adversaire": "ton adversaire gagne", "egalite": "égalité, pot partagé"}
+QUESTIONS = {QUI_GAGNE: "Qui gagne ?"}   # sinon « Que fais-tu ? »
+NOMS_POSITIONS = {"UTG": "sous le canon (UTG)", "MP": "en milieu de parole (MP)", "CO": "au cut-off (CO)",
+                  "BTN": "au bouton (BTN)", "SB": "à la petite blinde (SB)", "BB": "à la grosse blinde (BB)"}
 CHAMPS_MODELE = ("position", "cartes", "board", "pot", "a_payer")  # ce que le modèle écrit
 CHAMPS = (*CHAMPS_MODELE, "historique")  # la situation finale, dans l'ordre du contrat
 TAILLES_BOARD = {"ouverture": (0,), "tirage": (3, 4)}
@@ -31,6 +41,19 @@ ESSAIS_REPLI = 5_000
 POT_AVANT_FLOP = 1.5  # les deux blindes
 POTS_REPLI = (4, 6, 8, 10)
 FRACTIONS_MISE = (0.33, 0.5, 0.75, 1)
+OUVREURS = ("CO", "BTN", "SB")   # les ouvertures que la grosse blinde défend le plus souvent
+OUVERTURE_BB = 2.5   # taille de l'ouverture, en blindes
+ECHANTILLONS_DEFENSE = 4_000   # équité contre la range à ±1,5 point près
+# Hors position, on ne touche pas toute son équité (on se couche sur certains boards) : environ 80 % en grosse
+# blinde. Sans ce facteur, comparer l'équité brute à la cote du pot ferait suivre presque toutes les mains.
+REALISATION_BB = 0.8
+MARGE_DEFENSE = 0.03   # à moins de 3 points de la cote du pot, suivre ou se coucher se défendent tous les deux
+RELANCE_DEFENSE = 0.55   # au-dessus, relancer (3-bet) est aussi acceptable
+# Une petite mise rend « suivre » évident : au-delà du niveau débutant, l'adversaire mise au moins ~un tiers du pot
+MISE_MIN = 0.3
+MISE_TROP_PETITE = "mise trop petite pour ce niveau"
+# Avec une paire, la décision ne se joue plus sur les outs seuls : la référence (outs contre cote du pot) serait fausse
+MAIN_FAITE = "le joueur a déjà une paire"
 PROMPT = ROOT / "prompts" / "generation.txt"
 _verrou = threading.Lock()
 
@@ -41,10 +64,19 @@ CONSIGNES_THEME = {
               "un tirage couleur ou quinte. Un adversaire vient de miser a_payer ; pot = pot avant la mise + la "
               "mise, donc a_payer est plus petit que pot.",
 }
+# Comment corriger chaque refus : le modèle réussit mieux quand on lui dit quoi changer, pas seulement ce qui ne va pas
+AIDES = {
+    "pas de tirage couleur ou quinte": "il faut 4 cartes de même couleur, ou 4 hauteurs qui se suivent, entre les "
+                                       "2 cartes du joueur et le board, sans main déjà faite",
+    "situation déjà dans la banque": "change les cartes du joueur ou le board",
+    MAIN_FAITE: "ni paire en main, ni carte du joueur de la même hauteur qu'une carte du board",
+    MISE_TROP_PETITE: "a_payer doit valoir au moins un tiers du pot d'avant la mise (pot - a_payer)",
+}
 CONSIGNES_NIVEAU = {
     "debutant": "décision nette : une main clairement à jouer ou clairement à jeter.",
-    "intermediaire": "décision moins évidente : position précoce ou main limite.",
-    "avance": "décision serrée, proche de la limite.",
+    "intermediaire": "décision moins évidente : position précoce ou main limite ; au tirage, une mise d'au moins un "
+                     "tiers du pot.",
+    "avance": "décision serrée, proche de la limite ; au tirage, une mise d'au moins un tiers du pot.",
 }
 
 
@@ -119,6 +151,8 @@ def valider(brut, theme: str, niveau: str, deja_vues: set[str]) -> list[str]:
         problemes.append("avant le flop sans relance, pot 1.5 et a_payer 0")
     elif theme == "tirage" and not 0 < a_payer < pot:
         problemes.append("a_payer doit être positif et plus petit que pot")
+    elif theme == "tirage" and niveau != "debutant" and a_payer < MISE_MIN * (pot - a_payer):
+        problemes.append(MISE_TROP_PETITE)
 
     if problemes:
         return problemes
@@ -131,6 +165,9 @@ def valider(brut, theme: str, niveau: str, deja_vues: set[str]) -> list[str]:
         groupes = odds.outs(_cartes(cartes), _cartes(board))
         if "Couleur" not in groupes and "Quinte" not in groupes:
             problemes.append("pas de tirage couleur ou quinte")
+        hauteurs = [c[0] for c in cartes]
+        if hauteurs[0] == hauteurs[1] or any(c[0] in hauteurs for c in board):
+            problemes.append(MAIN_FAITE)
     if cle(theme, brut) in deja_vues:
         problemes.append("situation déjà dans la banque")
     return problemes
@@ -140,7 +177,54 @@ def reference(sit: dict) -> dict:
     """La bonne réponse et les faits qui la justifient, calculés par le code."""
     if sit["theme"] == "ouverture":
         return _reference_ouverture(sit)
+    if sit["theme"] == QUI_GAGNE:
+        return _reference_qui_gagne(sit)
+    if sit["theme"] == DEFENSE:
+        return _reference_defense(sit)
     return _reference_tirage(sit)
+
+
+def _reference_defense(sit: dict) -> dict:
+    # graine tirée des cartes : la même situation donne toujours la même référence
+    rng = random.Random(cle(DEFENSE, sit) + sit["ouvreur"])
+    eq = equity.versus_range(_cartes(sit["cartes"]), preflop.opening_range(sit["ouvreur"]), ECHANTILLONS_DEFENSE,
+                             rng).equity
+    requis = odds.pot_odds(sit["pot"], sit["a_payer"])
+    realisee = eq * REALISATION_BB
+    if realisee < requis - MARGE_DEFENSE:
+        bonnes, acceptables = ["fold"], []
+    elif realisee < requis + MARGE_DEFENSE:
+        bonnes, acceptables = [], ["call", "fold"]
+    else:
+        bonnes, acceptables = ["call"], ["raise"] if eq >= RELANCE_DEFENSE else []
+    main = preflop.normalize_hand("".join(sit["cartes"]))
+    faits = [f"Équité de {main} contre la range d'ouverture du {sit['ouvreur']} : {equity.pct(eq)}",
+             f"Équité réalisée hors position (environ {round(REALISATION_BB * 100)} %) : {equity.pct(realisee)}",
+             f"Cote du pot : il faut {equity.pct(requis)} d'équité "
+             f"(payer {sit['a_payer']:g} pour un pot de {sit['pot']:g})",
+             "Hypothèse : range d'ouverture 6-max 100bb ; la part d'équité réalisée hors position est une moyenne."]
+    if eq >= RELANCE_DEFENSE:
+        faits.insert(3, f"Au-dessus de {equity.pct(RELANCE_DEFENSE)} d'équité, relancer se défend aussi.")
+    return {"bonnes": bonnes, "acceptables": acceptables, "faits": faits}
+
+
+def _scores(sit: dict) -> tuple[tuple, tuple]:
+    """La force de la meilleure main de 5 cartes du joueur et de son adversaire (la plus grande gagne)."""
+    return (equity.evaluate7(_cartes(sit["cartes"] + sit["board"])),
+            equity.evaluate7(_cartes(sit["adversaire"] + sit["board"])))
+
+
+def _reference_qui_gagne(sit: dict) -> dict:
+    moi, lui = _scores(sit)
+    bonne = "moi" if moi > lui else "adversaire" if lui > moi else "egalite"
+    faits = [f"Ta meilleure main : {equity.hand_name(_cartes(sit['cartes'] + sit['board']))}",
+             f"Celle de ton adversaire : {equity.hand_name(_cartes(sit['adversaire'] + sit['board']))}"]
+    if bonne == "egalite":
+        faits.append("Mêmes cinq meilleures cartes : le pot est partagé.")
+    elif moi[0] == lui[0]:
+        faits.append("Même combinaison : on départage par la hauteur des cartes, puis par le kicker.")
+    faits.append("Règle : chacun garde ses 5 meilleures cartes parmi ses 2 cartes et les 5 du board.")
+    return {"bonnes": [bonne], "acceptables": [], "faits": faits}
 
 
 def _reference_ouverture(sit: dict) -> dict:
@@ -164,7 +248,8 @@ def _reference_ouverture(sit: dict) -> dict:
 
 
 def _reference_tirage(sit: dict) -> dict:
-    groupes = odds.outs(_cartes(sit["cartes"]), _cartes(sit["board"]))
+    tous = odds.outs(_cartes(sit["cartes"]), _cartes(sit["board"]))
+    groupes = {nom: cartes for nom, cartes in tous.items() if nom in MAINS_DU_TIRAGE}
     total = sum(map(len, groupes.values()))
     chances = odds.hit_chance(total, len(sit["board"]))
     une = chances["prochaine carte"]
@@ -180,6 +265,9 @@ def _reference_tirage(sit: dict) -> dict:
     detail = ", ".join(f"{len(cartes)} pour {nom.lower()}" for nom, cartes in groupes.items())
     faits = [f"Outs : {total}" + (f" ({detail})" if detail else ""),
              f"Chance de toucher à la prochaine carte : {equity.pct(une)}"]
+    if len(groupes) < len(tous):
+        faits.insert(1, "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : "
+                        "elles ne suffisent souvent pas à gagner le coup.")
     if deux is not None:
         faits.append(f"Chance de toucher d'ici la river : {equity.pct(deux)}")
     faits += [f"Cote du pot : il faut {equity.pct(requis)} d'équité "
@@ -208,6 +296,50 @@ def repli(theme: str, niveau: str, rng: random.Random, deja_vues: set[str]) -> d
         if not valider(brut, theme, niveau, deja_vues):
             return brut
     raise RuntimeError("Aucune situation de repli valide.")
+
+
+def tirer(theme: str, niveau: str, rng: random.Random, deja_vues: set[str] = frozenset()) -> dict:
+    """Situation tirée par le code, tout de suite : sans appel au modèle et sans l'ajouter à la banque."""
+    if theme == QUI_GAGNE:
+        return _tirer_qui_gagne(niveau, rng, deja_vues)
+    if theme == DEFENSE:
+        return _tirer_defense(niveau, rng, deja_vues)
+    return _situation(repli(theme, niveau, rng, deja_vues), theme, niveau, "code", 0, [])
+
+
+def _tirer_defense(niveau: str, rng: random.Random, deja_vues: set[str]) -> dict:
+    """Le CO, le bouton ou la petite blinde ouvre à 2,5 bb, les autres se couchent : tu es à la grosse blinde."""
+    for _ in range(ESSAIS_REPLI):
+        ouvreur = rng.choice(OUVREURS)
+        sit = {"theme": DEFENSE, "position": "BB", "ouvreur": ouvreur, "cartes": rng.sample(CARTES, 2), "board": [],
+               # la petite blinde (0,5) est dans l'ouverture si c'est elle qui ouvre
+               "pot": OUVERTURE_BB + (1 if ouvreur == "SB" else 1.5), "a_payer": OUVERTURE_BB - 1}
+        if cle(DEFENSE, sit) in deja_vues:
+            continue
+        sit = {"id": uuid4().hex[:8], "niveau": niveau, **sit,
+               "historique": f"Tout le monde se couche jusqu'au {ouvreur}, qui relance à {OUVERTURE_BB:g} bb ; "
+                             f"les autres se couchent."}
+        return {**sit, "actions": list(ACTIONS[DEFENSE]), "reference": reference(sit), "source": "code",
+                "tentatives": 0, "erreurs": [], "cree_le": datetime.now().isoformat(timespec="seconds")}
+    raise RuntimeError("Aucune défense de grosse blinde valide.")
+
+
+def _tirer_qui_gagne(niveau: str, rng: random.Random, deja_vues: set[str]) -> dict:
+    """Un abattage : tes cartes, celles de l'adversaire et un board complet. Pour un débutant, deux combinaisons
+    différentes : départager deux mêmes combinaisons par le kicker viendra plus tard."""
+    for _ in range(ESSAIS_REPLI):
+        codes = rng.sample(CARTES, 9)
+        sit = {"theme": QUI_GAGNE, "position": rng.choice(POSITIONS["tirage"]), "cartes": codes[:2],
+               "adversaire": codes[2:4], "board": codes[4:], "pot": 0, "a_payer": 0}
+        moi, lui = _scores(sit)
+        if (niveau == "debutant" and moi[0] == lui[0]) or cle(QUI_GAGNE, sit) in deja_vues:
+            continue
+        sit = {"id": uuid4().hex[:8], "niveau": niveau, **sit,
+               "historique": f"Le coup est fini : abattage. Ton adversaire montre "
+                             f"{equity.show(_cartes(sit['adversaire']))}."}
+        return {**sit, "actions": list(ACTIONS[QUI_GAGNE]), "reference": reference(sit), "source": "code",
+                "tentatives": 0, "erreurs": [], "cree_le": datetime.now().isoformat(timespec="seconds")}
+    raise RuntimeError("Aucun abattage valide.")
 
 
 def _chemin(cfg: dict):
@@ -250,6 +382,22 @@ def historique(theme: str, sit: dict) -> str:
     return f"{rue}, ton adversaire mise {sit['a_payer']:g} bb dans un pot de {avant:g} bb."
 
 
+def decrire(sit: dict) -> str:
+    """La situation telle que le joueur la lit, écrite par un gabarit : aucun chiffre ne passe par le modèle."""
+    quiz = sit.get("theme") == QUI_GAGNE   # la position ne compte pas à l'abattage
+    lignes = ["Table 6 joueurs, quiz d'abattage." if quiz else
+              f"Table 6 joueurs, 100 blindes · tu es {NOMS_POSITIONS[sit['position']]}.",
+              f"{sit['historique']} Tu as {equity.show(_cartes(sit['cartes']))}."]
+    if quiz:
+        lignes.append(f"Board : {equity.show(_cartes(sit['board']))}.")
+    elif sit.get("theme") == DEFENSE:
+        lignes.append(f"Avant le flop · pot {sit['pot']:g} bb, à payer {sit['a_payer']:g} bb.")
+    elif sit["board"]:
+        lignes.append(f"Board : {equity.show(_cartes(sit['board']))} · pot {sit['pot']:g} bb, "
+                      f"à payer {sit['a_payer']:g} bb.")
+    return "\n".join(lignes)
+
+
 def _situation(brut: dict, theme: str, niveau: str, source: str, tentatives: int, erreurs: list) -> dict:
     valeurs = {**{c: brut[c] for c in CHAMPS_MODELE}, "historique": historique(theme, brut)}
     base = {"id": uuid4().hex[:8], "theme": theme, "niveau": niveau, **{c: valeurs[c] for c in CHAMPS}}
@@ -262,6 +410,13 @@ def _situation(brut: dict, theme: str, niveau: str, source: str, tentatives: int
         "erreurs": erreurs,
         "cree_le": datetime.now().isoformat(timespec="seconds"),
     }
+
+
+def refus(problemes: list[str]) -> str:
+    """Le message renvoyé au modèle : ce qui ne va pas et, quand on sait, comment le corriger."""
+    aides = [f"{p} : {AIDES[p]}" for p in problemes if p in AIDES]
+    conseil = f" Pour corriger : {'; '.join(aides)}." if aides else ""
+    return f"Situation refusée : {'; '.join(problemes)}.{conseil} Corrige et renvoie le JSON complet."
 
 
 def generer(theme: str, niveau: str, cfg: dict) -> dict:
@@ -294,8 +449,7 @@ def generer(theme: str, niveau: str, cfg: dict) -> dict:
         erreurs.append(problemes)
         messages = [*messages,
                     {"role": "assistant", "content": reponse},
-                    {"role": "user", "content": f"Situation refusée : {'; '.join(problemes)}. "
-                                                "Corrige et renvoie le JSON complet."}]
+                    {"role": "user", "content": refus(problemes)}]
 
     if sit is None:
         brut = repli(theme, niveau, random.Random(), deja_vues)
