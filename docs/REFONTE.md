@@ -214,7 +214,8 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
   déroule contre le faux Ollama.
 - **État (2026-10-22, `feat/trainer-loop`)** : fait. `situations.py` n'a pas été créé : `generation.py` porte
   déjà la situation et sa référence, `generation.tirer` tire une situation par le code sans le modèle et
-  `trainer.py` sert d'abord la banque générée. Le thème « qui gagne ? » reste à faire (avec la phase 4). Le chat
+  `trainer.py` sert d'abord la banque générée. Le thème débutant « qui gagne ? » est fait (quiz d'abattage, deux combinaisons
+  différentes pour un débutant). Le chat
   libre reste accessible par `python3 main.py --libre`.
 
 ### Phase 2 : questions, sorties structurées, profil (M) : X4, T5, M1

@@ -318,3 +318,8 @@ Pistes suivantes :
   suivent »), pour que le modèle réussisse mieux le thème tirage.
 - Le modèle choisit de petites mises (10 bb dans un pot de 90 bb) : la décision « suivre » devient évidente.
   On peut exiger une mise d'au moins un tiers du pot pour les niveaux intermédiaire et avancé.
+
+Fait le 2026-10-22 (`feat/trainer-loop`) : le message de refus donne la correction quand on la connaît
+(`generation.AIDES`, `generation.refus`), et au-delà du niveau débutant une mise de tirage doit valoir au moins
+0,3 fois le pot d'avant la mise (`MISE_MIN`). Le thème « qui gagne ? » est tiré par le code seulement
+(`generation.tirer`), le modèle ne le génère pas.
