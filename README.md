@@ -230,6 +230,14 @@ mauvaise décision et demande « pourquoi ? » au coach, avec le même contexte 
 famille de modèle (`judge_model`, `llama3.2:3b`) coche ensuite chaque fait de la référence (la bonne réponse,
 puis les faits chiffrés) : présent, absent ou contredit. Score principal : la part des débriefs sans
 contradiction. Résultats dans `evaluation/coach_resultats.md` et `.json` ; un verdict illisible n'est pas compté.
+Le code vérifie aussi, sans modèle, que le débrief nomme la bonne action et cite les chiffres de la référence
+(`--relire` recalcule cette vérification sur les résultats enregistrés).
+
+Premier essai (2026-10-22, 8 situations, coach `qwen3:4b-instruct`) : **21 faits sur 24 retrouvés par le code**,
+mais le juge `llama3.2:3b` n'en voit qu'1 sur 28 et signale 5 contradictions sur 8, la plupart fausses (il
+marque « absent » des chiffres cités mot pour mot). Ce juge n'est pas fiable : il en faut un plus gros, ou
+d'une autre famille (`gemma3:4b`, prévu par le plan, n'est pas installé ici). Les vraies erreurs relevées en
+relisant : des chiffres inventés hors référence (« moins de 10 % de chance de gagner » pour 73o).
 
 ## Tests
 

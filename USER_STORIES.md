@@ -90,10 +90,10 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
 
 1. En tant qu'équipe, je veux mesurer à chaque changement de prompt si le coach contredit la référence, afin de ne
    pas régresser sans le voir.
-   - ⬜ `python3 evaluate.py` produit un score sur un jeu de situations (aujourd'hui : sur des questions).
-   - ⬜ Chaque contradiction est listée avec la situation.
-   - ⬜ Le juge est un modèle d'une autre famille que le coach.
+   - ✅ `python3 evaluate_coach.py` produit un score sur un jeu de situations tirées par le code (graine fixe).
+   - ✅ Chaque contradiction est listée avec la situation et le débrief.
+   - ⚠️ Le juge est d'une autre famille (`llama3.2:3b`), mais trop peu fiable : le code vérifie aussi les faits.
 2. En tant que joueur, je veux savoir que les chiffres du coach sont vérifiés, afin de lui faire confiance.
    - ⬜ Le README affiche le dernier score et sa date.
    - ⬜ Les situations ratées par l'évaluation servent de tests.
-   - ⬜ Le score est versionné dans `evaluation/`.
+   - ✅ Le score est versionné dans `evaluation/coach_resultats.md`.
