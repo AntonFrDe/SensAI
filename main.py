@@ -4,8 +4,9 @@ reference computed by the code, then the coach (a local Ollama model) debriefs i
     python3 main.py [--model M] [--config config.json] [--no-tools] [--seed N] [--pseudo P] [--libre]
 
 Commands: /exercice deals the next situation, /fiche writes what to remember, /niveau changes the level,
-/reprendre brings back the last debrief of the profile, /reset forgets the debrief, /tools lists the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an
-answer. --pseudo keeps the level and the results in profiles/<pseudo>.json. --libre is the plain chat.
+/reprendre brings back the last debrief of the profile, /reset forgets the debrief, /tools lists the tools,
+/quit (or Ctrl-D) leaves, Ctrl-C stops an answer. --pseudo keeps the level and the results in
+profiles/<pseudo>.json. --libre is the plain chat.
 The model can call the tools of the MCP servers listed under "mcp_servers" in the config (see mcp_client.py).
 """
 import argparse
