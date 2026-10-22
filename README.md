@@ -23,16 +23,43 @@ Le bouton **Comparer** envoie la même question à plusieurs modèles installés
 qu'`max_parallel_models` à la fois (1 par défaut) ; les autres attendent, et chaque modèle est déchargé de la
 RAM dès qu'il a répondu. Sans authentification : ne pas utiliser `--host 0.0.0.0` sur un réseau non sûr.
 
-## Chat en ligne de commande (B1) et outils MCP (T1)
+## Entraîneur en ligne de commande (B1) et outils MCP (T1)
 
 ```
-python3 main.py                        # modèle et serveurs MCP lus dans config.json
+python3 main.py                        # le parcours d'exercices ; modèle et serveurs MCP lus dans config.json
 python3 main.py --model llama3.2:3b    # autre modèle, sans toucher au code
-python3 main.py --no-tools             # chat seul, sans serveur MCP
+python3 main.py --no-tools             # sans serveur MCP
+python3 main.py --seed 7               # mêmes situations à chaque lancement (démo, keynote)
+python3 main.py --libre                # chat libre avec le modèle, sans le parcours
 ```
 
-Réponse affichée au fil de l'eau, historique gardé pendant la session. Commandes : `/reset` (oublier la
-conversation), `/tools` (outils chargés), `/quit` ou Ctrl-D. Ctrl-C coupe une réponse sans quitter.
+Le parcours (`trainer.py`, sans entrée-sortie) : SensAI demande le niveau, tire une situation du niveau (d'abord
+dans la banque générée par le modèle, sinon tirée par le code, sans attente), le joueur répond par une touche
+(`f` se coucher, `c` suivre, `r` relancer), le code note la décision (bon, acceptable, erreur) d'après la
+référence calculée et affiche ses faits. Puis le débrief : chat en streaming avec le coach (`coach.py`,
+`prompts/coach.txt`), qui reçoit la situation, la décision, le verdict et la référence, et l'explique sans la
+recalculer.
+
+```
+Situation 1 · Table 6 joueurs, 100 blindes · tu es à la petite blinde (SB).
+Tout le monde s'est couché jusqu'à toi (SB). Tu as 5♥ J♠.
+Que fais-tu ?  [f] se coucher   [r] relancer
+> f
+✅ Bon : se coucher est la bonne action.
+- J5o : se coucher en UTG, MP, CO, BTN, SB
+- Référence : ranges d'ouverture 6-max, 100 blindes.
+> Pourquoi ?
+```
+
+| Niveau | Thèmes |
+|---|---|
+| Je découvre | Ouvrir ou se coucher, premier à parler (mains nettes) |
+| Je joue un peu | Ouvertures, tirages au flop ou au turn |
+| Je joue souvent | Tirages : outs contre cote du pot |
+
+Réponse affichée au fil de l'eau, historique du débrief gardé jusqu'à la situation suivante. Commandes :
+`/exercice` (situation suivante), `/niveau` (changer de niveau), `/reset` (oublier le débrief), `/tools` (outils
+chargés), `/quit` ou Ctrl-D. Ctrl-C coupe une réponse sans quitter.
 Ollama éteint, modèle absent, configuration illisible : message clair et arrêt. Message vide : refusé sans
 appeler le modèle.
 
@@ -160,7 +187,7 @@ Le correcteur est le même petit modèle : relire les verdicts, il peut être in
 ## Tests
 
 ```
-python3 test_cli.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_api.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
+python3 test_cli.py && python3 test_trainer.py && python3 test_coach.py && python3 test_generation.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_api.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 cd frontend && npm test                    # composants React (Vitest, jsdom, serveur simulé)
 ```
@@ -183,7 +210,10 @@ relance à chaque modification.
 | `evaluate.py`, `evaluation/` | Jeu d'évaluation : questions de référence, résultats remplis par le script |
 | `odds.py` | Outs, cote du pot et analyse complète d'une situation, injectée par `ai.py` |
 | `server.py`, `web/index.html` | Interface web, comparaison de modèles, API de jeu, adversaire IA et coach |
-| `main.py` | Chat en ligne de commande, avec appels d'outils |
+| `main.py` | Entraîneur en ligne de commande (et chat libre avec `--libre`), avec appels d'outils |
+| `trainer.py` | Parcours d'exercices sans entrée-sortie : niveau, situation, décision, verdict, débrief |
+| `coach.py`, `prompts/coach.txt` | Contexte du débrief et boucle d'appels d'outils d'une réponse |
+| `generation.py` | Situations et leur référence : banque générée par le modèle, tirage par le code |
 | `mcp_client.py`, `mcp_server.py` | Client MCP (lance les serveurs de la config) ; nos outils de poker en serveur MCP |
 | `notes/` | Notes de jeu, accessibles au modèle par le serveur MCP de fichiers |
 | `poker_ai.py`, `poker_api.py` | Ce que le modèle voit d'une main (coach, adversaire) ; état public de la partie |
