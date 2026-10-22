@@ -1,4 +1,4 @@
-from preflop import hand_range, normalize_hand
+from preflop import hand_range, normalize_hand, opening_range
 
 
 def raises(hand, position):
@@ -41,6 +41,18 @@ def test_ranges_widen_toward_the_button():
 def test_mixed_cell_and_input_forms_agree():
     assert hand_range("22")["UTG"] == ("raise", "fold")   # marginal open
     assert hand_range("AsKd") == hand_range("AKo") == hand_range("KAo")
+
+
+def test_opening_range_weights_mixed_hands_by_half():
+    btn, utg = opening_range("BTN"), opening_range("UTG")
+    assert btn["K9s"] == 1.0 and "K9s" not in utg and utg["22"] == 0.5
+    assert "72o" not in btn and len(utg) < len(btn)   # the later the position, the wider the range
+    try:
+        opening_range("BB")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("the big blind never opens")
 
 
 if __name__ == "__main__":
