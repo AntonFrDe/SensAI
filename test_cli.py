@@ -159,7 +159,7 @@ def test_trainer_asks_the_level_then_deals_a_situation():
     p = chat("4\n1\n/quit\n", mode=None)
     assert p.returncode == 0 and "Quel est ton niveau" in p.stdout
     assert "Réponds par un numéro de 1 à 3." in p.stdout
-    assert "Situation 1 · Table 6 joueurs, 100 blindes" in p.stdout
+    assert "Situation 1 · Table 6 joueurs" in p.stdout   # a hand to play or a showdown quiz
     assert FakeOllama.requests == []   # the situation comes from the code, not from the model
 
 
