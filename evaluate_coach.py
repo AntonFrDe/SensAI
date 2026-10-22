@@ -130,6 +130,16 @@ def render(resultats: list[dict], coach_modele: str, juge: str) -> str:
     return "\n".join(lignes) + "\n"
 
 
+def enregistrer(resultats: list[dict], cfg: dict, juge: str, graine: int) -> None:
+    """Écrit les deux fichiers de résultats ; appelé après chaque situation, un arrêt garde ce qui est fait."""
+    (FOLDER / "coach_resultats.md").write_text(render(resultats, cfg["model"], juge), encoding="utf-8")
+    payload = {"coach": cfg["model"], "juge": juge, "graine": graine,
+               "date": datetime.now().isoformat(timespec="seconds"), "score": score(resultats),
+               "resultats": resultats}
+    (FOLDER / "coach_resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n",
+                                                encoding="utf-8")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Évalue le débrief du coach contre la référence calculée.")
     parser.add_argument("--modele", help="coach (sinon celui de config.json)")
@@ -146,6 +156,7 @@ def main(argv: list[str] | None = None) -> int:
         for situation in tirees:
             resultat = evaluer(situation, cfg)
             resultats.append(resultat)
+            enregistrer(resultats, cfg, juge, args.graine)
             marque = "?" if resultat["illisible"] else "✗" if resultat["contredit"] else " "
             print(f"[{marque}] {resultat['id']} {resultat['theme']} ({resultat['secondes']} s)", flush=True)
     except LLMError as e:
@@ -154,12 +165,6 @@ def main(argv: list[str] | None = None) -> int:
         print("\nInterrompu.", file=sys.stderr)
 
     if resultats:
-        (FOLDER / "coach_resultats.md").write_text(render(resultats, cfg["model"], juge), encoding="utf-8")
-        payload = {"coach": cfg["model"], "juge": juge, "graine": args.graine,
-                   "date": datetime.now().isoformat(timespec="seconds"), "score": score(resultats),
-                   "resultats": resultats}
-        (FOLDER / "coach_resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n",
-                                                    encoding="utf-8")
         s = score(resultats)
         print(f"\n{s['sans_contradiction']}/{s['jugees']} sans contradiction → {FOLDER / 'coach_resultats.md'}")
     return 0 if len(resultats) == len(tirees) else 1
