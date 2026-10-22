@@ -145,6 +145,33 @@ def test_fiche_is_checked_against_its_schema():
     assert raises(coach.lire_json, '{"a_retenir": "x", "theme_a_revoir": "bluff"}', coach.schema_fiche())
 
 
+def test_lire_question_wants_a_question_and_two_to_four_choices():
+    assert coach.lire_question({"question": " Outs ? ", "choix": ["9", " 15 "]}) == {"question": "Outs ?",
+                                                                                     "choix": ["9", "15"]}
+    assert raises(coach.lire_question, {"question": "Outs ?", "choix": ["9"]})
+    assert raises(coach.lire_question, {"question": "", "choix": ["9", "15"]})
+    assert raises(coach.lire_question, "Outs ?")
+
+
+def test_a_question_to_the_player_ends_the_turn():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}}
+    toolbox = FakeToolbox()
+    events = list(coach.repondre([], "pourquoi ?", {**CFG, "tools": [coach.OUTIL_QUESTION]}, toolbox))
+    assert ("question", {"question": "Outs ?", "choix": ["9", "15"]}) in events
+    assert toolbox.calls == [] and len(FakeOllama.requests) == 1   # no MCP call, no second round
+    turn, _ = events[-1][1]
+    assert [m["role"] for m in turn] == ["user", "assistant", "tool"]
+
+
+def test_a_broken_question_goes_back_to_the_model():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?"}}
+    events = list(coach.repondre([], "pourquoi ?", {**CFG, "tools": [coach.OUTIL_QUESTION]}, FakeToolbox()))
+    assert not any(kind == "question" for kind, _ in events)
+    assert FakeOllama.requests[1]["messages"][-1]["content"].startswith("Erreur : il faut de 2 à 4 choix")
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

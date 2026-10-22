@@ -17,6 +17,18 @@ MAX_TOOL_ROUNDS = 5  # then the model must answer with what it has
 PROMPT = ROOT / "prompts" / "coach.txt"
 PROMPT_NIVEAU = ROOT / "prompts" / "niveau.txt"
 PROMPT_FICHE = ROOT / "prompts" / "fiche.txt"
+QUESTION = "poser_question"   # outil local (X4) : il faut l'interface du joueur, donc pas de serveur MCP
+OUTIL_QUESTION = {"type": "function", "function": {
+    "name": QUESTION,
+    "description": "Pose au joueur une question de contrôle à choix, pour vérifier qu'il a compris (par exemple "
+                   "« Combien d'outs as-tu ici ? »). Il répond en choisissant. Une seule question à la fois ; "
+                   "attends sa réponse avant de continuer.",
+    "parameters": {"type": "object", "required": ["question", "choix"], "properties": {
+        "question": {"type": "string", "description": "La question, en français, adressée au joueur (tu)."},
+        "choix": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 4,
+                  "description": "De 2 à 4 réponses courtes, dont une seule juste."},
+    }},
+}}
 CONSIGNES_NIVEAU = {
     "debutant": "Il découvre le poker : explique chaque terme technique, une idée à la fois.",
     "intermediaire": "Il connaît les combinaisons et les positions : tu peux parler de range et de cote du pot.",
@@ -117,12 +129,25 @@ def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, p
     return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict, profil)}"}
 
 
+def lire_question(arguments: object) -> dict:
+    """{question, choix} d'un appel à poser_question ; ValueError s'il ne fait pas une question à choix."""
+    if not isinstance(arguments, dict):
+        raise ValueError("arguments attendus : question et choix")
+    question, choix = arguments.get("question"), arguments.get("choix")
+    if not (isinstance(question, str) and question.strip()):
+        raise ValueError("question vide")
+    if not (isinstance(choix, list) and 2 <= len(choix) <= 4 and all(isinstance(c, str) and c.strip() for c in choix)):
+        raise ValueError("il faut de 2 à 4 choix, chacun un texte")
+    return {"question": question.strip(), "choix": [c.strip() for c in choix]}
+
+
 def repondre(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> Iterator[tuple[str, object]]:
     """Stream the reply to `text`, running the tools the model asks for on the way.
 
     Yields ("thinking" | "token", text) as the model writes, ("outil", (name, arguments)) before each tool runs,
-    then ("fin", (turn, stats)): the turn's messages (user, tool calls and results, final answer). LLMError
-    propagates; closing the generator stops Ollama's generation.
+    ("question", {question, choix}) when the model asks the player a question (X4): the turn then stops there, the
+    player's choice is the next message. Then ("fin", (turn, stats)): the turn's messages (user, tool calls and
+    results, final answer). LLMError propagates; closing the generator stops Ollama's generation.
     """
     turn = [{"role": "user", "content": text}]
     stats = None
@@ -141,8 +166,22 @@ def repondre(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> Ite
         turn = [*turn, {"role": "assistant", "content": reply, **({"tool_calls": calls} if calls else {})}]
         if not calls:
             break
+        asked = False
         for call in calls:
             name, arguments = call["function"]["name"], call["function"].get("arguments", {})
-            yield "outil", (name, arguments)
-            turn = [*turn, {"role": "tool", "tool_name": name, "content": toolbox.call(name, arguments)}]
+            if name == QUESTION:
+                try:
+                    question = lire_question(arguments)
+                except ValueError as e:
+                    result = f"Erreur : {e}"
+                else:
+                    asked = True
+                    yield "question", question
+                    result = "Question affichée au joueur : sa réponse sera le prochain message."
+            else:
+                yield "outil", (name, arguments)
+                result = toolbox.call(name, arguments)
+            turn = [*turn, {"role": "tool", "tool_name": name, "content": result}]
+        if asked:
+            break
     yield "fin", (turn, stats)
