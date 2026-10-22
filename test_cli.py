@@ -163,6 +163,12 @@ def test_trainer_asks_the_level_then_deals_a_situation():
     assert FakeOllama.requests == []   # the situation comes from the code, not from the model
 
 
+def test_a_free_answer_off_schema_falls_back_to_the_numbered_choice():
+    p = chat("je joue un peu le vendredi\n2\n/quit\n", mode=None)
+    assert "Je n'ai pas compris. Réponds par un numéro de 1 à 3." in p.stdout   # the fake model answers off schema
+    assert "Situation 1 ·" in p.stdout and "format" in FakeOllama.requests[0]
+
+
 def test_trainer_grades_the_decision_then_the_coach_debriefs_it():
     p = chat("1\nsalut\nf\npourquoi ?\n/quit\n", mode=None)
     assert "Choisis une action : [f] se coucher   [r] relancer" in p.stdout   # no debrief before the decision

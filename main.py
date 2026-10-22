@@ -135,8 +135,8 @@ def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
 
 
 def ask_level(session: trainer.Session) -> bool:
-    """Ask the level until the answer is one; False if the player leaves instead."""
-    print("Quel est ton niveau au poker ?")
+    """Ask the level until the answer is one, by number or in plain words; False if the player leaves instead."""
+    print("Quel est ton niveau au poker ? (un numéro, ou dis-le avec tes mots)")
     for number, label in enumerate(trainer.NIVEAUX.values(), 1):
         print(f"  {number}. {label}")
     while True:
@@ -147,7 +147,18 @@ def ask_level(session: trainer.Session) -> bool:
             session.choisir_niveau(text)
             return True
         except ValueError:
+            pass
+        if text.isdigit():
             print(f"Réponds par un numéro de 1 à {len(trainer.NIVEAUX)}.")
+            continue
+        note("[classement de ta réponse…]")
+        try:
+            level = session.niveau_libre(text)
+        except (ValueError, LLMError):
+            print(f"Je n'ai pas compris. Réponds par un numéro de 1 à {len(trainer.NIVEAUX)}.")
+            continue
+        print(f"Niveau retenu : {trainer.NIVEAUX[level['niveau']]}. {level['raison']}")
+        return True
 
 
 def choices(situation: dict) -> str:

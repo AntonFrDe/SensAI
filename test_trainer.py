@@ -40,6 +40,17 @@ def test_choisir_niveau_by_number_or_name():
     assert s.niveau == "avance"   # a refused answer keeps the level
 
 
+def test_niveau_libre_takes_the_level_the_model_gives():
+    original = trainer.coach.complete
+    trainer.coach.complete = lambda messages, cfg: '{"niveau": "intermediaire", "raison": "Tu connais les positions."}'
+    try:
+        s = trainer.Session(CFG)
+        assert s.niveau_libre("je joue le vendredi entre amis")["raison"] == "Tu connais les positions."
+    finally:
+        trainer.coach.complete = original
+    assert s.niveau == "intermediaire"
+
+
 def test_noter_follows_the_reference():
     reference = {"bonnes": ["call"], "acceptables": ["fold"]}
     assert [trainer.noter(reference, a) for a in ("call", "fold", "raise")] == ["bon", "acceptable", "erreur"]

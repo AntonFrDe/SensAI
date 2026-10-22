@@ -58,6 +58,15 @@ class Session:
         self._garder(niveau=choix)
         return choix
 
+    def niveau_libre(self, texte: str) -> dict:
+        """Le niveau d'après une réponse en toutes lettres, classée par le modèle (T5) : {niveau, raison}.
+
+        ValueError si la réponse du modèle est inutilisable : on repose alors la question par choix fermé.
+        """
+        classement = coach.classer_niveau(texte, self.cfg)
+        self.choisir_niveau(classement["niveau"])
+        return classement
+
     def choisir_theme(self) -> str:
         """Un thème du niveau ; un thème raté revient plus souvent (jusqu'à 3 fois plus s'il est toujours raté)."""
         themes = THEMES_PAR_NIVEAU[self.niveau]
