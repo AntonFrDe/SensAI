@@ -10,11 +10,11 @@ import json
 import sys
 from contextlib import closing
 
-from llm import ROOT, LLMError, list_models, load_config, stream_chat
+import coach
+from llm import ROOT, LLMError, list_models, load_config
 from mcp_client import Toolbox
 
 DIM, RED, RESET = "\033[2m", "\033[31m", "\033[0m"
-MAX_TOOL_ROUNDS = 5  # then the model must answer with what it has
 
 
 def style(text: str, code: str, stream) -> str:
@@ -41,43 +41,29 @@ def ensure_model(cfg: dict) -> None:
         )
 
 
-def generate(messages: list[dict], cfg: dict) -> tuple[str, list[dict], dict | None]:
-    """One model call, printed as it streams: (text, tool calls, stats)."""
-    reply, calls, stats, thinking = "", [], None, False
-    with closing(stream_chat(messages, cfg)) as chunks:  # closing stops Ollama's generation
-        for kind, data in chunks:
-            if kind == "thinking" and not thinking:
-                thinking = True
-                note("[réflexion…]")
-            elif kind == "token":
-                reply += data
-                print(data, end="", flush=True)
-            elif kind == "tool_calls":
-                calls = [*calls, *data]
-            elif kind == "done":
-                stats = data
-    return reply, calls, stats
-
-
 def answer(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> list[dict] | None:
-    """Stream the reply to `text`, running the tools the model asks for on the way.
+    """Print the coach's reply to `text` as it streams, with the tools it runs on the way.
 
     Returns the turn's messages (user, tool calls and results, final answer), or None if it failed or was cut.
     """
-    turn = [{"role": "user", "content": text}]
+    turn, stats, thinking, line = None, None, False, ""
     try:
-        for round_ in range(MAX_TOOL_ROUNDS + 1):
-            round_cfg = cfg if round_ < MAX_TOOL_ROUNDS else {**cfg, "tools": []}
-            reply, calls, stats = generate([*history, *turn], round_cfg)
-            turn = [*turn, {"role": "assistant", "content": reply, **({"tool_calls": calls} if calls else {})}]
-            if not calls:
-                break
-            if reply:
-                print()
-            for call in calls:
-                name, arguments = call["function"]["name"], call["function"].get("arguments", {})
-                note(f"[outil] {name}({json.dumps(arguments, ensure_ascii=False)})")
-                turn = [*turn, {"role": "tool", "tool_name": name, "content": toolbox.call(name, arguments)}]
+        with closing(coach.repondre(history, text, cfg, toolbox)) as events:  # closing stops Ollama's generation
+            for kind, data in events:
+                if kind == "thinking" and not thinking:
+                    thinking = True
+                    note("[réflexion…]")
+                elif kind == "token":
+                    line += data
+                    print(data, end="", flush=True)
+                elif kind == "outil":
+                    if line:
+                        print()
+                    thinking, line = False, ""
+                    name, arguments = data
+                    note(f"[outil] {name}({json.dumps(arguments, ensure_ascii=False)})")
+                elif kind == "fin":
+                    turn, stats = data
     except LLMError as e:
         print()  # end a half-printed answer's line
         fail(str(e))
