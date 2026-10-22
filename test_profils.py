@@ -50,6 +50,15 @@ def test_noter_counts_the_verdicts_by_theme_without_editing_the_profile():
     assert profil["resultats"] == {}
 
 
+def test_themes_faibles_puts_the_most_missed_first():
+    profil = {**profils.nouveau("amine"), "resultats": {
+        "ouverture": {"bon": 3, "acceptable": 0, "erreur": 1},
+        "tirage": {"bon": 1, "acceptable": 0, "erreur": 1},
+        "parfait": {"bon": 2, "acceptable": 1, "erreur": 0},
+    }}
+    assert profils.themes_faibles(profil) == ["tirage", "ouverture"]
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

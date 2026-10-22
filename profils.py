@@ -53,3 +53,14 @@ def noter(profil: dict, theme: str, verdict: str) -> dict:
     """Le profil avec un verdict de plus pour ce thème."""
     compte = {v: 0 for v in VERDICTS} | profil["resultats"].get(theme, {})
     return {**profil, "resultats": {**profil["resultats"], theme: {**compte, verdict: compte[verdict] + 1}}}
+
+
+def taux_erreur(compte: dict) -> float:
+    total = sum(compte.values())
+    return compte["erreur"] / total if total else 0.0
+
+
+def themes_faibles(profil: dict) -> list[str]:
+    """Les thèmes où le joueur s'est trompé, du plus raté au moins raté."""
+    rates = {theme: taux_erreur(compte) for theme, compte in profil["resultats"].items() if compte["erreur"]}
+    return sorted(rates, key=rates.get, reverse=True)
