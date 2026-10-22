@@ -226,6 +226,10 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
 - M1 : `profiles/<pseudo>.json` (niveau, préférences, résultats par thème) injecté dans le prompt au démarrage ;
   `/reprendre` recharge le dernier débrief ; les situations suivantes visent les thèmes faibles.
 - **Fini quand** : on quitte, on relance, SensAI connaît le niveau et propose un thème raté la veille.
+- **État (2026-10-22, `feat/trainer-loop`)** : fait en CLI. Le module s'appelle `profils.py` (et non
+  `profile.py`, qui masquerait le module `profile` de la bibliothèque standard) ; le pseudo se donne par
+  `--pseudo`. La fiche s'écrit à la demande (`/fiche`), pas à chaque fin d'exercice : un appel au modèle de plus
+  coûte 15 à 40 s sur CPU.
 
 ### Phase 3 : le web sur le même cœur (M) : X1
 

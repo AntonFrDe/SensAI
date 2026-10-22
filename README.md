@@ -30,6 +30,7 @@ python3 main.py                        # le parcours d'exercices ; modèle et se
 python3 main.py --model llama3.2:3b    # autre modèle, sans toucher au code
 python3 main.py --no-tools             # sans serveur MCP
 python3 main.py --seed 7               # mêmes situations à chaque lancement (démo, keynote)
+python3 main.py --pseudo amine         # niveau, résultats et fiches gardés dans profiles/amine.json
 python3 main.py --libre                # chat libre avec le modèle, sans le parcours
 ```
 
@@ -58,8 +59,19 @@ Que fais-tu ?  [f] se coucher   [r] relancer
 | Je joue souvent | Tirages : outs contre cote du pot |
 
 Réponse affichée au fil de l'eau, historique du débrief gardé jusqu'à la situation suivante. Commandes :
-`/exercice` (situation suivante), `/niveau` (changer de niveau), `/reset` (oublier le débrief), `/tools` (outils
-chargés), `/quit` ou Ctrl-D. Ctrl-C coupe une réponse sans quitter.
+`/exercice` (situation suivante), `/fiche` (fiche de fin d'exercice), `/niveau` (changer de niveau), `/reprendre`
+(dernier débrief du profil), `/reset` (oublier le débrief), `/tools` (outils chargés), `/quit` ou Ctrl-D. Ctrl-C
+coupe une réponse sans quitter.
+
+- **Profil (M1)** : avec `--pseudo`, `profils.py` garde dans `profiles/<pseudo>.json` (jamais commité) le niveau,
+  les verdicts par thème, le dernier débrief et les 20 dernières fiches. Au retour, SensAI ne redemande pas le
+  niveau, cite les thèmes à revoir et les sert plus souvent (jusqu'à 3 fois plus) ; le coach reçoit les résultats.
+- **Sorties structurées (T5)** : le niveau peut se dire en toutes lettres (« je compte mes outs ») ; le modèle le
+  classe en `{niveau, raison}` (schéma JSON imposé à Ollama, `prompts/niveau.txt`), le code le vérifie et, s'il
+  est inutilisable, repose la question par numéro. `/fiche` écrit `{a_retenir, theme_a_revoir}`
+  (`prompts/fiche.txt`), vérifiée de la même façon.
+- **Questions (X4)** : pendant le débrief, le coach peut appeler l'outil local `poser_question` ; la question
+  s'affiche avec ses choix numérotés, le joueur répond par un numéro (envoyé en toutes lettres) ou par écrit.
 Ollama éteint, modèle absent, configuration illisible : message clair et arrêt. Message vide : refusé sans
 appeler le modèle.
 
@@ -187,7 +199,7 @@ Le correcteur est le même petit modèle : relire les verdicts, il peut être in
 ## Tests
 
 ```
-python3 test_cli.py && python3 test_trainer.py && python3 test_coach.py && python3 test_generation.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_api.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
+python3 test_cli.py && python3 test_trainer.py && python3 test_coach.py && python3 test_profils.py && python3 test_generation.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_api.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 cd frontend && npm test                    # composants React (Vitest, jsdom, serveur simulé)
 ```
@@ -212,7 +224,9 @@ relance à chaque modification.
 | `server.py`, `web/index.html` | Interface web, comparaison de modèles, API de jeu, adversaire IA et coach |
 | `main.py` | Entraîneur en ligne de commande (et chat libre avec `--libre`), avec appels d'outils |
 | `trainer.py` | Parcours d'exercices sans entrée-sortie : niveau, situation, décision, verdict, débrief |
-| `coach.py`, `prompts/coach.txt` | Contexte du débrief et boucle d'appels d'outils d'une réponse |
+| `coach.py`, `prompts/coach.txt` | Contexte du débrief, boucle d'appels d'outils, question à choix (X4) |
+| `prompts/niveau.txt`, `prompts/fiche.txt` | Sorties structurées (T5) : niveau en toutes lettres, fiche de fin d'exercice |
+| `profils.py` | Profils JSON des joueurs (M1) : niveau, résultats par thème, dernier débrief, fiches |
 | `generation.py` | Situations et leur référence : banque générée par le modèle, tirage par le code |
 | `mcp_client.py`, `mcp_server.py` | Client MCP (lance les serveurs de la config) ; nos outils de poker en serveur MCP |
 | `notes/` | Notes de jeu, accessibles au modèle par le serveur MCP de fichiers |
