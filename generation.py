@@ -319,9 +319,11 @@ def historique(theme: str, sit: dict) -> str:
 
 def decrire(sit: dict) -> str:
     """La situation telle que le joueur la lit, écrite par un gabarit : aucun chiffre ne passe par le modèle."""
-    lignes = [f"Table 6 joueurs, 100 blindes · tu es {NOMS_POSITIONS[sit['position']]}.",
+    quiz = sit.get("theme") == QUI_GAGNE   # la position ne compte pas à l'abattage
+    lignes = ["Table 6 joueurs, quiz d'abattage." if quiz else
+              f"Table 6 joueurs, 100 blindes · tu es {NOMS_POSITIONS[sit['position']]}.",
               f"{sit['historique']} Tu as {equity.show(_cartes(sit['cartes']))}."]
-    if sit.get("theme") == QUI_GAGNE:
+    if quiz:
         lignes.append(f"Board : {equity.show(_cartes(sit['board']))}.")
     elif sit["board"]:
         lignes.append(f"Board : {equity.show(_cartes(sit['board']))} · pot {sit['pot']:g} bb, "

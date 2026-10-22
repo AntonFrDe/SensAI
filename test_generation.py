@@ -136,7 +136,8 @@ def test_tirer_qui_gagne_gives_a_clear_showdown_to_a_beginner():
         assert moi[0] != lui[0] and sit["reference"]["bonnes"] != ["egalite"]
         assert sit["actions"] == ["moi", "adversaire", "egalite"]
     texte = generation.decrire(sit)
-    assert "Le coup est fini : abattage. Ton adversaire montre" in texte and "pot" not in texte
+    assert texte.startswith("Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre")
+    assert "pot" not in texte and "blinde" not in texte
 
 
 def test_repli_gives_a_valid_situation_for_every_theme():
