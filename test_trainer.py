@@ -6,10 +6,15 @@ import random
 
 import generation
 import trainer
+from fake_ollama import FakeOllama, start
+from llm import LLMError
+
+OLLAMA = f"http://127.0.0.1:{start(FakeOllama)}"
+CFG = {"model": "ok", "ollama_url": OLLAMA, "num_ctx": 1024, "system_prompt": "test"}
 
 
 def session(niveau="debutant", seed=0):
-    s = trainer.Session({}, random.Random(seed))
+    s = trainer.Session(CFG, rng=random.Random(seed))
     s.choisir_niveau(niveau)
     return s
 
@@ -73,6 +78,55 @@ def test_a_new_situation_forgets_the_previous_decision():
     s.decider("fold")
     s.nouvelle_situation()
     assert s.action is None and s.verdict is None
+
+
+def debrief(s, texte):
+    return "".join(data for kind, data in s.discuter(texte) if kind == "token")
+
+
+def test_the_debrief_knows_the_situation_and_keeps_its_history():
+    FakeOllama.reset()
+    s = session()
+    situation = s.nouvelle_situation()
+    s.decider("fold")
+    assert debrief(s, "pourquoi ?") == "Hello"
+    debrief(s, "et au bouton ?")
+
+    first, second = FakeOllama.requests
+    system = first["messages"][0]["content"]
+    assert system.startswith("Tu es SensAI, un coach de poker") and situation["reference"]["faits"][0] in system
+    assert f"Verdict : {s.verdict}." in system
+    assert [m["content"] for m in second["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
+
+
+def test_no_debrief_before_the_decision():
+    s = session()
+    s.nouvelle_situation()
+    assert raises(s.discuter, "pourquoi ?")
+
+
+def test_a_new_situation_or_oublier_clears_the_debrief():
+    s = session()
+    s.nouvelle_situation()
+    s.decider("fold")
+    debrief(s, "pourquoi ?")
+    s.oublier()
+    assert s.debrief == [] and s.action == "fold"
+    debrief(s, "pourquoi ?")
+    s.nouvelle_situation()
+    assert s.debrief == []
+
+
+def test_a_failed_answer_stays_out_of_the_debrief():
+    s = trainer.Session({**CFG, "model": "missing"}, rng=random.Random(0))
+    s.choisir_niveau("1")
+    s.nouvelle_situation()
+    s.decider("fold")
+    try:
+        debrief(s, "pourquoi ?")
+    except LLMError:
+        pass
+    assert s.debrief == []
 
 
 if __name__ == "__main__":
