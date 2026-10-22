@@ -24,11 +24,16 @@ class FakeToolbox:
 
 def test_contexte_gives_the_decision_the_verdict_and_the_reference():
     texte = coach.contexte(SITUATION, "debutant", "fold", "erreur")
-    assert "Tu as K♦ 9♦." in texte
+    assert "Tu as K♦ 9♦." in texte and "Main de départ : K9s : assorties (même couleur)." in texte
     assert "Décision du joueur : se coucher. Verdict : erreur." in texte
     assert "- bonnes actions : relancer" in texte and "acceptables (situation limite) : aucune" in texte
     assert "- K9s : ouvrir en MP, CO, BTN, SB ; se coucher en UTG" in texte
     assert coach.CONSIGNES_NIVEAU["debutant"] in texte
+
+
+def test_main_de_depart_names_the_kind_of_hand():
+    assert coach.main_de_depart(["5h", "Js"]) == "J5o : dépareillées (couleurs différentes)"
+    assert coach.main_de_depart(["Qc", "Qd"]) == "QQ : une paire"
 
 
 def test_config_puts_the_context_after_the_coach_prompt():

@@ -7,6 +7,7 @@ from collections.abc import Iterator
 from contextlib import closing
 
 import generation
+import preflop
 from llm import ROOT, stream_chat
 from mcp_client import Toolbox
 
@@ -19,6 +20,15 @@ CONSIGNES_NIVEAU = {
 }
 
 
+SORTES = {"s": "assorties (même couleur)", "o": "dépareillées (couleurs différentes)", "": "une paire"}
+
+
+def main_de_depart(cartes: list[str]) -> str:
+    """« J5o : cartes dépareillées (couleurs différentes) » : le nom de la main, que le modèle lit souvent mal."""
+    main = preflop.normalize_hand("".join(cartes))
+    return f"{main} : {SORTES[main[2:]]}"
+
+
 def _actions(actions: list[str]) -> str:
     return ", ".join(generation.LIBELLES[a] for a in actions) or "aucune"
 
@@ -27,6 +37,7 @@ def contexte(situation: dict, niveau: str, action: str, verdict: str) -> str:
     """Ce que le coach sait de l'exercice : la situation, la décision du joueur, son verdict et la référence."""
     ref = situation["reference"]
     lignes = ["Situation de l'exercice :", generation.decrire(situation),
+              f"Main de départ : {main_de_depart(situation['cartes'])}.",
               f"Niveau du joueur : {niveau}. {CONSIGNES_NIVEAU[niveau]}",
               f"Décision du joueur : {generation.LIBELLES[action]}. Verdict : {verdict}.",
               "Référence calculée par le code (fais-lui confiance, ne la recalcule pas) :",
