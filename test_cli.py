@@ -196,7 +196,7 @@ def test_a_beginner_also_plays_the_who_wins_quiz():
 def test_niveau_changes_the_level_and_its_themes():
     p = chat("1\n/niveau\n3\n/quit\n", mode=None)
     second = p.stdout.split("Situation 2 ·")[1]
-    assert "Board :" in second and "[c] suivre" in second   # the advanced level plays draws on the flop or turn
+    assert "[c] suivre" in second   # the advanced level faces a bet: a draw or an open against its big blind
 
 
 def test_seed_replays_the_same_situations():

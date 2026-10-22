@@ -75,10 +75,10 @@ def test_the_generated_bank_comes_first():
         banque = Path(tmp) / "banque.jsonl"
         banque.write_text("".join(json.dumps(s) + "\n" for s in (generee, autre_niveau)))
         s = trainer.Session({**CFG, "banque_file": str(banque)}, rng=random.Random(0))
-        s.choisir_niveau("avance")   # a single theme: tirage
-        first, second = s.nouvelle_situation(), s.nouvelle_situation()
-    assert first == generee
-    assert second["source"] == "code"   # the bank has nothing left for this level
+        s.choisir_niveau("avance")   # draws (from the bank) and big blind defenses (drawn by the code)
+        tirages = [sit for sit in (s.nouvelle_situation() for _ in range(8)) if sit["theme"] == "tirage"]
+    assert tirages[0] == generee
+    assert all(sit["source"] == "code" for sit in tirages[1:])   # the bank has nothing left for this level
 
 
 def test_vue_situation_hides_the_reference():

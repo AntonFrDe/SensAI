@@ -18,7 +18,7 @@ NIVEAUX = {
     "avance": "Je joue souvent (je calcule mes cotes)",
 }
 THEMES_PAR_NIVEAU = {"debutant": ("ouverture", generation.QUI_GAGNE), "intermediaire": ("ouverture", "tirage"),
-                     "avance": ("tirage",)}
+                     "avance": ("tirage", generation.DEFENSE)}
 POIDS_ERREUR = 2   # un thème toujours raté pèse 1 + 2 = 3 fois plus qu'un thème réussi
 
 

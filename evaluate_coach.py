@@ -27,7 +27,8 @@ NOMBRE = 30
 GRAINE = 2026   # le même jeu de situations d'une fois sur l'autre, pour comparer deux modèles ou deux prompts
 JUGE = "llama3.2:3b"   # une autre famille que le coach (qwen3) : il ne se corrige pas lui-même
 QUESTION = "Pourquoi ? Explique-moi."
-NIVEAU_DU_THEME = {"ouverture": "intermediaire", "tirage": "intermediaire", generation.QUI_GAGNE: "debutant"}
+NIVEAU_DU_THEME = {"ouverture": "intermediaire", "tirage": "intermediaire", generation.QUI_GAGNE: "debutant",
+                   generation.DEFENSE: "avance"}
 HORS_FAITS = ("Référence :", "Hypothèse :", "Règle :")   # le cadre de la référence, pas un fait à expliquer
 
 

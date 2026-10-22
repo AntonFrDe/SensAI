@@ -28,7 +28,7 @@ def with_model(reply, fn, *args):
 
 def test_situations_are_different_and_cycle_through_the_themes():
     tirees = evaluate_coach.situations(9, 1)
-    assert [s["theme"] for s in tirees[:3]] == list(generation.TOUS_THEMES)
+    assert [s["theme"] for s in tirees[:len(generation.TOUS_THEMES)]] == list(generation.TOUS_THEMES)
     assert len({generation.cle(s["theme"], s) for s in tirees}) == 9
     assert [s["id"] for s in evaluate_coach.situations(3, 1)] != [s["id"] for s in tirees[:3]]   # ids are fresh
     assert [s["cartes"] for s in evaluate_coach.situations(3, 1)] == [s["cartes"] for s in tirees[:3]]
