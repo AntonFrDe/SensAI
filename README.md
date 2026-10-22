@@ -104,8 +104,8 @@ serveur. Corps et réponses en JSON ; le débrief arrive en NDJSON, comme `/api/
 | `/api/sessions/<id>/fiche` | `{}` | `{fiche: {a_retenir, theme_a_revoir}}` |
 | `/api/sessions/<id>/reprendre` | `{}` | le dernier débrief du profil : `{situation, action, verdict, reference, debrief}` |
 
-Une session traite une demande à la fois (409 évité par un 400 explicite) ; chaque appel au modèle prend une
-place du sémaphore RAM. Les outils MCP ne sont pas encore branchés côté web : seul `poser_question` l'est. Les
+Une session traite une demande à la fois : une autre demande arrivée pendant ce temps reçoit un 400. Chaque
+appel au modèle prend une place du sémaphore RAM. Les outils MCP ne sont pas encore branchés côté web : seul `poser_question` l'est. Les
 écrans React de ce parcours restent à faire.
 
 ## Jouer contre l'IA (frontend React)
