@@ -105,6 +105,29 @@ def test_decrire_shows_the_cards_and_the_amounts():
     assert tirage.endswith("Tu as A♥ 5♥.\nBoard : K♥ 7♥ 2♣ · pot 6 bb, à payer 2 bb.")
 
 
+def test_qui_gagne_reference_compares_the_best_five_cards():
+    base = {"theme": "qui_gagne", "board": ["Kh", "7h", "2h", "9c", "3d"]}
+    couleur = generation.reference({**base, "cartes": ["Ah", "5h"], "adversaire": ["Ks", "Kd"]})
+    assert couleur["bonnes"] == ["moi"] and couleur["faits"][:2] == ["Ta meilleure main : Couleur",
+                                                                    "Celle de ton adversaire : Brelan"]
+    kicker = generation.reference({**base, "cartes": ["Kc", "4s"], "adversaire": ["Ks", "Qd"]})
+    assert kicker["bonnes"] == ["adversaire"] and "kicker" in kicker["faits"][2]
+    partage = generation.reference({**base, "board": ["Ac", "Kd", "Qs", "Jh", "Td"], "cartes": ["2c", "3d"],
+                                    "adversaire": ["4s", "5h"]})
+    assert partage["bonnes"] == ["egalite"]
+
+
+def test_tirer_qui_gagne_gives_a_clear_showdown_to_a_beginner():
+    for seed in range(20):
+        sit = generation.tirer("qui_gagne", "debutant", random.Random(seed))
+        assert len(sit["board"]) == 5 and len({*sit["cartes"], *sit["adversaire"], *sit["board"]}) == 9
+        moi, lui = generation._scores(sit)
+        assert moi[0] != lui[0] and sit["reference"]["bonnes"] != ["egalite"]
+        assert sit["actions"] == ["moi", "adversaire", "egalite"]
+    texte = generation.decrire(sit)
+    assert "Le coup est fini : abattage. Ton adversaire montre" in texte and "pot" not in texte
+
+
 def test_repli_gives_a_valid_situation_for_every_theme():
     for seed in range(30):
         for theme in generation.THEMES:

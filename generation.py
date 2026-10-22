@@ -16,13 +16,18 @@ import odds
 import preflop
 from llm import ROOT, LLMError, complete
 
-THEMES = ("ouverture", "tirage")
+THEMES = ("ouverture", "tirage")   # ceux que le modèle sait générer
+QUI_GAGNE = "qui_gagne"   # quiz d'abattage (débutant) : tiré par le code seulement
+TOUS_THEMES = (*THEMES, QUI_GAGNE)
 NIVEAUX = ("debutant", "intermediaire", "avance")
 CARTES = [r + s for r in "AKQJT98765432" for s in "shdc"]  # les 52 codes
 POSITIONS = {"ouverture": ["UTG", "MP", "CO", "BTN", "SB"],  # la BB n'ouvre jamais
              "tirage": ["UTG", "MP", "CO", "BTN", "SB", "BB"]}
-ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"]}
-LIBELLES = {"fold": "se coucher", "call": "suivre", "raise": "relancer"}
+ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"],
+           QUI_GAGNE: ["moi", "adversaire", "egalite"]}
+LIBELLES = {"fold": "se coucher", "call": "suivre", "raise": "relancer",
+            "moi": "tu gagnes", "adversaire": "ton adversaire gagne", "egalite": "égalité, pot partagé"}
+QUESTIONS = {QUI_GAGNE: "Qui gagne ?"}   # sinon « Que fais-tu ? »
 NOMS_POSITIONS = {"UTG": "sous le canon (UTG)", "MP": "en milieu de parole (MP)", "CO": "au cut-off (CO)",
                   "BTN": "au bouton (BTN)", "SB": "à la petite blinde (SB)", "BB": "à la grosse blinde (BB)"}
 CHAMPS_MODELE = ("position", "cartes", "board", "pot", "a_payer")  # ce que le modèle écrit
@@ -143,7 +148,28 @@ def reference(sit: dict) -> dict:
     """La bonne réponse et les faits qui la justifient, calculés par le code."""
     if sit["theme"] == "ouverture":
         return _reference_ouverture(sit)
+    if sit["theme"] == QUI_GAGNE:
+        return _reference_qui_gagne(sit)
     return _reference_tirage(sit)
+
+
+def _scores(sit: dict) -> tuple[tuple, tuple]:
+    """La force de la meilleure main de 5 cartes du joueur et de son adversaire (la plus grande gagne)."""
+    return (equity.evaluate7(_cartes(sit["cartes"] + sit["board"])),
+            equity.evaluate7(_cartes(sit["adversaire"] + sit["board"])))
+
+
+def _reference_qui_gagne(sit: dict) -> dict:
+    moi, lui = _scores(sit)
+    bonne = "moi" if moi > lui else "adversaire" if lui > moi else "egalite"
+    faits = [f"Ta meilleure main : {equity.hand_name(_cartes(sit['cartes'] + sit['board']))}",
+             f"Celle de ton adversaire : {equity.hand_name(_cartes(sit['adversaire'] + sit['board']))}"]
+    if bonne == "egalite":
+        faits.append("Mêmes cinq meilleures cartes : le pot est partagé.")
+    elif moi[0] == lui[0]:
+        faits.append("Même combinaison : on départage par la hauteur des cartes, puis par le kicker.")
+    faits.append("Règle : chacun garde ses 5 meilleures cartes parmi ses 2 cartes et les 5 du board.")
+    return {"bonnes": [bonne], "acceptables": [], "faits": faits}
 
 
 def _reference_ouverture(sit: dict) -> dict:
@@ -215,7 +241,27 @@ def repli(theme: str, niveau: str, rng: random.Random, deja_vues: set[str]) -> d
 
 def tirer(theme: str, niveau: str, rng: random.Random, deja_vues: set[str] = frozenset()) -> dict:
     """Situation tirée par le code, tout de suite : sans appel au modèle et sans l'ajouter à la banque."""
+    if theme == QUI_GAGNE:
+        return _tirer_qui_gagne(niveau, rng, deja_vues)
     return _situation(repli(theme, niveau, rng, deja_vues), theme, niveau, "code", 0, [])
+
+
+def _tirer_qui_gagne(niveau: str, rng: random.Random, deja_vues: set[str]) -> dict:
+    """Un abattage : tes cartes, celles de l'adversaire et un board complet. Pour un débutant, deux combinaisons
+    différentes : départager deux mêmes combinaisons par le kicker viendra plus tard."""
+    for _ in range(ESSAIS_REPLI):
+        codes = rng.sample(CARTES, 9)
+        sit = {"theme": QUI_GAGNE, "position": rng.choice(POSITIONS["tirage"]), "cartes": codes[:2],
+               "adversaire": codes[2:4], "board": codes[4:], "pot": 0, "a_payer": 0}
+        moi, lui = _scores(sit)
+        if (niveau == "debutant" and moi[0] == lui[0]) or cle(QUI_GAGNE, sit) in deja_vues:
+            continue
+        sit = {"id": uuid4().hex[:8], "niveau": niveau, **sit,
+               "historique": f"Le coup est fini : abattage. Ton adversaire montre "
+                             f"{equity.show(_cartes(sit['adversaire']))}."}
+        return {**sit, "actions": list(ACTIONS[QUI_GAGNE]), "reference": reference(sit), "source": "code",
+                "tentatives": 0, "erreurs": [], "cree_le": datetime.now().isoformat(timespec="seconds")}
+    raise RuntimeError("Aucun abattage valide.")
 
 
 def _chemin(cfg: dict):
@@ -262,7 +308,9 @@ def decrire(sit: dict) -> str:
     """La situation telle que le joueur la lit, écrite par un gabarit : aucun chiffre ne passe par le modèle."""
     lignes = [f"Table 6 joueurs, 100 blindes · tu es {NOMS_POSITIONS[sit['position']]}.",
               f"{sit['historique']} Tu as {equity.show(_cartes(sit['cartes']))}."]
-    if sit["board"]:
+    if sit.get("theme") == QUI_GAGNE:
+        lignes.append(f"Board : {equity.show(_cartes(sit['board']))}.")
+    elif sit["board"]:
         lignes.append(f"Board : {equity.show(_cartes(sit['board']))} · pot {sit['pot']:g} bb, "
                       f"à payer {sit['a_payer']:g} bb.")
     return "\n".join(lignes)
