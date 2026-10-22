@@ -34,6 +34,7 @@ import poker_ai
 import profils
 import trainer
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
+from mcp_client import Toolbox
 from poker_api import (
     AI, HUMAN, apply_action, create_game, hand_rankings, next_hand, odds_summary, player_controls, public_game_state,
 )
@@ -155,6 +156,7 @@ class Handler(BaseHTTPRequestHandler):
     thinking: set[str] = set()  # games whose AI opponent is deciding: one decision at a time per game
     sessions: dict[str, trainer.Session] = {}
     busy: set[str] = set()  # sessions handling a request: one at a time per session
+    toolbox = Toolbox({})  # the MCP tools of the debrief, shared by every session; set by main()
     cfg: dict = None  # set by main()
     slots = threading.BoundedSemaphore(1)  # replaced by main() from "max_parallel_models"
 
@@ -314,7 +316,7 @@ class Handler(BaseHTTPRequestHandler):
         if pseudo is not None and not isinstance(pseudo, str):
             raise ValueError("Le pseudo doit être un texte.")
         profil = profils.charger(pseudo, self.cfg) if pseudo else None
-        session = trainer.Session(self.cfg, profil=profil)
+        session = trainer.Session({**self.cfg, "tools": self.toolbox.specs}, self.toolbox, profil=profil)
         session_id = uuid4().hex
         with self.games_lock:
             if len(self.sessions) >= MAX_SESSIONS:
@@ -513,11 +515,15 @@ def main() -> None:
     ap.add_argument("--model", help="override the model from config.json")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8000)
+    ap.add_argument("--no-tools", action="store_true", help="no MCP server for the trainer's debrief")
     args = ap.parse_args()
 
     Handler.cfg = load_config()
     if args.model:
         Handler.cfg["model"] = args.model
+    Handler.toolbox = Toolbox({} if args.no_tools else Handler.cfg.get("mcp_servers", {}))
+    for warning in Handler.toolbox.warnings:  # a broken tool server must not stop the server
+        print(f"Outils indisponibles, {warning}", file=sys.stderr)
     parallel = Handler.cfg.get("max_parallel_models", 1)
     Handler.slots = threading.BoundedSemaphore(parallel)
     server = ThreadingHTTPServer((args.host, args.port), Handler)
@@ -526,6 +532,8 @@ def main() -> None:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        Handler.toolbox.close()
 
 
 if __name__ == "__main__":

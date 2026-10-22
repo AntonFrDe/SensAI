@@ -1,5 +1,6 @@
 """Web server checks against a fake Ollama, so no model is needed. Run: python3 test_web.py"""
 import json
+import sys
 import tempfile
 import threading
 import time
@@ -465,6 +466,25 @@ def test_trainer_session_with_a_pseudo_keeps_the_profile():
         status, [resumed] = session_post(f"/api/sessions/{created['sessionId']}/reprendre")
     assert status == 200 and resumed["action"] == "fold" and "reference" not in resumed["situation"]
     assert session_post("/api/sessions", {"pseudo": "../x"})[0] == 400
+
+
+def test_trainer_debrief_runs_the_mcp_tools():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "preflop_open", "arguments": {"hand": "K9s"}}
+    server.Handler.toolbox = server.Toolbox({"poker": {"command": [sys.executable, "mcp_server.py"]}})
+    try:
+        sid, _ = new_session()
+        for path, body in (("niveau", {"reponse": "2"}), ("situations", {}), ("decision", {"action": "fold"})):
+            session_post(f"/api/sessions/{sid}/{path}", body)
+        _, events = session_post(f"/api/sessions/{sid}/messages", {"texte": "et K9s ?"})
+    finally:
+        FakeOllama.tool_call = None
+        server.Handler.toolbox.close()
+        server.Handler.toolbox = server.Toolbox({})
+    assert {"outil": {"name": "preflop_open", "arguments": {"hand": "K9s"}}} in events
+    tools = {t["function"]["name"] for t in FakeOllama.requests[0]["tools"]}
+    assert {"preflop_open", "poser_question"} <= tools
+    assert "K9s" in FakeOllama.requests[1]["messages"][-1]["content"]   # the tool result reached the model
 
 
 if __name__ == "__main__":

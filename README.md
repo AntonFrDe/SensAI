@@ -105,8 +105,9 @@ serveur. Corps et réponses en JSON ; le débrief arrive en NDJSON, comme `/api/
 | `/api/sessions/<id>/reprendre` | `{}` | le dernier débrief du profil : `{situation, action, verdict, reference, debrief}` |
 
 Une session traite une demande à la fois : une autre demande arrivée pendant ce temps reçoit un 400. Chaque
-appel au modèle prend une place du sémaphore RAM. Les outils MCP ne sont pas encore branchés côté web : seul `poser_question` l'est. Les
-écrans React de ce parcours restent à faire.
+appel au modèle prend une place du sémaphore RAM. Le débrief a les mêmes outils que le CLI : les serveurs MCP de la config,
+lancés une fois au démarrage et partagés par les sessions (`python3 server.py --no-tools` pour s'en passer), et
+`poser_question`. Les écrans React de ce parcours restent à faire.
 
 ## Jouer contre l'IA (frontend React)
 
