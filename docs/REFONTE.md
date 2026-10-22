@@ -238,6 +238,9 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
 - React : écran niveau (boutons X4), situation (table existante, position affichée), débrief (chat en
   streaming, questions du coach en boutons, appels d'outils visibles).
 - **Fini quand** : le même parcours marche dans le navigateur, et le CLI n'a pas changé.
+- **État (2026-10-22, `feat/trainer-loop`)** : routes faites et testées (`test_web.py`), à côté des routes
+  actuelles du frontend, qui restent en place tant que la décision 2 n'est pas prise. Reste : les écrans React et
+  les outils MCP côté web (le `Toolbox` n'est pas partagé entre threads).
 
 ### Phase 4 : niveaux intermédiaire et avancé (M)
 

@@ -5,6 +5,9 @@
 Binds to localhost by default. There is no authentication: --host 0.0.0.0 gives anyone on
 your network access to your models.
 
+Trainer routes (/api/sessions...): the same path as the CLI, on trainer.py; see README.md, « API de
+l'entraîneur ».
+
 RAM guard: every generation, from chat or comparison, first takes a slot from a semaphore
 (config "max_parallel_models", default 1). Models that cannot get a slot wait, paused, until
 a running one finishes, so two multi-GB models never sit in RAM at the same time.

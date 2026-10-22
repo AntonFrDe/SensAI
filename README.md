@@ -89,6 +89,25 @@ standard (`mcp_client.py`, `mcp_server.py`) :
 continue sans lui. `write_file` remplace tout le fichier : le modèle doit le réécrire en entier pour ajouter une
 ligne.
 
+## API de l'entraîneur (phase 3, pour le web)
+
+`server.py` sert le même parcours que le CLI, sur `trainer.py` : une session par joueur, gardée en mémoire du
+serveur. Corps et réponses en JSON ; le débrief arrive en NDJSON, comme `/api/chat`.
+
+| Route (POST) | Corps | Réponse |
+|---|---|---|
+| `/api/sessions` | `{pseudo?}` | `201 {sessionId, niveau, niveaux, profil}` ; `niveau` est connu si le profil l'a |
+| `/api/sessions/<id>/niveau` | `{reponse}` : numéro, nom ou texte libre (T5) | `{niveau, raison}` ; 400 si non compris |
+| `/api/sessions/<id>/situations` | `{}` | `201 {numero, situation}` : sans la référence, avec `texte`, `question`, `actions` |
+| `/api/sessions/<id>/decision` | `{action}` | `{verdict, reference}` |
+| `/api/sessions/<id>/messages` | `{texte}` (un numéro répond à la question du coach) | NDJSON : `queued`, `thinking`, `token`, `outil`, `question` (X4), puis `done` ou `error` |
+| `/api/sessions/<id>/fiche` | `{}` | `{fiche: {a_retenir, theme_a_revoir}}` |
+| `/api/sessions/<id>/reprendre` | `{}` | le dernier débrief du profil : `{situation, action, verdict, reference, debrief}` |
+
+Une session traite une demande à la fois (409 évité par un 400 explicite) ; chaque appel au modèle prend une
+place du sémaphore RAM. Les outils MCP ne sont pas encore branchés côté web : seul `poser_question` l'est. Les
+écrans React de ce parcours restent à faire.
+
 ## Jouer contre l'IA (frontend React)
 
 ```
