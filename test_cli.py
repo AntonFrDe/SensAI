@@ -159,7 +159,7 @@ def test_trainer_asks_the_level_then_deals_a_situation():
     p = chat("4\n1\n/quit\n", mode=None)
     assert p.returncode == 0 and "Quel est ton niveau" in p.stdout
     assert "Réponds par un numéro de 1 à 3." in p.stdout
-    assert "Situation 1 · Table 6 joueurs, 100 blindes" in p.stdout and "[f] se coucher   [r] relancer" in p.stdout
+    assert "Situation 1 · Table 6 joueurs, 100 blindes" in p.stdout
     assert FakeOllama.requests == []   # the situation comes from the code, not from the model
 
 
@@ -170,10 +170,10 @@ def test_a_free_answer_off_schema_falls_back_to_the_numbered_choice():
 
 
 def test_trainer_grades_the_decision_then_the_coach_debriefs_it():
-    p = chat("1\nsalut\nf\npourquoi ?\n/quit\n", mode=None)
+    p = chat("2\nsalut\nf\npourquoi ?\n/quit\n", mode=None)
     assert "Choisis une action : [f] se coucher   [r] relancer" in p.stdout   # no debrief before the decision
     assert any(v in p.stdout for v in ("✅ Bon :", "🟡 Acceptable :", "❌ Erreur :"))
-    assert "- Référence : ranges d'ouverture 6-max, 100 blindes." in p.stdout and "Hello" in p.stdout
+    assert "\n- " in p.stdout and "Hello" in p.stdout   # the facts of the reference
     (request,) = FakeOllama.requests
     assert roles(request) == ["system", "user"]
     system = request["messages"][0]["content"]
@@ -182,9 +182,15 @@ def test_trainer_grades_the_decision_then_the_coach_debriefs_it():
 
 
 def test_exercice_deals_the_next_situation_with_a_fresh_debrief():
-    p = chat("1\nf\nq1\n/exercice\nf\nq2\n/quit\n", mode=None)
+    p = chat("2\nf\nq1\n/exercice\nf\nq2\n/quit\n", mode=None)
     assert "Situation 2 ·" in p.stdout
     assert [m["content"] for m in FakeOllama.requests[1]["messages"][1:]] == ["q2"]
+
+
+def test_a_beginner_also_plays_the_who_wins_quiz():
+    p = chat("1\n" + "/exercice\n" * 9 + "/quit\n", "--seed", "1", mode=None)
+    assert "Qui gagne ?  [m] tu gagnes   [a] ton adversaire gagne   [e] égalité, pot partagé" in p.stdout
+    assert "Que fais-tu ?  [f] se coucher   [r] relancer" in p.stdout
 
 
 def test_niveau_changes_the_level_and_its_themes():
@@ -200,13 +206,13 @@ def test_seed_replays_the_same_situations():
 
 
 def test_fiche_off_schema_is_reported_and_the_session_goes_on():
-    p = chat("1\n/fiche\nf\n/fiche\n/quit\n", mode=None)
+    p = chat("2\n/fiche\nf\n/fiche\n/quit\n", mode=None)
     assert p.returncode == 0 and "Fiche impossible : décide d'abord" in p.stdout
     assert "Fiche impossible : champ manquant ou vide : a_retenir." in p.stdout   # the fake model answers off schema
 
 
 def test_the_coach_question_shows_numbered_choices():
-    p = chat("1\nf\npourquoi ?\n2\n/quit\n", mode=None,
+    p = chat("2\nf\npourquoi ?\n2\n/quit\n", mode=None,
              tool_call={"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}})
     assert "Outs ?\n  1. 9\n  2. 15" in p.stdout
     assert FakeOllama.requests[-1]["messages"][-1]["content"] == "Je réponds : 15"
@@ -214,12 +220,12 @@ def test_the_coach_question_shows_numbered_choices():
 
 def test_pseudo_remembers_the_level_and_resumes_the_debrief():
     with tempfile.TemporaryDirectory() as profiles:
-        first = chat("1\nf\npourquoi ?\n/quit\n", "--pseudo", "amine", mode=None, profiles=profiles)
+        first = chat("2\nf\npourquoi ?\n/quit\n", "--pseudo", "amine", mode=None, profiles=profiles)
         assert "Quel est ton niveau" in first.stdout
 
         again = chat("/reprendre\net au bouton ?\n/quit\n", "--pseudo", "Amine", mode=None, profiles=profiles)
     assert "Quel est ton niveau" not in again.stdout
-    assert "Re-bonjour amine · niveau : Je découvre" in again.stdout
+    assert "Re-bonjour amine · niveau : Je joue un peu" in again.stdout
     assert "Dernière situation ·" in again.stdout and "Coach : Hello" in again.stdout
     assert [m["content"] for m in FakeOllama.requests[-1]["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
 

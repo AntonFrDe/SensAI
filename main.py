@@ -23,7 +23,7 @@ from llm import ROOT, LLMError, list_models, load_config
 from mcp_client import Toolbox
 
 DIM, RED, RESET = "\033[2m", "\033[31m", "\033[0m"
-KEYS = {"fold": "f", "call": "c", "raise": "r"}
+KEYS = {"fold": "f", "call": "c", "raise": "r", "moi": "m", "adversaire": "a", "egalite": "e"}
 ICONS = {"bon": "✅", "acceptable": "🟡", "erreur": "❌"}
 
 
@@ -176,7 +176,7 @@ def choices(situation: dict) -> str:
 def deal(session: trainer.Session) -> None:
     situation = session.nouvelle_situation()
     print(f"\nSituation {session.numero} · {generation.decrire(situation)}")
-    print(f"Que fais-tu ?  {choices(situation)}")
+    print(f"{generation.QUESTIONS.get(situation['theme'], 'Que fais-tu ?')}  {choices(situation)}")
 
 
 def or_list(actions: list[str]) -> str:
@@ -192,12 +192,12 @@ def decide(session: trainer.Session, text: str) -> None:
     verdict = session.decider(action)
     reference = session.situation["reference"]
     if verdict == "bon":
-        print(f"{ICONS[verdict]} Bon : {generation.LIBELLES[action]} est la bonne action.")
+        print(f"{ICONS[verdict]} Bon : {generation.LIBELLES[action]}, c'est la bonne réponse.")
     elif verdict == "acceptable":
         print(f"{ICONS[verdict]} Acceptable : situation limite, {or_list(reference['acceptables'])} se défendent.")
     else:
         best = reference["bonnes"] or reference["acceptables"]
-        print(f"{ICONS[verdict]} Erreur : il fallait {or_list(best)}.")
+        print(f"{ICONS[verdict]} Erreur : la bonne réponse était {or_list(best)}.")
     for fact in reference["faits"]:
         print(f"- {fact}")
     note("Pose tes questions au coach · /fiche : ce qu'il faut retenir · /exercice : situation suivante")

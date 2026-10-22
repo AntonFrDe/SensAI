@@ -18,7 +18,7 @@ CFG = {"model": "ok", "ollama_url": OLLAMA, "num_ctx": 1024, "system_prompt": "t
        "banque_file": "/nonexistent/banque.jsonl"}   # situations drawn by the code only
 
 
-def session(niveau="debutant", seed=0):
+def session(niveau="intermediaire", seed=0):   # fold is legal in all its themes
     s = trainer.Session(CFG, rng=random.Random(seed))
     s.choisir_niveau(niveau)
     return s
@@ -64,18 +64,18 @@ def test_each_level_gets_the_themes_it_is_ready_for():
 
 def test_a_situation_is_never_given_twice_in_a_session():
     s = session()
-    cles = [generation.cle("ouverture", s.nouvelle_situation()) for _ in range(30)]
+    cles = [generation.cle(sit["theme"], sit) for sit in (s.nouvelle_situation() for _ in range(30))]
     assert len(set(cles)) == 30 and s.numero == 30
 
 
 def test_the_generated_bank_comes_first():
-    generee = {**generation.tirer("ouverture", "debutant", random.Random(1)), "source": "llm"}
-    autre_niveau = {**generation.tirer("ouverture", "avance", random.Random(2)), "source": "llm"}
+    generee = {**generation.tirer("tirage", "avance", random.Random(1)), "source": "llm"}
+    autre_niveau = {**generation.tirer("tirage", "intermediaire", random.Random(2)), "source": "llm"}
     with tempfile.TemporaryDirectory() as tmp:
         banque = Path(tmp) / "banque.jsonl"
         banque.write_text("".join(json.dumps(s) + "\n" for s in (generee, autre_niveau)))
         s = trainer.Session({**CFG, "banque_file": str(banque)}, rng=random.Random(0))
-        s.choisir_niveau("debutant")
+        s.choisir_niveau("avance")   # a single theme: tirage
         first, second = s.nouvelle_situation(), s.nouvelle_situation()
     assert first == generee
     assert second["source"] == "code"   # the bank has nothing left for this level
@@ -90,9 +90,9 @@ def test_decider_gives_the_verdict_of_the_reference():
 
 
 def test_decider_refuses_an_impossible_action():
-    s = session()
+    s = session("debutant")
     s.nouvelle_situation()
-    assert raises(s.decider, "call")   # nothing to call before the flop when everyone has folded
+    assert raises(s.decider, "call")   # nothing to call before the flop, nor in a showdown quiz
     assert s.action is None
 
 
@@ -190,7 +190,7 @@ def test_reprendre_brings_back_the_last_debrief_of_the_profile():
     with tempfile.TemporaryDirectory() as tmp:
         cfg = {**CFG, "profiles_dir": tmp}
         s = trainer.Session(cfg, rng=random.Random(0), profil=profils.nouveau("amine"))
-        s.choisir_niveau("1")
+        s.choisir_niveau("2")
         situation = s.nouvelle_situation()
         s.decider("fold")
         debrief(s, "pourquoi ?")
@@ -214,7 +214,7 @@ def test_ecrire_fiche_keeps_the_card_in_the_profile():
         with tempfile.TemporaryDirectory() as tmp:
             cfg = {**CFG, "profiles_dir": tmp}
             s = trainer.Session(cfg, rng=random.Random(0), profil=profils.nouveau("amine"))
-            s.choisir_niveau("1")
+            s.choisir_niveau("2")
             s.nouvelle_situation()
             assert raises(s.ecrire_fiche)   # not before the decision
             s.decider("fold")
@@ -222,12 +222,12 @@ def test_ecrire_fiche_keeps_the_card_in_the_profile():
             (gardee,) = profils.charger("amine", cfg)["fiches"]
     finally:
         trainer.coach.complete = original
-    assert gardee["theme"] == "ouverture" and gardee["verdict"] == s.verdict
+    assert gardee["theme"] == s.situation["theme"] and gardee["verdict"] == s.verdict
 
 
 def test_a_failed_answer_stays_out_of_the_debrief():
     s = trainer.Session({**CFG, "model": "missing"}, rng=random.Random(0))
-    s.choisir_niveau("1")
+    s.choisir_niveau("2")
     s.nouvelle_situation()
     s.decider("fold")
     try:

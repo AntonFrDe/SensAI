@@ -36,7 +36,7 @@ python3 main.py --libre                # chat libre avec le modèle, sans le par
 
 Le parcours (`trainer.py`, sans entrée-sortie) : SensAI demande le niveau, tire une situation du niveau (d'abord
 dans la banque générée par le modèle, sinon tirée par le code, sans attente), le joueur répond par une touche
-(`f` se coucher, `c` suivre, `r` relancer), le code note la décision (bon, acceptable, erreur) d'après la
+(`f` se coucher, `c` suivre, `r` relancer ; pour le quiz « qui gagne ? », `m` moi, `a` l'adversaire, `e` égalité), le code note la décision (bon, acceptable, erreur) d'après la
 référence calculée et affiche ses faits. Puis le débrief : chat en streaming avec le coach (`coach.py`,
 `prompts/coach.txt`), qui reçoit la situation, la décision, le verdict et la référence, et l'explique sans la
 recalculer.
@@ -46,7 +46,7 @@ Situation 1 · Table 6 joueurs, 100 blindes · tu es à la petite blinde (SB).
 Tout le monde s'est couché jusqu'à toi (SB). Tu as 5♥ J♠.
 Que fais-tu ?  [f] se coucher   [r] relancer
 > f
-✅ Bon : se coucher est la bonne action.
+✅ Bon : se coucher, c'est la bonne réponse.
 - J5o : se coucher en UTG, MP, CO, BTN, SB
 - Référence : ranges d'ouverture 6-max, 100 blindes.
 > Pourquoi ?
@@ -54,7 +54,7 @@ Que fais-tu ?  [f] se coucher   [r] relancer
 
 | Niveau | Thèmes |
 |---|---|
-| Je découvre | Ouvrir ou se coucher, premier à parler (mains nettes) |
+| Je découvre | Ouvrir ou se coucher, premier à parler (mains nettes) ; qui gagne à l'abattage (`m`, `a`, `e`) |
 | Je joue un peu | Ouvertures, tirages au flop ou au turn |
 | Je joue souvent | Tirages : outs contre cote du pot |
 

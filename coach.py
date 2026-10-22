@@ -90,7 +90,8 @@ def contexte(situation: dict, niveau: str, action: str, verdict: str, profil: di
     et, s'il a un profil, ses résultats passés."""
     ref = situation["reference"]
     lignes = ["Situation de l'exercice :", generation.decrire(situation),
-              f"Main de départ : {main_de_depart(situation['cartes'])}.",
+              *([f"Main de départ : {main_de_depart(situation['cartes'])}."]
+                if situation["theme"] == "ouverture" else []),
               f"Niveau du joueur : {niveau}. {CONSIGNES_NIVEAU[niveau]}",
               f"Décision du joueur : {generation.LIBELLES[action]}. Verdict : {verdict}.",
               "Référence calculée par le code (fais-lui confiance, ne la recalcule pas) :",
@@ -108,7 +109,7 @@ def schema_fiche() -> dict:
     """Sortie structurée (T5) de la fiche de fin d'exercice : {a_retenir, theme_a_revoir}."""
     return {"type": "object",
             "properties": {"a_retenir": {"type": "string"},
-                           "theme_a_revoir": {"type": "string", "enum": [*generation.THEMES, "aucun"]}},
+                           "theme_a_revoir": {"type": "string", "enum": [*generation.TOUS_THEMES, "aucun"]}},
             "required": ["a_retenir", "theme_a_revoir"], "additionalProperties": False}
 
 
