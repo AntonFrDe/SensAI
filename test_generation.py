@@ -91,6 +91,13 @@ def test_valider_reports_each_kind_of_mistake():
     assert valider("texte") == ["la réponse doit être un objet JSON"]
 
 
+def test_refus_explains_how_to_fix_a_missing_draw():
+    message = generation.refus(["pas de tirage couleur ou quinte", "carte en double : Ah"])
+    assert message.startswith("Situation refusée : pas de tirage couleur ou quinte; carte en double : Ah.")
+    assert "Pour corriger : pas de tirage couleur ou quinte : il faut 4 cartes de même couleur" in message
+    assert "Pour corriger" not in generation.refus(["carte en double : Ah"])
+
+
 def test_historique_is_written_by_the_code():
     ouverture_utg = {"position": "UTG", "board": [], "pot": 1.5, "a_payer": 0}
     assert generation.historique("ouverture", ouverture_utg) == "Tu parles en premier (UTG)."

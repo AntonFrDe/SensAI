@@ -49,6 +49,12 @@ CONSIGNES_THEME = {
               "un tirage couleur ou quinte. Un adversaire vient de miser a_payer ; pot = pot avant la mise + la "
               "mise, donc a_payer est plus petit que pot.",
 }
+# Comment corriger chaque refus : le modèle réussit mieux quand on lui dit quoi changer, pas seulement ce qui ne va pas
+AIDES = {
+    "pas de tirage couleur ou quinte": "il faut 4 cartes de même couleur, ou 4 hauteurs qui se suivent, entre les "
+                                       "2 cartes du joueur et le board, sans main déjà faite",
+    "situation déjà dans la banque": "change les cartes du joueur ou le board",
+}
 CONSIGNES_NIVEAU = {
     "debutant": "décision nette : une main clairement à jouer ou clairement à jeter.",
     "intermediaire": "décision moins évidente : position précoce ou main limite.",
@@ -330,6 +336,13 @@ def _situation(brut: dict, theme: str, niveau: str, source: str, tentatives: int
     }
 
 
+def refus(problemes: list[str]) -> str:
+    """Le message renvoyé au modèle : ce qui ne va pas et, quand on sait, comment le corriger."""
+    aides = [f"{p} : {AIDES[p]}" for p in problemes if p in AIDES]
+    conseil = f" Pour corriger : {'; '.join(aides)}." if aides else ""
+    return f"Situation refusée : {'; '.join(problemes)}.{conseil} Corrige et renvoie le JSON complet."
+
+
 def generer(theme: str, niveau: str, cfg: dict) -> dict:
     """Demande une situation au modèle, la vérifie, la corrige ou la remplace, puis l'ajoute à la banque."""
     banque = lire_banque(cfg)
@@ -360,8 +373,7 @@ def generer(theme: str, niveau: str, cfg: dict) -> dict:
         erreurs.append(problemes)
         messages = [*messages,
                     {"role": "assistant", "content": reponse},
-                    {"role": "user", "content": f"Situation refusée : {'; '.join(problemes)}. "
-                                                "Corrige et renvoie le JSON complet."}]
+                    {"role": "user", "content": refus(problemes)}]
 
     if sit is None:
         brut = repli(theme, niveau, random.Random(), deja_vues)
