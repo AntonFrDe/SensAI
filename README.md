@@ -56,7 +56,7 @@ Que fais-tu ?  [f] se coucher   [r] relancer
 |---|---|
 | Je découvre | Ouvrir ou se coucher, premier à parler (mains nettes) ; qui gagne à l'abattage (`m`, `a`, `e`) |
 | Je joue un peu | Ouvertures, tirages au flop ou au turn |
-| Je joue souvent | Tirages : outs contre cote du pot |
+| Je joue souvent | Tirages : outs contre cote du pot ; défendre sa grosse blinde face à une ouverture (équité contre la range de l'ouvreur) |
 
 Réponse affichée au fil de l'eau, historique du débrief gardé jusqu'à la situation suivante. Commandes :
 `/exercice` (situation suivante), `/fiche` (fiche de fin d'exercice), `/niveau` (changer de niveau), `/reprendre`

@@ -246,6 +246,10 @@ Taille relative : S (une journée), M (deux ou trois), L (plus). Chaque phase fi
 
 - Thèmes tirage et ouvertures mixtes ; équité contre une range dans `equity.py`, avec tests.
 - **Fini quand** : chaque niveau a au moins deux thèmes avec référence testée.
+- **État (2026-10-22, `feat/trainer-loop`)** : fait. `equity.versus_range` (range pondérée : 0,5 pour une main
+  mixte) et `preflop.opening_range`. Thèmes par niveau : débutant ouverture et « qui gagne ? », intermédiaire
+  ouverture et tirage, avancé tirage et défense de grosse blinde. La défense compare l'équité *réalisée* (80 %
+  de l'équité hors position, hypothèse affichée) à la cote du pot : sans ce facteur, presque tout se suivait.
 
 ### Phase 5 : évaluation, livrables, keynote (M) : EV1
 
