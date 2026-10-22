@@ -120,6 +120,31 @@ def test_classer_niveau_against_ollama_refuses_an_answer_off_schema():
     assert "format" in FakeOllama.requests[0]
 
 
+def test_fiche_is_checked_against_its_schema():
+    debrief = [{"role": "user", "content": "pourquoi ?"},
+               {"role": "assistant", "content": "", "tool_calls": [{"function": {"name": "x"}}]},
+               {"role": "tool", "tool_name": "x", "content": "résultat"},
+               {"role": "assistant", "content": "Parce que K9s s'ouvre au bouton."}]
+    seen = []
+
+    def fake(messages, cfg):
+        seen.append((messages, cfg))
+        return '{"a_retenir": "K9s s\'ouvre au bouton.", "theme_a_revoir": "ouverture"}'
+
+    original = coach.complete
+    coach.complete = fake
+    try:
+        result = coach.fiche(SITUATION, "debutant", "fold", "erreur", debrief, CFG)
+    finally:
+        coach.complete = original
+    assert result == {"a_retenir": "K9s s'ouvre au bouton.", "theme_a_revoir": "ouverture"}
+    messages, cfg = seen[0]
+    assert [m["content"] for m in messages] == ["pourquoi ?", "Parce que K9s s'ouvre au bouton.",
+                                               "Écris la fiche de fin d'exercice."]
+    assert cfg["format"] == coach.schema_fiche() and "Verdict : erreur." in cfg["system_prompt"]
+    assert raises(coach.lire_json, '{"a_retenir": "x", "theme_a_revoir": "bluff"}', coach.schema_fiche())
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

@@ -16,6 +16,7 @@ from mcp_client import Toolbox
 MAX_TOOL_ROUNDS = 5  # then the model must answer with what it has
 PROMPT = ROOT / "prompts" / "coach.txt"
 PROMPT_NIVEAU = ROOT / "prompts" / "niveau.txt"
+PROMPT_FICHE = ROOT / "prompts" / "fiche.txt"
 CONSIGNES_NIVEAU = {
     "debutant": "Il découvre le poker : explique chaque terme technique, une idée à la fois.",
     "intermediaire": "Il connaît les combinaisons et les positions : tu peux parler de range et de cote du pot.",
@@ -89,6 +90,25 @@ def contexte(situation: dict, niveau: str, action: str, verdict: str, profil: di
         lignes += [f"Résultats passés du joueur ({profil['pseudo']}) : {profils.resume(profil)}.",
                    f"Thèmes à revoir : {', '.join(faibles) or 'aucun'}."]
     return "\n".join(lignes)
+
+
+def schema_fiche() -> dict:
+    """Sortie structurée (T5) de la fiche de fin d'exercice : {a_retenir, theme_a_revoir}."""
+    return {"type": "object",
+            "properties": {"a_retenir": {"type": "string"},
+                           "theme_a_revoir": {"type": "string", "enum": [*generation.THEMES, "aucun"]}},
+            "required": ["a_retenir", "theme_a_revoir"], "additionalProperties": False}
+
+
+def fiche(situation: dict, niveau: str, action: str, verdict: str, debrief: list[dict], cfg: dict) -> dict:
+    """La fiche de fin d'exercice, écrite par le modèle et vérifiée ; ValueError si elle est inutilisable."""
+    schema = schema_fiche()
+    prompt = PROMPT_FICHE.read_text(encoding="utf-8").strip()
+    fiche_cfg = {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict)}",
+                 "format": schema, "temperature": 0, "tools": []}
+    echanges = [m for m in debrief if m["role"] in ("user", "assistant") and m["content"]]   # sans les outils
+    demande = {"role": "user", "content": "Écris la fiche de fin d'exercice."}
+    return lire_json(complete([*echanges, demande], fiche_cfg), schema)
 
 
 def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, profil: dict | None = None) -> dict:
