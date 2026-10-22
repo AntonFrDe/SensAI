@@ -105,6 +105,16 @@ def test_repli_gives_a_valid_situation_for_every_theme():
                 assert valider(brut, theme, niveau) == [], (seed, theme, niveau, brut)
 
 
+def test_tirer_gives_a_full_situation_without_the_model():
+    deja = {generation.cle("ouverture", generation.repli("ouverture", "debutant", random.Random(1), set()))}
+    situation = generation.tirer("ouverture", "debutant", random.Random(1), deja)
+
+    assert situation["source"] == "code" and situation["tentatives"] == 0
+    assert generation.cle("ouverture", situation) not in deja
+    assert situation["reference"] == generation.reference(situation)
+    assert situation["actions"] == ["fold", "raise"]
+
+
 def test_generer_retries_after_a_refused_answer():
     doublon = json.dumps({**OUVERTURE, "cartes": ["Kd", "Kd"]})
     valide = json.dumps(OUVERTURE)

@@ -210,6 +210,11 @@ def repli(theme: str, niveau: str, rng: random.Random, deja_vues: set[str]) -> d
     raise RuntimeError("Aucune situation de repli valide.")
 
 
+def tirer(theme: str, niveau: str, rng: random.Random, deja_vues: set[str] = frozenset()) -> dict:
+    """Situation tirée par le code, tout de suite : sans appel au modèle et sans l'ajouter à la banque."""
+    return _situation(repli(theme, niveau, rng, deja_vues), theme, niveau, "code", 0, [])
+
+
 def _chemin(cfg: dict):
     return ROOT / cfg.get("banque_file", "data/situations_generees.jsonl")
 
