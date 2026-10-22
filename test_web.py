@@ -463,6 +463,7 @@ def test_trainer_session_with_a_pseudo_keeps_the_profile():
 
         status, [created] = session_post("/api/sessions", {"pseudo": "Amine"}, profiles_dir=profiles)
         assert status == 201 and created["niveau"] == "intermediaire" and created["profil"]["reprise"]
+        assert created["profil"]["exercices"] == 1
         status, [resumed] = session_post(f"/api/sessions/{created['sessionId']}/reprendre")
     assert status == 200 and resumed["action"] == "fold" and "reference" not in resumed["situation"]
     assert session_post("/api/sessions", {"pseudo": "../x"})[0] == 400

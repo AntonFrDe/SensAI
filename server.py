@@ -71,6 +71,7 @@ def session_summary(session: trainer.Session) -> dict:
         "niveau": session.niveau,
         "niveaux": [{"niveau": niveau, "libelle": libelle} for niveau, libelle in trainer.NIVEAUX.items()],
         "profil": profil and {"pseudo": profil["pseudo"], "resultats": profil["resultats"],
+                              "exercices": profils.nombre_exercices(profil),
                               "themesARevoir": profils.themes_faibles(profil),
                               "reprise": bool(profil["dernier_debrief"])},
     }

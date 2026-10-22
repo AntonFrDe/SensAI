@@ -205,7 +205,9 @@ def decide(session: trainer.Session, text: str) -> None:
 
 def greet(profil: dict) -> None:
     """Welcome back a known player: level, themes to work on, how to resume."""
+    done = profils.nombre_exercices(profil)
     print(f"Re-bonjour {profil['pseudo']} · niveau : {trainer.NIVEAUX[profil['niveau']]} (/niveau pour changer)")
+    print(f"{done} exercice{'s' if done > 1 else ''} fait{'s' if done > 1 else ''} jusqu'ici.")
     if weak := profils.themes_faibles(profil):
         print(f"Thèmes à revoir : {', '.join(weak)}. Ils reviendront plus souvent.")
     if profil["dernier_debrief"]:

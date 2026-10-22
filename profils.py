@@ -61,6 +61,10 @@ def ajouter_fiche(profil: dict, fiche: dict) -> dict:
     return {**profil, "fiches": [*profil["fiches"], fiche][-MAX_FICHES:]}
 
 
+def nombre_exercices(profil: dict) -> int:
+    return sum(sum(compte.values()) for compte in profil["resultats"].values())
+
+
 def taux_erreur(compte: dict) -> float:
     total = sum(compte.values())
     return compte["erreur"] / total if total else 0.0

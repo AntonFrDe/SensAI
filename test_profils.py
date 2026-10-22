@@ -59,6 +59,11 @@ def test_themes_faibles_puts_the_most_missed_first():
     assert profils.themes_faibles(profil) == ["tirage", "ouverture"]
 
 
+def test_nombre_exercices_counts_every_verdict():
+    profil = profils.noter(profils.noter(profils.nouveau("amine"), "tirage", "erreur"), "ouverture", "bon")
+    assert profils.nombre_exercices(profil) == 2 and profils.nombre_exercices(profils.nouveau("amine")) == 0
+
+
 def test_resume_is_one_line_per_theme():
     assert profils.resume(profils.nouveau("amine")) == "aucun exercice encore"
     profil = profils.noter(profils.noter(profils.nouveau("amine"), "tirage", "erreur"), "tirage", "erreur")

@@ -226,6 +226,7 @@ def test_pseudo_remembers_the_level_and_resumes_the_debrief():
         again = chat("/reprendre\net au bouton ?\n/quit\n", "--pseudo", "Amine", mode=None, profiles=profiles)
     assert "Quel est ton niveau" not in again.stdout
     assert "Re-bonjour amine · niveau : Je joue un peu" in again.stdout
+    assert "1 exercice fait jusqu'ici." in again.stdout
     assert "Dernière situation ·" in again.stdout and "Coach : Hello" in again.stdout
     assert [m["content"] for m in FakeOllama.requests[-1]["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
 
