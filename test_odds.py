@@ -34,6 +34,10 @@ def test_outs_on_a_two_pair_turn_board_does_not_crash():
     assert isinstance(odds.outs(cards("Ah 5h"), cards("Kh Kd 7c 7s")), dict)
 
 
+def test_outs_on_a_trips_flop_does_not_crash():
+    assert isinstance(odds.outs(cards("Ah 5h"), cards("Kh Kd Ks")), dict)   # the 4th king makes a board of quads
+
+
 def test_overpair_does_not_improve_when_the_board_pairs():
     assert count(odds.outs(cards("As Ad"), cards("Kc 7d 2s"))) == {"Brelan": 2}
 

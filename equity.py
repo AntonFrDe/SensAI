@@ -90,7 +90,7 @@ def evaluate7(cards: list[Card]) -> tuple[int, ...]:
         if group is not None:
             group.append(rank)
     if quads:
-        return (8, quads[0], max(rank for rank in range(14, 1, -1) if counts[rank] and rank != quads[0]))
+        return (8, quads[0], max((rank for rank in range(14, 1, -1) if counts[rank] and rank != quads[0]), default=0))
     if trips and (len(trips) > 1 or pairs):
         return (7, trips[0], max(trips[1] if len(trips) > 1 else 0, pairs[0] if pairs else 0))
     if flush >= 0:

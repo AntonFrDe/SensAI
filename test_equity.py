@@ -32,6 +32,7 @@ def test_evaluate_known_hands():
     assert eq.evaluate7(cards("As Ah 9d 9c 5s 5h 3d")) == (3, 14, 9, 5)  # 3 paires : la 3e sert de kicker
     assert eq.evaluate7(cards("As Ah Ad 9c 9s 9h 3d")) == (7, 14, 9)    # 2 brelans = full
     assert eq.evaluate7(cards("Ah Qh 9h 7h 5h 6c 8d")) == (6, 14, 12, 9, 7, 5)  # couleur > quinte
+    assert eq.evaluate7(cards("Kh Kd Ks Kc")) == (8, 13, 0)             # carré sans kicker (4 cartes)
 
 
 def test_seven_cards_equal_best_of_the_21_five_card_hands():
