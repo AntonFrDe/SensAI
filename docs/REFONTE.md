@@ -82,7 +82,7 @@ Conséquences sur l'architecture :
 | Pas de framework LLM (LangChain…) | ✅ HTTP direct, MCP écrit à la main | — |
 | README : installation, features, exemples | ⚠️ décrit l'ancien produit | Réécrire en phase 5 |
 | `requirements.txt` | ✅ `requests`, `pytest` | — |
-| User stories (2 par feature) | ❌ | Brouillon en annexe A, puis `USER_STORIES.md` |
+| User stories (2 par feature) | ❌ | Brouillon en annexe A, puis `USER_STORIES.md` (fait le 2026-10-22, avec l'état de chaque critère) |
 | Cas d'usage, liste de features, architecture écrits | ❌ jusqu'ici | Ce document |
 | Keynote sur un scénario concret | ❌ | Trame en annexe B |
 
