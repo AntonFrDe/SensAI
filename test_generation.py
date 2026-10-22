@@ -140,6 +140,24 @@ def test_tirer_qui_gagne_gives_a_clear_showdown_to_a_beginner():
     assert "pot" not in texte and "blinde" not in texte
 
 
+def test_defense_reference_compares_the_realised_equity_with_the_pot_odds():
+    base = {"theme": "defense_bb", "position": "BB", "board": [], "pot": 4, "a_payer": 1.5}
+    assert generation.reference({**base, "ouvreur": "CO", "cartes": ["5s", "2c"]})["bonnes"] == ["fold"]
+    roi = generation.reference({**base, "ouvreur": "CO", "cartes": ["Kh", "9c"]})
+    assert roi["bonnes"] == ["call"] and "Cote du pot : il faut 27,3 % d'équité" in roi["faits"][2]
+    paire = generation.reference({**base, "ouvreur": "BTN", "cartes": ["Qh", "Qd"]})
+    assert paire["bonnes"] == ["call"] and paire["acceptables"] == ["raise"]   # strong enough to 3-bet
+    assert generation.reference({**base, "ouvreur": "CO", "cartes": ["Kh", "9c"]}) == roi   # same draw, same answer
+
+
+def test_tirer_defense_puts_the_player_in_the_big_blind():
+    sit = generation.tirer("defense_bb", "avance", random.Random(5))
+    assert sit["position"] == "BB" and sit["ouvreur"] in generation.OUVREURS and sit["actions"] == ["fold", "call", "raise"]
+    expected_pot = 3.5 if sit["ouvreur"] == "SB" else 4
+    assert sit["pot"] == expected_pot and sit["a_payer"] == 1.5
+    assert generation.decrire(sit).endswith(f"Avant le flop · pot {expected_pot:g} bb, à payer 1.5 bb.")
+
+
 def test_repli_gives_a_valid_situation_for_every_theme():
     for seed in range(30):
         for theme in generation.THEMES:

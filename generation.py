@@ -18,13 +18,14 @@ from llm import ROOT, LLMError, complete
 
 THEMES = ("ouverture", "tirage")   # ceux que le modèle sait générer
 QUI_GAGNE = "qui_gagne"   # quiz d'abattage (débutant) : tiré par le code seulement
-TOUS_THEMES = (*THEMES, QUI_GAGNE)
+DEFENSE = "defense_bb"   # défendre sa grosse blinde face à une ouverture (avancé) : tiré par le code seulement
+TOUS_THEMES = (*THEMES, QUI_GAGNE, DEFENSE)
 NIVEAUX = ("debutant", "intermediaire", "avance")
 CARTES = [r + s for r in "AKQJT98765432" for s in "shdc"]  # les 52 codes
 POSITIONS = {"ouverture": ["UTG", "MP", "CO", "BTN", "SB"],  # la BB n'ouvre jamais
              "tirage": ["UTG", "MP", "CO", "BTN", "SB", "BB"]}
 ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"],
-           QUI_GAGNE: ["moi", "adversaire", "egalite"]}
+           QUI_GAGNE: ["moi", "adversaire", "egalite"], DEFENSE: ["fold", "call", "raise"]}
 LIBELLES = {"fold": "se coucher", "call": "suivre", "raise": "relancer",
             "moi": "tu gagnes", "adversaire": "ton adversaire gagne", "egalite": "égalité, pot partagé"}
 QUESTIONS = {QUI_GAGNE: "Qui gagne ?"}   # sinon « Que fais-tu ? »
@@ -39,6 +40,14 @@ ESSAIS_REPLI = 5_000
 POT_AVANT_FLOP = 1.5  # les deux blindes
 POTS_REPLI = (4, 6, 8, 10)
 FRACTIONS_MISE = (0.33, 0.5, 0.75, 1)
+OUVREURS = ("CO", "BTN", "SB")   # les ouvertures que la grosse blinde défend le plus souvent
+OUVERTURE_BB = 2.5   # taille de l'ouverture, en blindes
+ECHANTILLONS_DEFENSE = 4_000   # équité contre la range à ±1,5 point près
+# Hors position, on ne touche pas toute son équité (on se couche sur certains boards) : environ 80 % en grosse
+# blinde. Sans ce facteur, comparer l'équité brute à la cote du pot ferait suivre presque toutes les mains.
+REALISATION_BB = 0.8
+MARGE_DEFENSE = 0.03   # à moins de 3 points de la cote du pot, suivre ou se coucher se défendent tous les deux
+RELANCE_DEFENSE = 0.55   # au-dessus, relancer (3-bet) est aussi acceptable
 # Une petite mise rend « suivre » évident : au-delà du niveau débutant, l'adversaire mise au moins ~un tiers du pot
 MISE_MIN = 0.3
 MISE_TROP_PETITE = "mise trop petite pour ce niveau"
@@ -163,7 +172,33 @@ def reference(sit: dict) -> dict:
         return _reference_ouverture(sit)
     if sit["theme"] == QUI_GAGNE:
         return _reference_qui_gagne(sit)
+    if sit["theme"] == DEFENSE:
+        return _reference_defense(sit)
     return _reference_tirage(sit)
+
+
+def _reference_defense(sit: dict) -> dict:
+    # graine tirée des cartes : la même situation donne toujours la même référence
+    rng = random.Random(cle(DEFENSE, sit) + sit["ouvreur"])
+    eq = equity.versus_range(_cartes(sit["cartes"]), preflop.opening_range(sit["ouvreur"]), ECHANTILLONS_DEFENSE,
+                             rng).equity
+    requis = odds.pot_odds(sit["pot"], sit["a_payer"])
+    realisee = eq * REALISATION_BB
+    if realisee < requis - MARGE_DEFENSE:
+        bonnes, acceptables = ["fold"], []
+    elif realisee < requis + MARGE_DEFENSE:
+        bonnes, acceptables = [], ["call", "fold"]
+    else:
+        bonnes, acceptables = ["call"], ["raise"] if eq >= RELANCE_DEFENSE else []
+    main = preflop.normalize_hand("".join(sit["cartes"]))
+    faits = [f"Équité de {main} contre la range d'ouverture du {sit['ouvreur']} : {equity.pct(eq)}",
+             f"Équité réalisée hors position (environ {round(REALISATION_BB * 100)} %) : {equity.pct(realisee)}",
+             f"Cote du pot : il faut {equity.pct(requis)} d'équité "
+             f"(payer {sit['a_payer']:g} pour un pot de {sit['pot']:g})",
+             "Hypothèse : range d'ouverture 6-max 100bb ; la part d'équité réalisée hors position est une moyenne."]
+    if eq >= RELANCE_DEFENSE:
+        faits.insert(3, f"Au-dessus de {equity.pct(RELANCE_DEFENSE)} d'équité, relancer se défend aussi.")
+    return {"bonnes": bonnes, "acceptables": acceptables, "faits": faits}
 
 
 def _scores(sit: dict) -> tuple[tuple, tuple]:
@@ -256,7 +291,26 @@ def tirer(theme: str, niveau: str, rng: random.Random, deja_vues: set[str] = fro
     """Situation tirée par le code, tout de suite : sans appel au modèle et sans l'ajouter à la banque."""
     if theme == QUI_GAGNE:
         return _tirer_qui_gagne(niveau, rng, deja_vues)
+    if theme == DEFENSE:
+        return _tirer_defense(niveau, rng, deja_vues)
     return _situation(repli(theme, niveau, rng, deja_vues), theme, niveau, "code", 0, [])
+
+
+def _tirer_defense(niveau: str, rng: random.Random, deja_vues: set[str]) -> dict:
+    """Le CO, le bouton ou la petite blinde ouvre à 2,5 bb, les autres se couchent : tu es à la grosse blinde."""
+    for _ in range(ESSAIS_REPLI):
+        ouvreur = rng.choice(OUVREURS)
+        sit = {"theme": DEFENSE, "position": "BB", "ouvreur": ouvreur, "cartes": rng.sample(CARTES, 2), "board": [],
+               # la petite blinde (0,5) est dans l'ouverture si c'est elle qui ouvre
+               "pot": OUVERTURE_BB + (1 if ouvreur == "SB" else 1.5), "a_payer": OUVERTURE_BB - 1}
+        if cle(DEFENSE, sit) in deja_vues:
+            continue
+        sit = {"id": uuid4().hex[:8], "niveau": niveau, **sit,
+               "historique": f"Tout le monde se couche jusqu'au {ouvreur}, qui relance à {OUVERTURE_BB:g} bb ; "
+                             f"les autres se couchent."}
+        return {**sit, "actions": list(ACTIONS[DEFENSE]), "reference": reference(sit), "source": "code",
+                "tentatives": 0, "erreurs": [], "cree_le": datetime.now().isoformat(timespec="seconds")}
+    raise RuntimeError("Aucune défense de grosse blinde valide.")
 
 
 def _tirer_qui_gagne(niveau: str, rng: random.Random, deja_vues: set[str]) -> dict:
@@ -325,6 +379,8 @@ def decrire(sit: dict) -> str:
               f"{sit['historique']} Tu as {equity.show(_cartes(sit['cartes']))}."]
     if quiz:
         lignes.append(f"Board : {equity.show(_cartes(sit['board']))}.")
+    elif sit.get("theme") == DEFENSE:
+        lignes.append(f"Avant le flop · pot {sit['pot']:g} bb, à payer {sit['a_payer']:g} bb.")
     elif sit["board"]:
         lignes.append(f"Board : {equity.show(_cartes(sit['board']))} · pot {sit['pot']:g} bb, "
                       f"à payer {sit['a_payer']:g} bb.")
