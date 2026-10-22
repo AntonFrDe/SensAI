@@ -4,6 +4,7 @@
   "num_ctx": 8192,
   "system_prompt_file": "prompts/system.txt",
   "opponent_model": "qwen3:1.7b",
+  "judge_model": "llama3.2:3b",
   "banque_file": "data/situations_generees.jsonl",
   "profiles_dir": "profiles",
   "max_parallel_models": 1,
