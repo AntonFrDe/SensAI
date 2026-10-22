@@ -81,6 +81,16 @@ def test_the_generated_bank_comes_first():
     assert second["source"] == "code"   # the bank has nothing left for this level
 
 
+def test_vue_situation_hides_the_reference():
+    situation = generation.tirer("tirage", "avance", random.Random(3))
+    vue = trainer.vue_situation(situation)
+    assert "reference" not in vue and "source" not in vue
+    assert vue["texte"] == generation.decrire(situation) and vue["question"] == "Que fais-tu ?"
+    assert vue["actions"][1] == {"action": "call", "libelle": "suivre"}
+    quiz = trainer.vue_situation(generation.tirer("qui_gagne", "debutant", random.Random(3)))
+    assert quiz["question"] == "Qui gagne ?" and len(quiz["adversaire"]) == 2
+
+
 def test_decider_gives_the_verdict_of_the_reference():
     s = session()
     situation = s.nouvelle_situation()

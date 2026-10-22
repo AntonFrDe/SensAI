@@ -30,6 +30,17 @@ def noter(reference: dict, action: str) -> str:
     return "erreur"
 
 
+PUBLIC = ("id", "theme", "niveau", "position", "cartes", "adversaire", "board", "pot", "a_payer", "historique")
+
+
+def vue_situation(situation: dict) -> dict:
+    """Ce que le joueur voit avant de décider : sans la référence, qui donnerait la réponse."""
+    return {**{champ: situation[champ] for champ in PUBLIC if champ in situation},
+            "texte": generation.decrire(situation),
+            "question": generation.QUESTIONS.get(situation["theme"], "Que fais-tu ?"),
+            "actions": [{"action": a, "libelle": generation.LIBELLES[a]} for a in situation["actions"]]}
+
+
 class Session:
     """Une session d'un joueur. Les situations ne demandent pas d'appel au modèle : elles arrivent tout de suite."""
 
