@@ -191,6 +191,24 @@ def test_reprendre_without_a_debrief_is_refused():
     assert raises(trainer.Session(CFG, profil=profils.nouveau("amine")).reprendre)
 
 
+def test_ecrire_fiche_keeps_the_card_in_the_profile():
+    original = trainer.coach.complete
+    trainer.coach.complete = lambda messages, cfg: '{"a_retenir": "Se coucher.", "theme_a_revoir": "aucun"}'
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = {**CFG, "profiles_dir": tmp}
+            s = trainer.Session(cfg, rng=random.Random(0), profil=profils.nouveau("amine"))
+            s.choisir_niveau("1")
+            s.nouvelle_situation()
+            assert raises(s.ecrire_fiche)   # not before the decision
+            s.decider("fold")
+            assert s.ecrire_fiche() == {"a_retenir": "Se coucher.", "theme_a_revoir": "aucun"}
+            (gardee,) = profils.charger("amine", cfg)["fiches"]
+    finally:
+        trainer.coach.complete = original
+    assert gardee["theme"] == "ouverture" and gardee["verdict"] == s.verdict
+
+
 def test_a_failed_answer_stays_out_of_the_debrief():
     s = trainer.Session({**CFG, "model": "missing"}, rng=random.Random(0))
     s.choisir_niveau("1")

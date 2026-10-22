@@ -65,6 +65,13 @@ def test_resume_is_one_line_per_theme():
     assert profils.resume(profil) == "tirage : 0 bon, 0 acceptable, 2 erreurs"
 
 
+def test_ajouter_fiche_keeps_only_the_latest():
+    profil = profils.nouveau("amine")
+    for n in range(profils.MAX_FICHES + 5):
+        profil = profils.ajouter_fiche(profil, {"a_retenir": str(n)})
+    assert len(profil["fiches"]) == profils.MAX_FICHES and profil["fiches"][-1]["a_retenir"] == "24"
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

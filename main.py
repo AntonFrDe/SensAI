@@ -3,7 +3,7 @@ reference computed by the code, then the coach (a local Ollama model) debriefs i
 
     python3 main.py [--model M] [--config config.json] [--no-tools] [--seed N] [--pseudo P] [--libre]
 
-Commands: /exercice deals the next situation, /niveau changes the level, /reprendre brings back the last debrief
+Commands: /exercice deals the next situation, /fiche writes what to remember, /niveau changes the level, /reprendre brings back the last debrief
 of the profile, /reset forgets the debrief, /tools lists the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an
 answer. --pseudo keeps the level and the results in profiles/<pseudo>.json. --libre is the plain chat.
 The model can call the tools of the MCP servers listed under "mcp_servers" in the config (see mcp_client.py).
@@ -192,7 +192,7 @@ def decide(session: trainer.Session, text: str) -> None:
         print(f"{ICONS[verdict]} Erreur : il fallait {or_list(best)}.")
     for fact in reference["faits"]:
         print(f"- {fact}")
-    note("Pose tes questions au coach · /exercice : situation suivante · /niveau : changer de niveau")
+    note("Pose tes questions au coach · /fiche : ce qu'il faut retenir · /exercice : situation suivante")
 
 
 def greet(profil: dict) -> None:
@@ -219,10 +219,22 @@ def resume(session: trainer.Session) -> None:
     note("Continue le débrief, ou /exercice pour une nouvelle situation")
 
 
+def card(session: trainer.Session) -> None:
+    """Print the end-of-exercise card written by the model."""
+    note("[fiche de fin d'exercice…]")
+    try:
+        fiche = session.ecrire_fiche()
+    except (ValueError, LLMError) as e:
+        print(f"Fiche impossible : {e}.")
+        return
+    print(f"À retenir : {fiche['a_retenir']}")
+    print(f"Thème à revoir : {fiche['theme_a_revoir']}")
+
+
 def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None, profil: dict | None = None) -> int:
     session = trainer.Session(cfg, toolbox, rng, profil)
     tools = f" · {len(toolbox.specs)} outils (/tools)" if toolbox.specs else ""
-    print(f"SensAI · {cfg['model']}{tools} · /exercice · /niveau · /reprendre · /reset · /quit")
+    print(f"SensAI · {cfg['model']}{tools} · /exercice · /fiche · /niveau · /reprendre · /reset · /quit")
     if session.niveau:
         greet(session.profil)
     elif not ask_level(session):
@@ -244,6 +256,8 @@ def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None, 
             deal(session)
         elif text == "/reprendre":
             resume(session)
+        elif text == "/fiche":
+            card(session)
         elif text == "/reset":
             session.oublier()
             print("Débrief oublié.")

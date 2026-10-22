@@ -5,6 +5,7 @@ Aucune entrée-sortie ici : main.py (terminal) et, plus tard, server.py (web) ne
 import random
 from collections.abc import Iterator
 from contextlib import closing
+from datetime import date
 
 import coach
 import generation
@@ -138,6 +139,19 @@ class Session:
         if self.profil:
             self.profil = {**self.profil, **champs}
             profils.enregistrer(self.profil, self.cfg)
+
+    def ecrire_fiche(self) -> dict:
+        """La fiche de fin d'exercice (T5), gardée dans le profil ; ValueError avant la décision ou si le modèle
+        ne rend pas une fiche valide."""
+        if self.action is None:
+            raise ValueError("décide d'abord : la fiche vient après la décision")
+        fiche = coach.fiche(self.situation, self.niveau, self.action, self.verdict, self.debrief, self.cfg)
+        if self.profil:
+            self.profil = profils.ajouter_fiche(self.profil, {**fiche, "theme": self.situation["theme"],
+                                                              "verdict": self.verdict,
+                                                              "date": date.today().isoformat()})
+            self._garder()
+        return fiche
 
     def oublier(self) -> None:
         """Oublie le débrief en cours, pas la situation."""

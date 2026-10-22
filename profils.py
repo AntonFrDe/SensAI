@@ -12,6 +12,7 @@ from llm import ROOT
 
 PSEUDO = re.compile(r"[a-z0-9_-]{1,32}")
 VERDICTS = ("bon", "acceptable", "erreur")
+MAX_FICHES = 20   # les plus récentes suffisent : le profil reste petit
 
 
 def valider_pseudo(pseudo: str) -> str:
@@ -27,7 +28,7 @@ def _chemin(pseudo: str, cfg: dict):
 
 
 def nouveau(pseudo: str) -> dict:
-    return {"pseudo": valider_pseudo(pseudo), "niveau": None, "resultats": {}, "dernier_debrief": None}
+    return {"pseudo": valider_pseudo(pseudo), "niveau": None, "resultats": {}, "dernier_debrief": None, "fiches": []}
 
 
 def charger(pseudo: str, cfg: dict) -> dict:
@@ -53,6 +54,11 @@ def noter(profil: dict, theme: str, verdict: str) -> dict:
     """Le profil avec un verdict de plus pour ce thème."""
     compte = {v: 0 for v in VERDICTS} | profil["resultats"].get(theme, {})
     return {**profil, "resultats": {**profil["resultats"], theme: {**compte, verdict: compte[verdict] + 1}}}
+
+
+def ajouter_fiche(profil: dict, fiche: dict) -> dict:
+    """Le profil avec cette fiche de fin d'exercice en dernier, sans dépasser MAX_FICHES."""
+    return {**profil, "fiches": [*profil["fiches"], fiche][-MAX_FICHES:]}
 
 
 def taux_erreur(compte: dict) -> float:

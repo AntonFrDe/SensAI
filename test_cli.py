@@ -199,6 +199,12 @@ def test_seed_replays_the_same_situations():
     assert first == second and first != other
 
 
+def test_fiche_off_schema_is_reported_and_the_session_goes_on():
+    p = chat("1\n/fiche\nf\n/fiche\n/quit\n", mode=None)
+    assert p.returncode == 0 and "Fiche impossible : décide d'abord" in p.stdout
+    assert "Fiche impossible : champ manquant ou vide : a_retenir." in p.stdout   # the fake model answers off schema
+
+
 def test_pseudo_remembers_the_level_and_resumes_the_debrief():
     with tempfile.TemporaryDirectory() as profiles:
         first = chat("1\nf\npourquoi ?\n/quit\n", "--pseudo", "amine", mode=None, profiles=profiles)
