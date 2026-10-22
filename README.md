@@ -216,10 +216,25 @@ contexte reste fausse à 0. La température utilisée est notée dans `resultats
 
 Le correcteur est le même petit modèle : relire les verdicts, il peut être indulgent.
 
+### Évaluation du coach (EV1)
+
+```
+python3 evaluate_coach.py                          # 30 situations, coach et juge de config.json
+python3 evaluate_coach.py --nombre 6 --graine 1    # moins de situations, un autre tirage
+python3 evaluate_coach.py --modele llama3.2:3b     # un autre coach ; --juge pour un autre correcteur
+```
+
+Le principe de SensAI est que le coach explique la référence calculée par le code sans la contredire : ce script
+le mesure. Il tire des situations de chaque thème (graine fixe : le même jeu d'une fois sur l'autre), y prend la
+mauvaise décision et demande « pourquoi ? » au coach, avec le même contexte que le parcours. Un juge d'une autre
+famille de modèle (`judge_model`, `llama3.2:3b`) coche ensuite chaque fait de la référence (la bonne réponse,
+puis les faits chiffrés) : présent, absent ou contredit. Score principal : la part des débriefs sans
+contradiction. Résultats dans `evaluation/coach_resultats.md` et `.json` ; un verdict illisible n'est pas compté.
+
 ## Tests
 
 ```
-python3 test_cli.py && python3 test_trainer.py && python3 test_coach.py && python3 test_profils.py && python3 test_generation.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_api.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
+python3 test_cli.py && python3 test_trainer.py && python3 test_coach.py && python3 test_profils.py && python3 test_generation.py && python3 test_evaluate_coach.py && python3 test_mcp_client.py && python3 test_mcp_server.py && python3 test_web.py && python3 test_poker_api.py && python3 test_poker_ai.py && python3 test_preflop.py && python3 test_glossary.py && python3 test_ai.py && python3 test_equity.py && python3 test_odds.py && python3 test_evaluate.py
 python3 -m pytest poker_engine/tests       # moteur de poker
 cd frontend && npm test                    # composants React (Vitest, jsdom, serveur simulé)
 ```
@@ -240,6 +255,7 @@ relance à chaque modification.
 | `ai.py` | Question en ligne de commande, avec le classement des combinaisons injecté |
 | `equity.py` | Chances de gagner d'une main selon le board, note avant le flop |
 | `evaluate.py`, `evaluation/` | Jeu d'évaluation : questions de référence, résultats remplis par le script |
+| `evaluate_coach.py` | Évaluation du coach (EV1) : le débrief contredit-il la référence ? Juge d'une autre famille |
 | `odds.py` | Outs, cote du pot et analyse complète d'une situation, injectée par `ai.py` |
 | `server.py`, `web/index.html` | Interface web, comparaison de modèles, API de jeu, adversaire IA et coach |
 | `main.py` | Entraîneur en ligne de commande (et chat libre avec `--libre`), avec appels d'outils |
