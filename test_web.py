@@ -488,6 +488,19 @@ def test_trainer_debrief_runs_the_mcp_tools():
     assert "K9s" in FakeOllama.requests[1]["messages"][-1]["content"]   # the tool result reached the model
 
 
+def test_trainer_seed_deals_the_same_situations_as_the_cli_core():
+    def deal(**body):
+        sid, _ = new_session(**body)
+        session_post(f"/api/sessions/{sid}/niveau", {"reponse": "2"})
+        return [session_post(f"/api/sessions/{sid}/situations")[1][0]["situation"]["texte"] for _ in range(3)]
+
+    core = server.trainer.Session({"banque_file": BANQUE}, rng=server.random.Random(7))   # what main.py --seed 7 runs
+    core.choisir_niveau("2")
+    expected = [server.generation.decrire(core.nouvelle_situation()) for _ in range(3)]
+    assert deal(graine=7) == deal(graine=7) == expected != deal(graine=8)
+    assert session_post("/api/sessions", {"graine": "7"})[0] == 400
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

@@ -96,7 +96,7 @@ serveur. Corps et réponses en JSON ; le débrief arrive en NDJSON, comme `/api/
 
 | Route (POST) | Corps | Réponse |
 |---|---|---|
-| `/api/sessions` | `{pseudo?}` | `201 {sessionId, niveau, niveaux, profil}` ; `niveau` est connu si le profil l'a |
+| `/api/sessions` | `{pseudo?, graine?}` | `201 {sessionId, niveau, niveaux, profil}` ; `niveau` est connu si le profil l'a ; `graine` rejoue les situations de `main.py --seed` |
 | `/api/sessions/<id>/niveau` | `{reponse}` : numéro, nom ou texte libre (T5) | `{niveau, raison}` ; 400 si non compris |
 | `/api/sessions/<id>/situations` | `{}` | `201 {numero, situation}` : sans la référence, avec `texte`, `question`, `actions` |
 | `/api/sessions/<id>/decision` | `{action}` | `{verdict, reference}` |

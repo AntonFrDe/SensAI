@@ -82,8 +82,7 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
    - ✅ Seules les actions possibles sont proposées (`actions` de la situation) ; une autre est refusée (400).
 2. En tant qu'équipe de développement, je veux que le web et le CLI partagent le même cœur, afin qu'un correctif
    profite aux deux.
-   - ⬜ Les mêmes situations et verdicts sortent du CLI et du web pour une même graine (le web n'a pas encore de
-     graine).
+   - ✅ Les mêmes situations et verdicts sortent du CLI et du web pour une même graine (`--seed`, `graine`).
    - ✅ Les routes du parcours n'appellent que `trainer.py`.
    - ✅ Les tests du parcours passent sans navigateur (`test_trainer.py`, `test_web.py`).
 

@@ -16,6 +16,7 @@ import argparse
 import functools
 import json
 import queue
+import random
 import re
 import sys
 import threading
@@ -316,8 +317,11 @@ class Handler(BaseHTTPRequestHandler):
         pseudo = body.get("pseudo")
         if pseudo is not None and not isinstance(pseudo, str):
             raise ValueError("Le pseudo doit être un texte.")
+        seed = body.get("graine")
+        if seed is not None and type(seed) is not int:
+            raise ValueError("La graine doit être un entier.")
         profil = profils.charger(pseudo, self.cfg) if pseudo else None
-        session = trainer.Session({**self.cfg, "tools": self.toolbox.specs}, self.toolbox, profil=profil)
+        session = trainer.Session({**self.cfg, "tools": self.toolbox.specs}, self.toolbox, random.Random(seed), profil)
         session_id = uuid4().hex
         with self.games_lock:
             if len(self.sessions) >= MAX_SESSIONS:
