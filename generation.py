@@ -22,6 +22,7 @@ DEFENSE = "defense_bb"   # défendre sa grosse blinde face à une ouverture (ava
 TOUS_THEMES = (*THEMES, QUI_GAGNE, DEFENSE)
 NIVEAUX = ("debutant", "intermediaire", "avance")
 CARTES = [r + s for r in "AKQJT98765432" for s in "shdc"]  # les 52 codes
+MAINS_DU_TIRAGE = ("Quinte", "Couleur", "Quinte flush", "Quinte flush royale")   # les seuls outs « propres »
 POSITIONS = {"ouverture": ["UTG", "MP", "CO", "BTN", "SB"],  # la BB n'ouvre jamais
              "tirage": ["UTG", "MP", "CO", "BTN", "SB", "BB"]}
 ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"],
@@ -247,7 +248,8 @@ def _reference_ouverture(sit: dict) -> dict:
 
 
 def _reference_tirage(sit: dict) -> dict:
-    groupes = odds.outs(_cartes(sit["cartes"]), _cartes(sit["board"]))
+    tous = odds.outs(_cartes(sit["cartes"]), _cartes(sit["board"]))
+    groupes = {nom: cartes for nom, cartes in tous.items() if nom in MAINS_DU_TIRAGE}
     total = sum(map(len, groupes.values()))
     chances = odds.hit_chance(total, len(sit["board"]))
     une = chances["prochaine carte"]
@@ -263,6 +265,9 @@ def _reference_tirage(sit: dict) -> dict:
     detail = ", ".join(f"{len(cartes)} pour {nom.lower()}" for nom, cartes in groupes.items())
     faits = [f"Outs : {total}" + (f" ({detail})" if detail else ""),
              f"Chance de toucher à la prochaine carte : {equity.pct(une)}"]
+    if len(groupes) < len(tous):
+        faits.insert(1, "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : "
+                        "elles ne suffisent souvent pas à gagner le coup.")
     if deux is not None:
         faits.append(f"Chance de toucher d'ici la river : {equity.pct(deux)}")
     faits += [f"Cote du pot : il faut {equity.pct(requis)} d'équité "

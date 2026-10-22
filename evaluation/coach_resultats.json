@@ -1,0 +1,35 @@
+{
+ "coach": "qwen3:4b-instruct-2507-q4_K_M",
+ "juge": "llama3.2:3b",
+ "graine": 2026,
+ "date": "2026-10-22T14:10:27",
+ "score": {
+  "situations": 1,
+  "jugees": 1,
+  "sans_contradiction": 1,
+  "faits_presents": 0,
+  "faits": 2
+ },
+ "resultats": [
+  {
+   "id": "a987c0ed",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es sous le canon (UTG).\nTu parles en premier (UTG). Tu as 9♠ 6♠.",
+   "action": "raise",
+   "reponse": "Parce que tu es en UTG (premier joueur), et que **96s** (assorties) **ne doivent pas être ouvertes en UTG** selon la référence.\n\nLa référence dit clairement :  \n👉 **\"96s : ouvrir en BTN, SB ; se coucher en UTG, MP, CO\"**\n\nDonc en UTG, **la bonne action est de se coucher**.  \nTu n’as pas le range ni la cote pour relancer ici.  \n\nTu as 96s, qui est une main de \"cœur\" (mid-range), mais **en UTG, tu n’as pas de pouvoir de pression**.  \nLes joueurs à droite (BTN, SB) ont une position avantageuse, et tu es en position faible.\n\n👉 **Le relancer ici est une erreur** : c’est hors de la plage d’ouverture autorisée en UTG.\n\nTu n’as pas besoin d’aller plus loin.  \n**Se coucher = la bonne action.**  \n\nTu as compris ?  \n👉 Pose-moi une question pour vérifier :  \n1. Quel est le niveau de position de 96s en UTG ?  \n2. Quelle est la cote du pot en 100 blindes avec 96s en UTG ?  \n3. Quelle est la plage d’ouverture autorisée pour 96s en 6-max ?  \n\nChoisis une seule.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent"
+    },
+    {
+     "fait": "96s : ouvrir en BTN, SB ; se coucher en UTG, MP, CO",
+     "verdict": "absent"
+    }
+   ],
+   "contredit": false,
+   "illisible": false,
+   "secondes": 79.4
+  }
+ ]
+}

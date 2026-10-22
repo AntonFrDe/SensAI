@@ -54,10 +54,12 @@ def test_ouverture_reference_follows_the_ranges():
 
 
 def test_tirage_reference_compares_the_pot_odds():
-    flush = generation.reference(sit("tirage"))
-    assert flush["bonnes"] == ["call"] and any("25,0 %" in fait for fait in flush["faits"])
+    flush = generation.reference(sit("tirage", pot=10, a_payer=2))
+    assert flush["bonnes"] == ["call"] and any("16,7 %" in fait for fait in flush["faits"])
+    assert flush["faits"][0] == "Outs : 9 (9 pour couleur)"   # an ace or a 5 only pairs: not counted
+    assert "ne comptent pas" in flush["faits"][1]
 
-    limite = generation.reference(sit("tirage", cartes=["8h", "9d"], board=["7c", "6s", "2h"], pot=10, a_payer=8))
+    limite = generation.reference(sit("tirage", cartes=["8h", "9d"], board=["7c", "6s", "2h"], pot=10, a_payer=4))
     assert limite["acceptables"] == ["call", "fold"] and limite["bonnes"] == []
 
     perdu = generation.reference(sit("tirage", board=["Kh", "7h", "2c", "Qd"], pot=10, a_payer=9))
