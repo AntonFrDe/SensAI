@@ -39,6 +39,9 @@ ESSAIS_REPLI = 5_000
 POT_AVANT_FLOP = 1.5  # les deux blindes
 POTS_REPLI = (4, 6, 8, 10)
 FRACTIONS_MISE = (0.33, 0.5, 0.75, 1)
+# Une petite mise rend « suivre » évident : au-delà du niveau débutant, l'adversaire mise au moins ~un tiers du pot
+MISE_MIN = 0.3
+MISE_TROP_PETITE = "mise trop petite pour ce niveau"
 PROMPT = ROOT / "prompts" / "generation.txt"
 _verrou = threading.Lock()
 
@@ -54,11 +57,13 @@ AIDES = {
     "pas de tirage couleur ou quinte": "il faut 4 cartes de même couleur, ou 4 hauteurs qui se suivent, entre les "
                                        "2 cartes du joueur et le board, sans main déjà faite",
     "situation déjà dans la banque": "change les cartes du joueur ou le board",
+    MISE_TROP_PETITE: "a_payer doit valoir au moins un tiers du pot d'avant la mise (pot - a_payer)",
 }
 CONSIGNES_NIVEAU = {
     "debutant": "décision nette : une main clairement à jouer ou clairement à jeter.",
-    "intermediaire": "décision moins évidente : position précoce ou main limite.",
-    "avance": "décision serrée, proche de la limite.",
+    "intermediaire": "décision moins évidente : position précoce ou main limite ; au tirage, une mise d'au moins un "
+                     "tiers du pot.",
+    "avance": "décision serrée, proche de la limite ; au tirage, une mise d'au moins un tiers du pot.",
 }
 
 
@@ -133,6 +138,8 @@ def valider(brut, theme: str, niveau: str, deja_vues: set[str]) -> list[str]:
         problemes.append("avant le flop sans relance, pot 1.5 et a_payer 0")
     elif theme == "tirage" and not 0 < a_payer < pot:
         problemes.append("a_payer doit être positif et plus petit que pot")
+    elif theme == "tirage" and niveau != "debutant" and a_payer < MISE_MIN * (pot - a_payer):
+        problemes.append(MISE_TROP_PETITE)
 
     if problemes:
         return problemes

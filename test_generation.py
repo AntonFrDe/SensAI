@@ -77,6 +77,10 @@ def test_valider_reports_each_kind_of_mistake():
     avec_board = {**OUVERTURE, "board": ["Kh"]}
     assert "board de 1 cartes impossible pour ce thème" in valider(avec_board, "ouverture")
 
+    petite_mise = {**TIRAGE, "pot": 11, "a_payer": 1}   # 1 bb into a pot of 10
+    assert "mise trop petite pour ce niveau" in valider(petite_mise)
+    assert "mise trop petite pour ce niveau" not in valider(petite_mise, niveau="debutant")
+
     tout_paye = {**TIRAGE, "a_payer": 6}
     assert "a_payer doit être positif et plus petit que pot" in valider(tout_paye)
 
