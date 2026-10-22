@@ -205,6 +205,13 @@ def test_fiche_off_schema_is_reported_and_the_session_goes_on():
     assert "Fiche impossible : champ manquant ou vide : a_retenir." in p.stdout   # the fake model answers off schema
 
 
+def test_the_coach_question_shows_numbered_choices():
+    p = chat("1\nf\npourquoi ?\n2\n/quit\n", mode=None,
+             tool_call={"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}})
+    assert "Outs ?\n  1. 9\n  2. 15" in p.stdout
+    assert FakeOllama.requests[-1]["messages"][-1]["content"] == "Je réponds : 15"
+
+
 def test_pseudo_remembers_the_level_and_resumes_the_debrief():
     with tempfile.TemporaryDirectory() as profiles:
         first = chat("1\nf\npourquoi ?\n/quit\n", "--pseudo", "amine", mode=None, profiles=profiles)

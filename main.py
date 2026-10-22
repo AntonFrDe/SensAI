@@ -71,6 +71,14 @@ def show(events: Iterator[tuple[str, object]]) -> list[dict] | None:
                 elif kind == "token":
                     line += data
                     print(data, end="", flush=True)
+                elif kind == "question":
+                    if line:
+                        print()
+                    line = ""
+                    print(f"\n{data['question']}")
+                    for number, choice in enumerate(data["choix"], 1):
+                        print(f"  {number}. {choice}")
+                    note("(réponds par un numéro, ou écris ta réponse)")
                 elif kind == "outil":
                     if line:
                         print()
@@ -264,7 +272,7 @@ def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None, 
         elif session.action is None:
             decide(session, text)
         else:
-            show(session.discuter(text))
+            show(session.discuter(session.reponse(text)))
 
 
 def main() -> int:
