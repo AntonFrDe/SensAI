@@ -31,6 +31,15 @@ def test_contexte_gives_the_decision_the_verdict_and_the_reference():
     assert coach.CONSIGNES_NIVEAU["debutant"] in texte
 
 
+def test_contexte_adds_the_past_results_of_a_known_player():
+    profil = {"pseudo": "amine", "niveau": "debutant", "dernier_debrief": None,
+              "resultats": {"ouverture": {"bon": 1, "acceptable": 0, "erreur": 2}}}
+    texte = coach.contexte(SITUATION, "debutant", "fold", "erreur", profil)
+    assert "Résultats passés du joueur (amine) : ouverture : 1 bon, 0 acceptable, 2 erreurs." in texte
+    assert texte.endswith("Thèmes à revoir : ouverture.")
+    assert "Résultats passés" not in coach.contexte(SITUATION, "debutant", "fold", "erreur")
+
+
 def test_main_de_depart_names_the_kind_of_hand():
     assert coach.main_de_depart(["5h", "Js"]) == "J5o : dépareillées (couleurs différentes)"
     assert coach.main_de_depart(["Qc", "Qd"]) == "QQ : une paire"

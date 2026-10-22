@@ -8,6 +8,7 @@ from contextlib import closing
 
 import generation
 import preflop
+import profils
 from llm import ROOT, stream_chat
 from mcp_client import Toolbox
 
@@ -33,8 +34,9 @@ def _actions(actions: list[str]) -> str:
     return ", ".join(generation.LIBELLES[a] for a in actions) or "aucune"
 
 
-def contexte(situation: dict, niveau: str, action: str, verdict: str) -> str:
-    """Ce que le coach sait de l'exercice : la situation, la décision du joueur, son verdict et la référence."""
+def contexte(situation: dict, niveau: str, action: str, verdict: str, profil: dict | None = None) -> str:
+    """Ce que le coach sait de l'exercice : la situation, la décision du joueur, son verdict et la référence ;
+    et, s'il a un profil, ses résultats passés."""
     ref = situation["reference"]
     lignes = ["Situation de l'exercice :", generation.decrire(situation),
               f"Main de départ : {main_de_depart(situation['cartes'])}.",
@@ -44,13 +46,17 @@ def contexte(situation: dict, niveau: str, action: str, verdict: str) -> str:
               f"- bonnes actions : {_actions(ref['bonnes'])}",
               f"- actions acceptables (situation limite) : {_actions(ref['acceptables'])}",
               *(f"- {fait}" for fait in ref["faits"])]
+    if profil:
+        faibles = profils.themes_faibles(profil)
+        lignes += [f"Résultats passés du joueur ({profil['pseudo']}) : {profils.resume(profil)}.",
+                   f"Thèmes à revoir : {', '.join(faibles) or 'aucun'}."]
     return "\n".join(lignes)
 
 
-def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str) -> dict:
+def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, profil: dict | None = None) -> dict:
     """La config du débrief : le prompt du coach suivi du contexte de l'exercice."""
     prompt = PROMPT.read_text(encoding="utf-8").strip()
-    return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict)}"}
+    return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict, profil)}"}
 
 
 def repondre(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> Iterator[tuple[str, object]]:

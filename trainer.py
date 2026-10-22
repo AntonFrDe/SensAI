@@ -103,7 +103,7 @@ class Session:
         return self._debrief(texte)
 
     def _debrief(self, texte: str) -> Iterator[tuple[str, object]]:
-        cfg = coach.config(self.cfg, self.situation, self.niveau, self.action, self.verdict)
+        cfg = coach.config(self.cfg, self.situation, self.niveau, self.action, self.verdict, self.profil)
         with closing(coach.repondre(self.debrief, texte, cfg, self.toolbox)) as events:
             for kind, data in events:
                 if kind == "fin" and data[0][-1]["content"]:

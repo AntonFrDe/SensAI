@@ -64,3 +64,10 @@ def themes_faibles(profil: dict) -> list[str]:
     """Les thèmes où le joueur s'est trompé, du plus raté au moins raté."""
     rates = {theme: taux_erreur(compte) for theme, compte in profil["resultats"].items() if compte["erreur"]}
     return sorted(rates, key=rates.get, reverse=True)
+
+
+def resume(profil: dict) -> str:
+    """Les résultats en une ligne, pour le coach : « tirage : 1 bon, 0 acceptable, 3 erreurs ; … »."""
+    parties = [f"{theme} : " + ", ".join(f"{compte[v]} {v}{'s' if compte[v] > 1 else ''}" for v in VERDICTS)
+               for theme, compte in profil["resultats"].items()]
+    return " ; ".join(parties) or "aucun exercice encore"

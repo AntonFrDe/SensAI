@@ -59,6 +59,12 @@ def test_themes_faibles_puts_the_most_missed_first():
     assert profils.themes_faibles(profil) == ["tirage", "ouverture"]
 
 
+def test_resume_is_one_line_per_theme():
+    assert profils.resume(profils.nouveau("amine")) == "aucun exercice encore"
+    profil = profils.noter(profils.noter(profils.nouveau("amine"), "tirage", "erreur"), "tirage", "erreur")
+    assert profils.resume(profil) == "tirage : 0 bon, 0 acceptable, 2 erreurs"
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):
