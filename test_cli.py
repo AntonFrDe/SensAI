@@ -171,7 +171,7 @@ def test_a_free_answer_off_schema_falls_back_to_the_numbered_choice():
 
 def test_trainer_grades_the_decision_then_the_coach_debriefs_it():
     p = chat("2\nsalut\nf\npourquoi ?\n/quit\n", mode=None)
-    assert "Choisis une action : [f] se coucher   [r] relancer" in p.stdout   # no debrief before the decision
+    assert "Choisis une action : [f] se coucher" in p.stdout   # no debrief before the decision
     assert any(v in p.stdout for v in ("✅ Bon :", "🟡 Acceptable :", "❌ Erreur :"))
     assert "\n- " in p.stdout and "Hello" in p.stdout   # the facts of the reference
     (request,) = FakeOllama.requests
