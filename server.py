@@ -13,6 +13,7 @@ import argparse
 import functools
 import json
 import queue
+import re
 import sys
 import threading
 import traceback
@@ -27,6 +28,8 @@ import ai
 import generation
 import glossary
 import poker_ai
+import profils
+import trainer
 from llm import ROOT, LLMError, list_models, load_config, stream_chat
 from poker_api import (
     AI, HUMAN, apply_action, create_game, hand_rankings, next_hand, odds_summary, player_controls, public_game_state,
@@ -43,10 +46,30 @@ GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand", 
 BANQUE_ROUTE = "/api/banque"
 NOTES_ROUTE = "/api/notes"
 MAX_NOTE = 200
+# The trainer: POST /api/sessions, then /api/sessions/<id>/<step> (see docs/REFONTE.md, section 5)
+SESSION_ROUTE = re.compile(r"/api/sessions(?:/([0-9a-f]{32})/(niveau|situations|decision|messages|fiche|reprendre))?")
+MAX_SESSIONS = 100
+MAX_TEXT = 2_000  # characters of a message to the coach
 
 
 class UnknownGame(Exception):
     """The request names no live game: answered with a 404."""
+
+
+class UnknownSession(Exception):
+    """The request names no live trainer session: answered with a 404."""
+
+
+def session_summary(session: trainer.Session) -> dict:
+    """What the web page needs to start: the level (or the levels to choose from) and the profile, if any."""
+    profil = session.profil
+    return {
+        "niveau": session.niveau,
+        "niveaux": [{"niveau": niveau, "libelle": libelle} for niveau, libelle in trainer.NIVEAUX.items()],
+        "profil": profil and {"pseudo": profil["pseudo"], "resultats": profil["resultats"],
+                              "themesARevoir": profils.themes_faibles(profil),
+                              "reprise": bool(profil["dernier_debrief"])},
+    }
 
 
 def clean_messages(messages: object) -> list[dict]:
@@ -127,6 +150,8 @@ class Handler(BaseHTTPRequestHandler):
     games: dict[str, Game] = {}
     games_lock = threading.Lock()
     thinking: set[str] = set()  # games whose AI opponent is deciding: one decision at a time per game
+    sessions: dict[str, trainer.Session] = {}
+    busy: set[str] = set()  # sessions handling a request: one at a time per session
     cfg: dict = None  # set by main()
     slots = threading.BoundedSemaphore(1)  # replaced by main() from "max_parallel_models"
 
@@ -152,7 +177,9 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Not found."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/api/chat", "/api/compare", "/api/coach", BANQUE_ROUTE, NOTES_ROUTE, *GAME_ROUTES):
+        route = SESSION_ROUTE.fullmatch(self.path)
+        if not route and self.path not in ("/api/chat", "/api/compare", "/api/coach", BANQUE_ROUTE, NOTES_ROUTE,
+                                           *GAME_ROUTES):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -162,6 +189,10 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_BODY:
                 raise ValueError("Empty or oversized request.")
             raw = self.rfile.read(length)
+            if route and route[2] == "messages":
+                return self._messages(route[1], parse_json(raw))
+            if route:
+                return self._send_json(*self._session_route(route[1], route[2], parse_json(raw)))
             if self.path in GAME_ROUTES:
                 return self._send_json(*self._game_route(parse_json(raw)))
             if self.path == BANQUE_ROUTE:
@@ -181,6 +212,8 @@ class Handler(BaseHTTPRequestHandler):
                 ]
         except UnknownGame:
             return self._send_json(404, {"error": "Unknown game."})
+        except UnknownSession:
+            return self._send_json(404, {"error": "Unknown session."})
         except (ValueError, RuntimeError) as e:
             return self._send_json(400, {"error": str(e)})
         except LLMError as e:
@@ -233,6 +266,115 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 next_hand(game)
             return 200, {"gameId": game_id, "state": public_game_state(game)}
+
+    def _claim(self, session_id: str) -> trainer.Session:
+        """The session named by the URL, reserved for this request; _release() frees it."""
+        with self.games_lock:
+            session = self.sessions.get(session_id)
+            if session is None:
+                raise UnknownSession
+            if session_id in self.busy:
+                raise ValueError("La session traite déjà une demande.")
+            self.busy.add(session_id)
+            return session
+
+    def _release(self, session_id: str) -> None:
+        with self.games_lock:
+            self.busy.discard(session_id)
+
+    def _session_route(self, session_id: str | None, step: str | None, body: dict) -> tuple[int, dict]:
+        if step is None:
+            return self._new_session(body)
+        session = self._claim(session_id)
+        try:
+            if step == "niveau":
+                return 200, self._level(session, body.get("reponse"))
+            if step == "situations":
+                situation = session.nouvelle_situation()
+                return 201, {"numero": session.numero, "situation": trainer.vue_situation(situation)}
+            if step == "decision":
+                verdict = session.decider(body.get("action"))
+                return 200, {"verdict": verdict, "reference": session.situation["reference"]}
+            if step == "fiche":
+                with self.slots:  # a model call: one RAM slot
+                    return 200, {"fiche": session.ecrire_fiche()}
+            last = session.reprendre()
+            return 200, {"situation": trainer.vue_situation(last["situation"]), "action": last["action"],
+                         "verdict": last["verdict"], "reference": last["situation"]["reference"],
+                         "debrief": [{"role": m["role"], "content": m["content"]} for m in last["debrief"]
+                                     if m["role"] in ROLES and m["content"]]}
+        finally:
+            self._release(session_id)
+
+    def _new_session(self, body: dict) -> tuple[int, dict]:
+        pseudo = body.get("pseudo")
+        if pseudo is not None and not isinstance(pseudo, str):
+            raise ValueError("Le pseudo doit être un texte.")
+        profil = profils.charger(pseudo, self.cfg) if pseudo else None
+        session = trainer.Session(self.cfg, profil=profil)
+        session_id = uuid4().hex
+        with self.games_lock:
+            if len(self.sessions) >= MAX_SESSIONS:
+                return 503, {"error": "Session limit reached."}
+            self.sessions[session_id] = session
+        return 201, {"sessionId": session_id, **session_summary(session)}
+
+    def _level(self, session: trainer.Session, answer: object) -> dict:
+        """The level from its number or name; otherwise the model classifies the plain-words answer (T5)."""
+        if not isinstance(answer, str) or not answer.strip():
+            raise ValueError("Réponse vide.")
+        try:
+            return {"niveau": session.choisir_niveau(answer), "raison": None}
+        except ValueError:
+            if answer.strip().isdigit():
+                raise
+        with self.slots:
+            try:
+                return session.niveau_libre(answer)
+            except ValueError:
+                raise ValueError("Réponse non comprise : choisis un des niveaux proposés.") from None
+
+    def _messages(self, session_id: str, body: dict) -> None:
+        """The debrief, streamed as NDJSON: queued, thinking, token, outil, question, then done or error."""
+        text = body.get("texte")
+        if not isinstance(text, str) or not text.strip():
+            return self._send_json(400, {"error": "Message vide."})
+        if len(text) > MAX_TEXT:
+            return self._send_json(400, {"error": f"Message trop long (plus de {MAX_TEXT} caractères)."})
+        session = self._claim(session_id)
+        try:
+            try:
+                events = session.discuter(session.reponse(text.strip()))
+            except ValueError as e:
+                return self._send_json(400, {"error": str(e)})
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-ndjson")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            try:
+                self._stream_debrief(events)
+            except (BrokenPipeError, ConnectionResetError):
+                pass  # the browser hit Stop or closed the tab
+        finally:
+            self._release(session_id)
+
+    def _stream_debrief(self, events) -> None:
+        if not self.slots.acquire(blocking=False):
+            self._emit({"queued": True})
+            self.slots.acquire()  # paused here until a running model releases its slot
+        try:
+            with closing(events):  # closing stops Ollama's generation
+                for kind, data in events:
+                    if kind == "outil":
+                        self._emit({"outil": {"name": data[0], "arguments": data[1]}})
+                    elif kind == "fin":
+                        self._emit({"done": data[1]})
+                    else:
+                        self._emit({kind: data})
+        except LLMError as e:
+            self._emit({"error": str(e)})
+        finally:
+            self.slots.release()
 
     def _notes_route(self, body: dict) -> tuple[int, dict]:
         line = session_note(body, date.today())
