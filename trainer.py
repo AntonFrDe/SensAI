@@ -97,7 +97,8 @@ class Session:
             raise ValueError("choisis d'abord un niveau")
         theme = self.choisir_theme()
         banque = [s for s in generation.lire_banque(self.cfg)
-                  if s["theme"] == theme and s["niveau"] == self.niveau and generation.cle(theme, s) not in self.vues]
+                  if s["theme"] == theme and s["niveau"] == self.niveau and generation.cle(theme, s) not in self.vues
+                  and not generation.valider(s, theme, self.niveau, set())]   # les règles ont pu changer depuis
         situation = self.rng.choice(banque) if banque else generation.tirer(theme, self.niveau, self.rng, self.vues)
         self.vues = {*self.vues, generation.cle(theme, situation)}
         self.situation, self.action, self.verdict, self.debrief, self.question = situation, None, None, [], None

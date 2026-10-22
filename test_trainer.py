@@ -91,6 +91,18 @@ def test_vue_situation_hides_the_reference():
     assert quiz["question"] == "Qui gagne ?" and len(quiz["adversaire"]) == 2
 
 
+def test_a_bank_situation_that_breaks_the_current_rules_is_skipped():
+    paire_max = {**generation.tirer("tirage", "intermediaire", random.Random(1)), "source": "llm",
+                 "cartes": ["Qh", "Ks"], "board": ["Tc", "Ad", "2d", "Kh"]}
+    with tempfile.TemporaryDirectory() as tmp:
+        banque = Path(tmp) / "banque.jsonl"
+        banque.write_text(json.dumps(paire_max) + "\n")
+        s = trainer.Session({**CFG, "banque_file": str(banque)}, rng=random.Random(0))
+        s.choisir_niveau("intermediaire")
+        dealt = [s.nouvelle_situation() for _ in range(6)]
+    assert all(sit["source"] == "code" for sit in dealt)
+
+
 def test_decider_gives_the_verdict_of_the_reference():
     s = session()
     situation = s.nouvelle_situation()
