@@ -139,6 +139,30 @@ def test_versus_matches_known_preflop_matchups():
     assert abs(flip.equity - 0.48) < 0.015  # « coin flip » : la paire est légèrement favorite
 
 
+def test_versus_range_against_a_single_hand_matches_versus():
+    rng = random.Random(1)
+    alone = eq.versus_range(cards("Ah Kh"), {"QQ": 1.0}, 20_000, rng)
+    assert abs(alone.equity - eq.versus("AKs", "QQ", 20_000, random.Random(2)).equity) < 0.02
+
+
+def test_versus_range_is_worse_against_a_tight_range():
+    hero = cards("As 5s")
+    tight = eq.versus_range(hero, {"AA": 1, "KK": 1, "QQ": 1, "AKs": 1}, 5_000, random.Random(3))
+    wide = eq.versus_range(hero, {"72o": 1, "83o": 1, "94o": 1}, 5_000, random.Random(3))
+    assert tight.equity < 0.4 < 0.6 < wide.equity
+
+
+def test_versus_range_skips_the_hands_that_hold_our_cards():
+    blocked = eq.versus_range(cards("As Ad"), {"AA": 1, "72o": 1}, 2_000, random.Random(4))
+    assert blocked.equity > 0.8   # only one AA left out of 6, against 12 combos of 72o
+    try:
+        eq.versus_range(cards("As Ad"), {"AA": 0}, 10)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("an empty range must be refused")
+
+
 if __name__ == "__main__":
     for name, test in list(globals().items()):
         if name.startswith("test_"):

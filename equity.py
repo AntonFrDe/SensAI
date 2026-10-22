@@ -241,6 +241,33 @@ def versus(first: str, second: str, samples: int = SAMPLES, rng: random.Random |
                   (wins + ties / 2) / samples, samples, False)
 
 
+def versus_range(hero: list[Card], weights: dict[str, float], samples: int = SAMPLES,
+                 rng: random.Random | None = None) -> Equity:
+    """Équité avant le flop de `hero` contre une main tirée dans une range ({"AKs": 1.0, "22": 0.5, ...}).
+
+    Chaque combinaison compatible avec nos cartes pèse le poids de sa classe : une main mixte sort deux fois moins
+    souvent. Puis le board est tiré au hasard : Monte Carlo.
+    """
+    hero = list(hero)
+    _check(hero, [], 1)
+    if samples < 1:
+        raise ValueError("Il faut au moins 1 tirage.")
+    combos = [(combo, weight) for name, weight in weights.items() for combo in class_combos(name)
+              if weight > 0 and not set(combo) & set(hero)]
+    if not combos:
+        raise ValueError("Aucune main de la range n'est compatible avec nos cartes.")
+    rng = rng or random.Random()
+    hands, poids = zip(*combos)
+    wins = ties = 0
+    for villain in rng.choices(hands, weights=poids, k=samples):
+        board = rng.sample([card for card in DECK if card not in hero and card not in villain], 5)
+        mine, theirs = evaluate7(hero + board), evaluate7(villain + board)
+        wins += mine > theirs
+        ties += mine == theirs
+    return Equity(wins / samples, ties / samples, (samples - wins - ties) / samples,
+                  (wins + ties / 2) / samples, samples, False)
+
+
 def build_table(samples: int = TABLE_SAMPLES) -> dict:
     """Équité et percentile des 169 mains de départ, pour 1 à MAX_TABLE_OPPONENTS adversaires."""
     classes: dict[str, tuple[list[Card], int]] = {}  # classe → (main représentative, nombre de combos)
