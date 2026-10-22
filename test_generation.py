@@ -97,6 +97,14 @@ def test_historique_is_written_by_the_code():
     assert generation.historique("tirage", TIRAGE) == "Au flop, ton adversaire mise 2 bb dans un pot de 4 bb."
 
 
+def test_decrire_shows_the_cards_and_the_amounts():
+    ouverture = generation.decrire(OUVERTURE)
+    assert ouverture == ("Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\n"
+                         "Tout le monde s'est couché jusqu'à toi. Tu as K♦ 9♦.")
+    tirage = generation.decrire(TIRAGE)
+    assert tirage.endswith("Tu as A♥ 5♥.\nBoard : K♥ 7♥ 2♣ · pot 6 bb, à payer 2 bb.")
+
+
 def test_repli_gives_a_valid_situation_for_every_theme():
     for seed in range(30):
         for theme in generation.THEMES:

@@ -22,6 +22,9 @@ CARTES = [r + s for r in "AKQJT98765432" for s in "shdc"]  # les 52 codes
 POSITIONS = {"ouverture": ["UTG", "MP", "CO", "BTN", "SB"],  # la BB n'ouvre jamais
              "tirage": ["UTG", "MP", "CO", "BTN", "SB", "BB"]}
 ACTIONS = {"ouverture": ["fold", "raise"], "tirage": ["fold", "call", "raise"]}
+LIBELLES = {"fold": "se coucher", "call": "suivre", "raise": "relancer"}
+NOMS_POSITIONS = {"UTG": "sous le canon (UTG)", "MP": "en milieu de parole (MP)", "CO": "au cut-off (CO)",
+                  "BTN": "au bouton (BTN)", "SB": "à la petite blinde (SB)", "BB": "à la grosse blinde (BB)"}
 CHAMPS_MODELE = ("position", "cartes", "board", "pot", "a_payer")  # ce que le modèle écrit
 CHAMPS = (*CHAMPS_MODELE, "historique")  # la situation finale, dans l'ordre du contrat
 TAILLES_BOARD = {"ouverture": (0,), "tirage": (3, 4)}
@@ -253,6 +256,16 @@ def historique(theme: str, sit: dict) -> str:
     rue = "Au flop" if len(sit["board"]) == 3 else "Au turn"
     avant = round(sit["pot"] - sit["a_payer"], 1)
     return f"{rue}, ton adversaire mise {sit['a_payer']:g} bb dans un pot de {avant:g} bb."
+
+
+def decrire(sit: dict) -> str:
+    """La situation telle que le joueur la lit, écrite par un gabarit : aucun chiffre ne passe par le modèle."""
+    lignes = [f"Table 6 joueurs, 100 blindes · tu es {NOMS_POSITIONS[sit['position']]}.",
+              f"{sit['historique']} Tu as {equity.show(_cartes(sit['cartes']))}."]
+    if sit["board"]:
+        lignes.append(f"Board : {equity.show(_cartes(sit['board']))} · pot {sit['pot']:g} bb, "
+                      f"à payer {sit['a_payer']:g} bb.")
+    return "\n".join(lignes)
 
 
 def _situation(brut: dict, theme: str, niveau: str, source: str, tentatives: int, erreurs: list) -> dict:
