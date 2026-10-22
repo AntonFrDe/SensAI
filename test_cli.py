@@ -31,7 +31,8 @@ def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None, mod
     with tempfile.TemporaryDirectory() as tmp:
         config = Path(tmp) / "config.json"
         config.write_text(json.dumps({"model": model, "ollama_url": url, "num_ctx": 1024,
-                                      "system_prompt_file": "prompts/system.txt", "mcp_servers": servers or {}}))
+                                      "system_prompt_file": "prompts/system.txt", "mcp_servers": servers or {},
+                                      "banque_file": str(Path(tmp) / "banque.jsonl")}))
         return cli(stdin, "--config", str(config), *filter(None, [mode]), *args)
 
 
@@ -151,6 +152,49 @@ def test_broken_tool_server_is_reported_and_the_chat_goes_on():
 def test_no_tools_flag_starts_no_server():
     chat("hi\n/quit\n", "--no-tools", servers=POKER_TOOLS)
     assert "tools" not in FakeOllama.requests[0]
+
+
+def test_trainer_asks_the_level_then_deals_a_situation():
+    p = chat("4\n1\n/quit\n", mode=None)
+    assert p.returncode == 0 and "Quel est ton niveau" in p.stdout
+    assert "Réponds par un numéro de 1 à 3." in p.stdout
+    assert "Situation 1 · Table 6 joueurs, 100 blindes" in p.stdout and "[f] se coucher   [r] relancer" in p.stdout
+    assert FakeOllama.requests == []   # the situation comes from the code, not from the model
+
+
+def test_trainer_grades_the_decision_then_the_coach_debriefs_it():
+    p = chat("1\nsalut\nf\npourquoi ?\n/quit\n", mode=None)
+    assert "Choisis une action : [f] se coucher   [r] relancer" in p.stdout   # no debrief before the decision
+    assert any(v in p.stdout for v in ("✅ Bon :", "🟡 Acceptable :", "❌ Erreur :"))
+    assert "- Référence : ranges d'ouverture 6-max, 100 blindes." in p.stdout and "Hello" in p.stdout
+    (request,) = FakeOllama.requests
+    assert roles(request) == ["system", "user"]
+    system = request["messages"][0]["content"]
+    cards = next(line for line in p.stdout.splitlines() if " Tu as " in line).split(" Tu as ")[1]
+    assert f"Tu as {cards}" in system and "Décision du joueur : se coucher. Verdict :" in system
+
+
+def test_exercice_deals_the_next_situation_with_a_fresh_debrief():
+    p = chat("1\nf\nq1\n/exercice\nf\nq2\n/quit\n", mode=None)
+    assert "Situation 2 ·" in p.stdout
+    assert [m["content"] for m in FakeOllama.requests[1]["messages"][1:]] == ["q2"]
+
+
+def test_niveau_changes_the_level_and_its_themes():
+    p = chat("1\n/niveau\n3\n/quit\n", mode=None)
+    second = p.stdout.split("Situation 2 ·")[1]
+    assert "Board :" in second and "[c] suivre" in second   # the advanced level plays draws on the flop or turn
+
+
+def test_seed_replays_the_same_situations():
+    first, second, other = (chat("2\n/exercice\n/exercice\n/quit\n", "--seed", seed, mode=None).stdout
+                            for seed in ("7", "7", "8"))
+    assert first == second and first != other
+
+
+def test_end_of_input_leaves_the_trainer_at_any_step():
+    assert chat("", mode=None).returncode == 0
+    assert chat("2\n", mode=None).returncode == 0
 
 
 if __name__ == "__main__":
