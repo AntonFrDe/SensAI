@@ -13,6 +13,30 @@ SITUATION = {"theme": "ouverture", "position": "BTN", "cartes": ["Kd", "9d"], "b
                            "faits": ["K9s : ouvrir en MP, CO, BTN, SB ; se coucher en UTG"]}}
 
 
+def with_model(answer, fn, *args):
+    """Run fn with coach.complete answering `answer`; returns (result, the config the model got)."""
+    seen = []
+
+    def fake(messages, cfg):
+        seen.append(cfg)
+        return answer
+
+    original = coach.complete
+    coach.complete = fake
+    try:
+        return fn(*args), seen[0]
+    finally:
+        coach.complete = original
+
+
+def raises(fn, *args):
+    try:
+        fn(*args)
+    except ValueError:
+        return True
+    return False
+
+
 class FakeToolbox:
     def __init__(self):
         self.calls = []
@@ -71,6 +95,29 @@ def test_repondre_runs_the_tools_the_model_asks_for():
     turn, _ = events[-1][1]
     assert [m["role"] for m in turn] == ["user", "assistant", "tool", "assistant"]
     assert turn[2] == {"role": "tool", "tool_name": "preflop_open", "content": "résultat"}
+
+
+def test_classer_niveau_reads_the_structured_answer():
+    result, cfg = with_model('{"niveau": "avance", "raison": "Tu calcules tes outs."}',
+                             coach.classer_niveau, "je compte mes outs à chaque main", CFG)
+    assert result == {"niveau": "avance", "raison": "Tu calcules tes outs."}
+    assert cfg["format"] == coach.schema_niveau() and cfg["temperature"] == 0 and cfg["tools"] == []
+    assert cfg["system_prompt"].startswith("Tu classes un joueur de poker")
+
+
+def test_lire_json_refuses_what_breaks_the_schema():
+    schema = coach.schema_niveau()
+    assert raises(coach.lire_json, "", schema) and raises(coach.lire_json, "[]", schema)
+    assert raises(coach.lire_json, '{"niveau": "expert", "raison": "x"}', schema)
+    assert raises(coach.lire_json, '{"niveau": "avance", "raison": "  "}', schema)
+    assert coach.lire_json('{"niveau": "avance", "raison": "x", "en_trop": 1}', schema) == {"niveau": "avance",
+                                                                                           "raison": "x"}
+
+
+def test_classer_niveau_against_ollama_refuses_an_answer_off_schema():
+    FakeOllama.reset()
+    assert raises(coach.classer_niveau, "je joue un peu", CFG)   # the fake model answers {"action": "call"}
+    assert "format" in FakeOllama.requests[0]
 
 
 if __name__ == "__main__":

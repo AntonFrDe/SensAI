@@ -1,0 +1,6 @@
+Tu classes un joueur de poker d'après ce qu'il dit de lui-même, dans un de ces niveaux :
+- debutant : il découvre le poker, connaît à peine les règles ou l'ordre des combinaisons.
+- intermediaire : il connaît les combinaisons et les positions, joue de temps en temps.
+- avance : il joue souvent et calcule ses cotes, ses outs ou ses ranges.
+Dans le doute, choisis le niveau le plus bas. raison : une phrase courte en français, adressée au joueur (tu).
+Réponds avec le JSON seulement.

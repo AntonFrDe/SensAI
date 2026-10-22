@@ -3,17 +3,19 @@ d'une réponse, sans rien afficher. Le CLI et le web la rendent chacun à leur f
 
 Le code a déjà calculé la bonne réponse (generation.reference) : le coach l'explique, il ne la recalcule pas.
 """
+import json
 from collections.abc import Iterator
 from contextlib import closing
 
 import generation
 import preflop
 import profils
-from llm import ROOT, stream_chat
+from llm import ROOT, complete, stream_chat
 from mcp_client import Toolbox
 
 MAX_TOOL_ROUNDS = 5  # then the model must answer with what it has
 PROMPT = ROOT / "prompts" / "coach.txt"
+PROMPT_NIVEAU = ROOT / "prompts" / "niveau.txt"
 CONSIGNES_NIVEAU = {
     "debutant": "Il découvre le poker : explique chaque terme technique, une idée à la fois.",
     "intermediaire": "Il connaît les combinaisons et les positions : tu peux parler de range et de cote du pot.",
@@ -28,6 +30,42 @@ def main_de_depart(cartes: list[str]) -> str:
     """« J5o : cartes dépareillées (couleurs différentes) » : le nom de la main, que le modèle lit souvent mal."""
     main = preflop.normalize_hand("".join(cartes))
     return f"{main} : {SORTES[main[2:]]}"
+
+
+def schema_niveau() -> dict:
+    """Sortie structurée (T5) du classement d'une réponse libre : {niveau, raison}."""
+    return {"type": "object",
+            "properties": {"niveau": {"type": "string", "enum": list(CONSIGNES_NIVEAU)},
+                           "raison": {"type": "string"}},
+            "required": ["niveau", "raison"], "additionalProperties": False}
+
+
+def lire_json(reponse: str, schema: dict) -> dict:
+    """La réponse du modèle si elle suit le schéma (champs requis, chaînes, valeurs permises) ; ValueError sinon.
+
+    Ollama impose le schéma en général, mais un modèle peut encore renvoyer un JSON coupé ou vide.
+    """
+    try:
+        data = json.loads(reponse)
+    except ValueError:
+        raise ValueError("la réponse n'est pas du JSON") from None
+    if not isinstance(data, dict):
+        raise ValueError("la réponse doit être un objet JSON")
+    for champ, regle in schema["properties"].items():
+        valeur = data.get(champ)
+        if regle["type"] == "string" and not (isinstance(valeur, str) and valeur.strip()):
+            raise ValueError(f"champ manquant ou vide : {champ}")
+        if "enum" in regle and valeur not in regle["enum"]:
+            raise ValueError(f"valeur impossible pour {champ} : {valeur!r}")
+    return {champ: data[champ] for champ in schema["properties"]}
+
+
+def classer_niveau(texte: str, cfg: dict) -> dict:
+    """Le niveau d'un joueur d'après sa réponse libre : {niveau, raison}. ValueError si la réponse est inutilisable."""
+    schema = schema_niveau()
+    niveau_cfg = {**cfg, "system_prompt": PROMPT_NIVEAU.read_text(encoding="utf-8").strip(), "format": schema,
+                  "temperature": 0, "tools": []}
+    return lire_json(complete([{"role": "user", "content": texte}], niveau_cfg), schema)
 
 
 def _actions(actions: list[str]) -> str:
