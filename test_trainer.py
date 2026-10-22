@@ -158,6 +158,28 @@ def test_a_new_situation_or_oublier_clears_the_debrief():
     assert s.debrief == []
 
 
+def test_reprendre_brings_back_the_last_debrief_of_the_profile():
+    FakeOllama.reset()
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg = {**CFG, "profiles_dir": tmp}
+        s = trainer.Session(cfg, rng=random.Random(0), profil=profils.nouveau("amine"))
+        s.choisir_niveau("1")
+        situation = s.nouvelle_situation()
+        s.decider("fold")
+        debrief(s, "pourquoi ?")
+
+        retour = trainer.Session(cfg, profil=profils.charger("amine", cfg))
+        retour.reprendre()
+        assert retour.situation == situation and retour.action == "fold"
+        debrief(retour, "et au bouton ?")
+    assert [m["content"] for m in FakeOllama.requests[-1]["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
+
+
+def test_reprendre_without_a_debrief_is_refused():
+    assert raises(session().reprendre)
+    assert raises(trainer.Session(CFG, profil=profils.nouveau("amine")).reprendre)
+
+
 def test_a_failed_answer_stays_out_of_the_debrief():
     s = trainer.Session({**CFG, "model": "missing"}, rng=random.Random(0))
     s.choisir_niveau("1")

@@ -90,7 +90,7 @@ class Session:
         self.action, self.verdict = action, noter(self.situation["reference"], action)
         if self.profil:
             self.profil = profils.noter(self.profil, self.situation["theme"], self.verdict)
-            self._garder()
+            self._garder(dernier_debrief=self._debrief_en_cours())
         return self.verdict
 
     def discuter(self, texte: str) -> Iterator[tuple[str, object]]:
@@ -108,7 +108,21 @@ class Session:
             for kind, data in events:
                 if kind == "fin" and data[0][-1]["content"]:
                     self.debrief = [*self.debrief, *data[0]]
+                    self._garder(dernier_debrief=self._debrief_en_cours())
                 yield kind, data
+
+    def _debrief_en_cours(self) -> dict:
+        return {"situation": self.situation, "action": self.action, "verdict": self.verdict, "debrief": self.debrief}
+
+    def reprendre(self) -> dict:
+        """Recharge le dernier débrief du profil (situation, décision, verdict, messages) pour le continuer."""
+        dernier = self.profil and self.profil.get("dernier_debrief")
+        if not dernier:
+            raise ValueError("aucun débrief à reprendre")
+        self.situation, self.action, self.verdict = dernier["situation"], dernier["action"], dernier["verdict"]
+        self.debrief = dernier["debrief"]
+        self.vues = {*self.vues, generation.cle(self.situation["theme"], self.situation)}
+        return dernier
 
     def _garder(self, **champs) -> None:
         """Met à jour le profil et l'enregistre, si la session en a un."""
