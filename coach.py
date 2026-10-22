@@ -124,9 +124,10 @@ def fiche(situation: dict, niveau: str, action: str, verdict: str, debrief: list
 
 
 def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, profil: dict | None = None) -> dict:
-    """La config du débrief : le prompt du coach suivi du contexte de l'exercice."""
+    """La config du débrief : le prompt du coach suivi du contexte de l'exercice, et l'outil poser_question."""
     prompt = PROMPT.read_text(encoding="utf-8").strip()
-    return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict, profil)}"}
+    return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict, profil)}",
+            "tools": [*cfg.get("tools", []), OUTIL_QUESTION]}
 
 
 def lire_question(arguments: object) -> dict:

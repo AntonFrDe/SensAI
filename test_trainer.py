@@ -151,6 +151,22 @@ def test_the_debrief_knows_the_situation_and_keeps_its_history():
     assert [m["content"] for m in second["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
 
 
+def test_a_numbered_answer_to_the_coach_question_is_sent_in_words():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}}
+    s = session()
+    s.nouvelle_situation()
+    s.decider("fold")
+    debrief(s, "pourquoi ?")
+    assert s.question == {"question": "Outs ?", "choix": ["9", "15"]}
+    assert "poser_question" in {t["function"]["name"] for t in FakeOllama.requests[0]["tools"]}
+    assert s.reponse("2") == "Je réponds : 15" and s.reponse("3") == "3" and s.reponse("neuf") == "neuf"
+    FakeOllama.tool_call = None
+    debrief(s, s.reponse("2"))
+    assert s.question is None
+    assert FakeOllama.requests[-1]["messages"][-1]["content"] == "Je réponds : 15"
+
+
 def test_no_debrief_before_the_decision():
     s = session()
     s.nouvelle_situation()

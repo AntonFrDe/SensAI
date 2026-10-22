@@ -44,6 +44,7 @@ class Session:
         self.action: str | None = None
         self.verdict: str | None = None
         self.debrief: list[dict] = []   # replaced, never edited in place
+        self.question: dict | None = None   # la question à choix (X4) qui attend la réponse du joueur
         self.vues: set[str] = set()   # situations déjà jouées, pour ne pas les redonner
         self.numero = 0
 
@@ -87,7 +88,7 @@ class Session:
                   if s["theme"] == theme and s["niveau"] == self.niveau and generation.cle(theme, s) not in self.vues]
         situation = self.rng.choice(banque) if banque else generation.tirer(theme, self.niveau, self.rng, self.vues)
         self.vues = {*self.vues, generation.cle(theme, situation)}
-        self.situation, self.action, self.verdict, self.debrief = situation, None, None, []
+        self.situation, self.action, self.verdict, self.debrief, self.question = situation, None, None, [], None
         self.numero += 1
         return situation
 
@@ -114,8 +115,11 @@ class Session:
 
     def _debrief(self, texte: str) -> Iterator[tuple[str, object]]:
         cfg = coach.config(self.cfg, self.situation, self.niveau, self.action, self.verdict, self.profil)
+        self.question = None
         with closing(coach.repondre(self.debrief, texte, cfg, self.toolbox)) as events:
             for kind, data in events:
+                if kind == "question":
+                    self.question = data
                 if kind == "fin" and data[0][-1]["content"]:
                     self.debrief = [*self.debrief, *data[0]]
                     self._garder(dernier_debrief=self._debrief_en_cours())
@@ -140,6 +144,14 @@ class Session:
             self.profil = {**self.profil, **champs}
             profils.enregistrer(self.profil, self.cfg)
 
+    def reponse(self, texte: str) -> str:
+        """Le message à envoyer au coach : le choix en toutes lettres si le joueur répond à sa question par un
+        numéro, sinon le texte tel quel."""
+        choix = self.question["choix"] if self.question else []
+        if texte.isdigit() and 1 <= int(texte) <= len(choix):
+            return f"Je réponds : {choix[int(texte) - 1]}"
+        return texte
+
     def ecrire_fiche(self) -> dict:
         """La fiche de fin d'exercice (T5), gardée dans le profil ; ValueError avant la décision ou si le modèle
         ne rend pas une fiche valide."""
@@ -155,4 +167,4 @@ class Session:
 
     def oublier(self) -> None:
         """Oublie le débrief en cours, pas la situation."""
-        self.debrief = []
+        self.debrief, self.question = [], None
