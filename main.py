@@ -1,10 +1,11 @@
 """SensAI in the terminal: a poker trainer. It asks your level, deals a situation, grades your decision against a
 reference computed by the code, then the coach (a local Ollama model) debriefs it, answers streamed as written.
 
-    python3 main.py [--model M] [--config config.json] [--no-tools] [--seed N] [--libre]
+    python3 main.py [--model M] [--config config.json] [--no-tools] [--seed N] [--pseudo P] [--libre]
 
-Commands: /exercice deals the next situation, /niveau changes the level, /reset forgets the debrief, /tools lists
-the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an answer. --libre is the plain chat, without the trainer.
+Commands: /exercice deals the next situation, /niveau changes the level, /reprendre brings back the last debrief
+of the profile, /reset forgets the debrief, /tools lists the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an
+answer. --pseudo keeps the level and the results in profiles/<pseudo>.json. --libre is the plain chat.
 The model can call the tools of the MCP servers listed under "mcp_servers" in the config (see mcp_client.py).
 """
 import argparse
@@ -16,6 +17,7 @@ from contextlib import closing
 
 import coach
 import generation
+import profils
 import trainer
 from llm import ROOT, LLMError, list_models, load_config
 from mcp_client import Toolbox
@@ -182,11 +184,37 @@ def decide(session: trainer.Session, text: str) -> None:
     note("Pose tes questions au coach · /exercice : situation suivante · /niveau : changer de niveau")
 
 
-def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None) -> int:
-    session = trainer.Session(cfg, toolbox, rng)
+def greet(profil: dict) -> None:
+    """Welcome back a known player: level, themes to work on, how to resume."""
+    print(f"Re-bonjour {profil['pseudo']} · niveau : {trainer.NIVEAUX[profil['niveau']]} (/niveau pour changer)")
+    if weak := profils.themes_faibles(profil):
+        print(f"Thèmes à revoir : {', '.join(weak)}. Ils reviendront plus souvent.")
+    if profil["dernier_debrief"]:
+        note("/reprendre : reprendre le dernier débrief")
+
+
+def resume(session: trainer.Session) -> None:
+    """Show the debrief brought back from the profile: the situation, the decision and the last answer."""
+    try:
+        last = session.reprendre()
+    except ValueError as e:
+        print(f"Rien à reprendre : {e}.")
+        return
+    print(f"\nDernière situation · {generation.decrire(last['situation'])}")
+    print(f"Ta décision : {generation.LIBELLES[last['action']]} ({ICONS[last['verdict']]} {last['verdict']}).")
+    answers = [m["content"] for m in last["debrief"] if m["role"] == "assistant" and m["content"]]
+    if answers:
+        print(f"Coach : {answers[-1]}")
+    note("Continue le débrief, ou /exercice pour une nouvelle situation")
+
+
+def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None, profil: dict | None = None) -> int:
+    session = trainer.Session(cfg, toolbox, rng, profil)
     tools = f" · {len(toolbox.specs)} outils (/tools)" if toolbox.specs else ""
-    print(f"SensAI · {cfg['model']}{tools} · /exercice · /niveau · /reset · /quit")
-    if not ask_level(session):
+    print(f"SensAI · {cfg['model']}{tools} · /exercice · /niveau · /reprendre · /reset · /quit")
+    if session.niveau:
+        greet(session.profil)
+    elif not ask_level(session):
         return 0
     deal(session)
     while True:
@@ -203,6 +231,8 @@ def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None) 
             if not ask_level(session):
                 return 0
             deal(session)
+        elif text == "/reprendre":
+            resume(session)
         elif text == "/reset":
             session.oublier()
             print("Débrief oublié.")
@@ -218,13 +248,21 @@ def main() -> int:
     ap.add_argument("--config", default=str(ROOT / "config.json"), help="fichier de configuration (défaut : config.json)")
     ap.add_argument("--no-tools", action="store_true", help="ne lancer aucun serveur MCP")
     ap.add_argument("--seed", type=int, help="graine du tirage des situations, pour rejouer la même session")
+    ap.add_argument("--pseudo", help="garder le niveau et les résultats dans profiles/<pseudo>.json")
     ap.add_argument("--libre", action="store_true", help="chat libre avec le modèle, sans le parcours d'exercices")
     args = ap.parse_args()
+    try:
+        if args.pseudo:
+            profils.valider_pseudo(args.pseudo)
+    except ValueError as e:
+        fail(str(e))
+        return 1
 
     try:
         cfg = load_config(args.config)
         if args.model:
             cfg = {**cfg, "model": args.model}
+        profil = profils.charger(args.pseudo, cfg) if args.pseudo else None
         ensure_model(cfg)
     except (OSError, ValueError, KeyError) as e:
         fail(f"Configuration illisible ({args.config}) : {e!r}")
@@ -240,7 +278,7 @@ def main() -> int:
         cfg = {**cfg, "tools": toolbox.specs}
         if args.libre:
             return chat_loop(cfg, toolbox)
-        return trainer_loop(cfg, toolbox, random.Random(args.seed))
+        return trainer_loop(cfg, toolbox, random.Random(args.seed), profil)
     finally:
         toolbox.close()
 

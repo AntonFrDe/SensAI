@@ -21,7 +21,7 @@ def cli(stdin, *args):
 POKER_TOOLS = {"poker": {"command": [sys.executable, "mcp_server.py"]}}
 
 
-def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None, mode="--libre"):
+def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None, mode="--libre", profiles=None):
     """Run the CLI with a throwaway config pointing at the fake Ollama (and at MCP servers, if any).
 
     The plain chat (--libre) by default; mode=None runs the trainer.
@@ -32,7 +32,8 @@ def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None, mod
         config = Path(tmp) / "config.json"
         config.write_text(json.dumps({"model": model, "ollama_url": url, "num_ctx": 1024,
                                       "system_prompt_file": "prompts/system.txt", "mcp_servers": servers or {},
-                                      "banque_file": str(Path(tmp) / "banque.jsonl")}))
+                                      "banque_file": str(Path(tmp) / "banque.jsonl"),
+                                      "profiles_dir": profiles or str(Path(tmp) / "profiles")}))
         return cli(stdin, "--config", str(config), *filter(None, [mode]), *args)
 
 
@@ -190,6 +191,28 @@ def test_seed_replays_the_same_situations():
     first, second, other = (chat("2\n/exercice\n/exercice\n/quit\n", "--seed", seed, mode=None).stdout
                             for seed in ("7", "7", "8"))
     assert first == second and first != other
+
+
+def test_pseudo_remembers_the_level_and_resumes_the_debrief():
+    with tempfile.TemporaryDirectory() as profiles:
+        first = chat("1\nf\npourquoi ?\n/quit\n", "--pseudo", "amine", mode=None, profiles=profiles)
+        assert "Quel est ton niveau" in first.stdout
+
+        again = chat("/reprendre\net au bouton ?\n/quit\n", "--pseudo", "Amine", mode=None, profiles=profiles)
+    assert "Quel est ton niveau" not in again.stdout
+    assert "Re-bonjour amine · niveau : Je découvre" in again.stdout
+    assert "Dernière situation ·" in again.stdout and "Coach : Hello" in again.stdout
+    assert [m["content"] for m in FakeOllama.requests[-1]["messages"][1:]] == ["pourquoi ?", "Hello", "et au bouton ?"]
+
+
+def test_reprendre_without_a_profile_says_there_is_nothing():
+    p = chat("1\n/reprendre\n/quit\n", mode=None)
+    assert "Rien à reprendre" in p.stdout
+
+
+def test_a_bad_pseudo_is_refused():
+    p = chat("", "--pseudo", "../x", mode=None)
+    assert p.returncode == 1 and "pseudo" in p.stderr
 
 
 def test_end_of_input_leaves_the_trainer_at_any_step():
