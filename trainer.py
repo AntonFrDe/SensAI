@@ -17,6 +17,7 @@ NIVEAUX = {
     "avance": "Je joue souvent (je calcule mes cotes)",
 }
 THEMES_PAR_NIVEAU = {"debutant": ("ouverture",), "intermediaire": ("ouverture", "tirage"), "avance": ("tirage",)}
+POIDS_ERREUR = 2   # un thème toujours raté pèse 1 + 2 = 3 fois plus qu'un thème réussi
 
 
 def noter(reference: dict, action: str) -> str:
@@ -57,6 +58,13 @@ class Session:
         self._garder(niveau=choix)
         return choix
 
+    def choisir_theme(self) -> str:
+        """Un thème du niveau ; un thème raté revient plus souvent (jusqu'à 3 fois plus s'il est toujours raté)."""
+        themes = THEMES_PAR_NIVEAU[self.niveau]
+        resultats = self.profil["resultats"] if self.profil else {}
+        poids = [1 + POIDS_ERREUR * profils.taux_erreur(resultats[t]) if t in resultats else 1 for t in themes]
+        return self.rng.choices(themes, poids)[0]
+
     def nouvelle_situation(self) -> dict:
         """Une situation d'un thème du niveau, jamais vue dans la session ; oublie la décision précédente.
 
@@ -64,7 +72,7 @@ class Session:
         """
         if self.niveau is None:
             raise ValueError("choisis d'abord un niveau")
-        theme = self.rng.choice(THEMES_PAR_NIVEAU[self.niveau])
+        theme = self.choisir_theme()
         banque = [s for s in generation.lire_banque(self.cfg)
                   if s["theme"] == theme and s["niveau"] == self.niveau and generation.cle(theme, s) not in self.vues]
         situation = self.rng.choice(banque) if banque else generation.tirer(theme, self.niveau, self.rng, self.vues)

@@ -113,6 +113,14 @@ def test_the_profile_keeps_the_level_and_the_results():
         assert retour.niveau == "intermediaire"   # a known player skips the level question
 
 
+def test_a_missed_theme_comes_back_more_often():
+    rate = {**profils.nouveau("amine"), "niveau": "intermediaire",
+            "resultats": {"tirage": {"bon": 0, "acceptable": 0, "erreur": 4}}}
+    s = trainer.Session(CFG, rng=random.Random(0), profil=rate)
+    tirages = sum(s.choisir_theme() == "tirage" for _ in range(1000))
+    assert 700 < tirages < 800   # 3 chances in 4
+
+
 def debrief(s, texte):
     return "".join(data for kind, data in s.discuter(texte) if kind == "token")
 
