@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 
 import generation
+import profils
 import trainer
 from fake_ollama import FakeOllama, start
 from llm import LLMError
@@ -95,6 +96,21 @@ def test_a_new_situation_forgets_the_previous_decision():
     s.decider("fold")
     s.nouvelle_situation()
     assert s.action is None and s.verdict is None
+
+
+def test_the_profile_keeps_the_level_and_the_results():
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg = {**CFG, "profiles_dir": tmp}
+        s = trainer.Session(cfg, rng=random.Random(0), profil=profils.nouveau("amine"))
+        s.choisir_niveau("2")
+        theme = s.nouvelle_situation()["theme"]
+        s.decider("fold")
+        relu = profils.charger("amine", cfg)
+        assert relu["niveau"] == "intermediaire"
+        assert sum(relu["resultats"][theme].values()) == 1
+
+        retour = trainer.Session(cfg, profil=relu)
+        assert retour.niveau == "intermediaire"   # a known player skips the level question
 
 
 def debrief(s, texte):

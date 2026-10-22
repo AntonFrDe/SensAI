@@ -8,6 +8,7 @@ from contextlib import closing
 
 import coach
 import generation
+import profils
 from mcp_client import Toolbox
 
 NIVEAUX = {
@@ -30,11 +31,13 @@ def noter(reference: dict, action: str) -> str:
 class Session:
     """Une session d'un joueur. Les situations ne demandent pas d'appel au modèle : elles arrivent tout de suite."""
 
-    def __init__(self, cfg: dict, toolbox: Toolbox | None = None, rng: random.Random | None = None):
+    def __init__(self, cfg: dict, toolbox: Toolbox | None = None, rng: random.Random | None = None,
+                 profil: dict | None = None):
         self.cfg = cfg
         self.toolbox = toolbox or Toolbox({})
         self.rng = rng or random.Random()
-        self.niveau: str | None = None
+        self.profil = profil   # None : session anonyme, rien n'est enregistré
+        self.niveau: str | None = profil["niveau"] if profil else None
         self.situation: dict | None = None
         self.action: str | None = None
         self.verdict: str | None = None
@@ -51,6 +54,7 @@ class Session:
         if choix not in NIVEAUX:
             raise ValueError(f"niveau inconnu : {choix!r}")
         self.niveau = choix
+        self._garder(niveau=choix)
         return choix
 
     def nouvelle_situation(self) -> dict:
@@ -76,6 +80,9 @@ class Session:
         if action not in self.situation["actions"]:
             raise ValueError(f"action impossible ici : {action!r}")
         self.action, self.verdict = action, noter(self.situation["reference"], action)
+        if self.profil:
+            self.profil = profils.noter(self.profil, self.situation["theme"], self.verdict)
+            self._garder()
         return self.verdict
 
     def discuter(self, texte: str) -> Iterator[tuple[str, object]]:
@@ -94,6 +101,12 @@ class Session:
                 if kind == "fin" and data[0][-1]["content"]:
                     self.debrief = [*self.debrief, *data[0]]
                 yield kind, data
+
+    def _garder(self, **champs) -> None:
+        """Met à jour le profil et l'enregistre, si la session en a un."""
+        if self.profil:
+            self.profil = {**self.profil, **champs}
+            profils.enregistrer(self.profil, self.cfg)
 
     def oublier(self) -> None:
         """Oublie le débrief en cours, pas la situation."""
