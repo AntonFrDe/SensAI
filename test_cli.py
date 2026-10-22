@@ -21,15 +21,18 @@ def cli(stdin, *args):
 POKER_TOOLS = {"poker": {"command": [sys.executable, "mcp_server.py"]}}
 
 
-def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None):
-    """Run the CLI with a throwaway config pointing at the fake Ollama (and at MCP servers, if any)."""
+def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None, mode="--libre"):
+    """Run the CLI with a throwaway config pointing at the fake Ollama (and at MCP servers, if any).
+
+    The plain chat (--libre) by default; mode=None runs the trainer.
+    """
     FakeOllama.reset()
     FakeOllama.tool_call = tool_call
     with tempfile.TemporaryDirectory() as tmp:
         config = Path(tmp) / "config.json"
         config.write_text(json.dumps({"model": model, "ollama_url": url, "num_ctx": 1024,
                                       "system_prompt_file": "prompts/system.txt", "mcp_servers": servers or {}}))
-        return cli(stdin, "--config", str(config), *args)
+        return cli(stdin, "--config", str(config), *filter(None, [mode]), *args)
 
 
 def roles(request):
@@ -98,7 +101,7 @@ def test_ctrl_c_stops_the_answer_and_keeps_the_session():
         config = Path(tmp) / "config.json"
         config.write_text(json.dumps({"model": "slow1", "ollama_url": OLLAMA, "num_ctx": 1024,
                                       "system_prompt_file": "prompts/system.txt"}))
-        p = subprocess.Popen([sys.executable, str(ROOT / "main.py"), "--config", str(config)], cwd=ROOT,
+        p = subprocess.Popen([sys.executable, str(ROOT / "main.py"), "--config", str(config), "--libre"], cwd=ROOT,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         p.stdin.write("hi\n")
         p.stdin.flush()

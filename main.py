@@ -1,21 +1,28 @@
-"""SensAI in the terminal: chat with a local Ollama model, answers streamed as they are written.
+"""SensAI in the terminal: a poker trainer. It asks your level, deals a situation, grades your decision against a
+reference computed by the code, then the coach (a local Ollama model) debriefs it, answers streamed as written.
 
-    python3 main.py [--model M] [--config config.json] [--no-tools]
+    python3 main.py [--model M] [--config config.json] [--no-tools] [--seed N] [--libre]
 
-Commands: /reset forgets the conversation, /tools lists the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an answer.
+Commands: /exercice deals the next situation, /niveau changes the level, /reset forgets the debrief, /tools lists
+the tools, /quit (or Ctrl-D) leaves, Ctrl-C stops an answer. --libre is the plain chat, without the trainer.
 The model can call the tools of the MCP servers listed under "mcp_servers" in the config (see mcp_client.py).
 """
 import argparse
 import json
+import random
 import sys
 from collections.abc import Iterator
 from contextlib import closing
 
 import coach
+import generation
+import trainer
 from llm import ROOT, LLMError, list_models, load_config
 from mcp_client import Toolbox
 
 DIM, RED, RESET = "\033[2m", "\033[31m", "\033[0m"
+KEYS = {"fold": "f", "call": "c", "raise": "r"}
+ICONS = {"bon": "✅", "acceptable": "🟡", "erreur": "❌"}
 
 
 def style(text: str, code: str, stream) -> str:
@@ -125,11 +132,93 @@ def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
             history = [*history, *turn]
 
 
+def ask_level(session: trainer.Session) -> bool:
+    """Ask the level until the answer is one; False if the player leaves instead."""
+    print("Quel est ton niveau au poker ?")
+    for number, label in enumerate(trainer.NIVEAUX.values(), 1):
+        print(f"  {number}. {label}")
+    while True:
+        text = read_line()
+        if text is None or text in ("/quit", "/exit"):
+            return False
+        try:
+            session.choisir_niveau(text)
+            return True
+        except ValueError:
+            print(f"Réponds par un numéro de 1 à {len(trainer.NIVEAUX)}.")
+
+
+def choices(situation: dict) -> str:
+    return "   ".join(f"[{KEYS[a]}] {generation.LIBELLES[a]}" for a in situation["actions"])
+
+
+def deal(session: trainer.Session) -> None:
+    situation = session.nouvelle_situation()
+    print(f"\nSituation {session.numero} · {generation.decrire(situation)}")
+    print(f"Que fais-tu ?  {choices(situation)}")
+
+
+def or_list(actions: list[str]) -> str:
+    return " ou ".join(generation.LIBELLES[a] for a in actions)
+
+
+def decide(session: trainer.Session, text: str) -> None:
+    """Grade the action of the key typed, then show the reference it was graded against."""
+    action = {KEYS[a]: a for a in session.situation["actions"]}.get(text.lower())
+    if action is None:
+        print(f"Choisis une action : {choices(session.situation)}")
+        return
+    verdict = session.decider(action)
+    reference = session.situation["reference"]
+    if verdict == "bon":
+        print(f"{ICONS[verdict]} Bon : {generation.LIBELLES[action]} est la bonne action.")
+    elif verdict == "acceptable":
+        print(f"{ICONS[verdict]} Acceptable : situation limite, {or_list(reference['acceptables'])} se défendent.")
+    else:
+        best = reference["bonnes"] or reference["acceptables"]
+        print(f"{ICONS[verdict]} Erreur : il fallait {or_list(best)}.")
+    for fact in reference["faits"]:
+        print(f"- {fact}")
+    note("Pose tes questions au coach · /exercice : situation suivante · /niveau : changer de niveau")
+
+
+def trainer_loop(cfg: dict, toolbox: Toolbox, rng: random.Random | None = None) -> int:
+    session = trainer.Session(cfg, toolbox, rng)
+    tools = f" · {len(toolbox.specs)} outils (/tools)" if toolbox.specs else ""
+    print(f"SensAI · {cfg['model']}{tools} · /exercice · /niveau · /reset · /quit")
+    if not ask_level(session):
+        return 0
+    deal(session)
+    while True:
+        text = read_line()
+        if text is None or text in ("/quit", "/exit"):
+            return 0
+        if not text:
+            print("Message vide : écris quelque chose.")
+        elif text == "/tools":
+            list_tools(toolbox)
+        elif text == "/exercice":
+            deal(session)
+        elif text == "/niveau":
+            if not ask_level(session):
+                return 0
+            deal(session)
+        elif text == "/reset":
+            session.oublier()
+            print("Débrief oublié.")
+        elif session.action is None:
+            decide(session, text)
+        else:
+            show(session.discuter(text))
+
+
 def main() -> int:
-    ap = argparse.ArgumentParser(description="SensAI : chat en ligne de commande avec un modèle Ollama local")
+    ap = argparse.ArgumentParser(description="SensAI : entraîneur de poker en ligne de commande, avec un modèle Ollama local")
     ap.add_argument("--model", help="modèle à utiliser (sinon celui de la config)")
     ap.add_argument("--config", default=str(ROOT / "config.json"), help="fichier de configuration (défaut : config.json)")
     ap.add_argument("--no-tools", action="store_true", help="ne lancer aucun serveur MCP")
+    ap.add_argument("--seed", type=int, help="graine du tirage des situations, pour rejouer la même session")
+    ap.add_argument("--libre", action="store_true", help="chat libre avec le modèle, sans le parcours d'exercices")
     args = ap.parse_args()
 
     try:
@@ -148,7 +237,10 @@ def main() -> int:
     try:
         for warning in toolbox.warnings:  # a broken tool server must not stop the chat
             fail(f"outils indisponibles, {warning}")
-        return chat_loop({**cfg, "tools": toolbox.specs}, toolbox)
+        cfg = {**cfg, "tools": toolbox.specs}
+        if args.libre:
+            return chat_loop(cfg, toolbox)
+        return trainer_loop(cfg, toolbox, random.Random(args.seed))
     finally:
         toolbox.close()
 
