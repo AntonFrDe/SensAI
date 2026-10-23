@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { fetchGlossary, type GlossaryEntry } from './api';
 
-export type GlossaryScreenProps = { onBack: () => void };
-
 function plain(text: string): string {
   return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
-export default function GlossaryScreen({ onBack }: GlossaryScreenProps) {
+export default function GlossaryScreen() {
   const [entries, setEntries] = useState<GlossaryEntry[]>([]);
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
@@ -30,7 +28,6 @@ export default function GlossaryScreen({ onBack }: GlossaryScreenProps) {
   return (
     <section className="glossary" aria-label="Glossaire du poker">
       <h2>Glossaire du poker</h2>
-      <button type="button" onClick={onBack}>← Accueil</button>
       <label className="glossary-search">Chercher un terme
         <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Ex. : kicker, flop, bouton" />
       </label>

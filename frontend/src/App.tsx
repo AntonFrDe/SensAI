@@ -18,7 +18,10 @@ import HandLog from './HandLog';
 import HandRankings from './HandRankings';
 import { useHandLog } from './handLog';
 import HomeScreen from './HomeScreen';
+import JetonShell from './JetonShell';
 import OddsPanel from './OddsPanel';
+import PageHeader from './PageHeader';
+import type { View } from './navigation';
 import TrainerApp from './TrainerApp';
 import { handLabels } from './HandBadge';
 import './styles.css';
@@ -50,7 +53,7 @@ function describeAward({ amount, winners, reason }: Award, hands?: GameState['ha
 }
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'game' | 'banque' | 'glossary' | 'rankings' | 'records' | 'trainer'>('home');
+  const [view, setView] = useState<View>('trainer');
   const [game, setGame] = useState<GameResponse | null>(null);
   const [version, setVersion] = useState(0);  // remounts the coach: its advice is about one table state
   const [busy, setBusy] = useState<'' | 'player' | 'opponent'>('');
@@ -102,7 +105,7 @@ export default function App() {
       const result = await postGame(path, body);
       setGame(result);
       setVersion(previous => previous + 1);
-      setView('game');
+      setView(current => (current === 'setup' ? 'game' : current));
       setOpponentMove(result.opponentAction ? describeMove(result.opponentAction) : '');  // stale once you act
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Connexion au serveur impossible.');
@@ -119,16 +122,19 @@ export default function App() {
     if (game && opponentToPlay && !busy && !error) void send('/api/opponent', { gameId: game.gameId }, 'opponent');
   }, [game, opponentToPlay, busy, error]);
 
-  return (
-    <main>
-      <h1>SensAI Poker</h1>
-      {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
-      {view === 'trainer' ? <TrainerApp onBack={() => setView('home')} /> : view === 'banque' ? <Banque onBack={() => setView('home')} /> : view === 'glossary' ? <GlossaryScreen onBack={() => setView('home')} />
-        : view === 'rankings' ? <HandRankings onBack={() => setView('home')} />
-        : view === 'records' ? <GameRecords records={records} onClear={clearRecords} onBack={() => setView('home')} /> : view === 'home' || !game || !state ? <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
-        onOpenBanque={() => setView('banque')} onOpenGlossary={() => setView('glossary')} onOpenRankings={() => setView('rankings')} onOpenRecords={() => setView('records')} onOpenTrainer={() => setView('trainer')}
-        savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame}
-        preferences={preferences} onPreferencesChange={setPreferences} /> : <section aria-label="Partie">
+  if (view === 'trainer') return <TrainerApp onNavigate={setView} />;
+
+  let page = null;
+  if (view === 'banque') page = <Banque />;
+  else if (view === 'glossary') page = <GlossaryScreen />;
+  else if (view === 'rankings') page = <HandRankings />;
+  else if (view === 'records') page = <GameRecords records={records} onClear={clearRecords} />;
+  else if (view === 'setup' || !game || !state) {
+    page = <HomeScreen options={options} busy={busy !== ''} onPlay={startGame}
+      savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame}
+      preferences={preferences} onPreferencesChange={setPreferences} />;
+  } else {
+    page = <section aria-label="Partie">
         <h2>Table de poker</h2>
         <div className="game-layout">
           <PokerTable {...state}
@@ -156,11 +162,22 @@ export default function App() {
         </section>}
         <HandLog hands={playedHands} />
         <div className="game-footer">
-          <button type="button" disabled={busy !== ''} onClick={() => setView('home')}>Retour à l’accueil</button>
+          <button type="button" disabled={busy !== ''} onClick={() => setView('trainer')}>Retour à l’entraîneur</button>
           <button type="button" className="link-button" onClick={() => setTouring(true)}>Visite guidée</button>
         </div>
         {touring && <GuidedTour onClose={() => setTouring(false)} />}
-      </section>}
-    </main>
+      </section>;
+  }
+
+  return (
+    <JetonShell label="SensAI">
+      <div className="jt-wrap">
+        <PageHeader view={view} onNavigate={setView} />
+        <main className="jt-page">
+          {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}
+          {page}
+        </main>
+      </div>
+    </JetonShell>
   );
 }

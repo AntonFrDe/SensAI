@@ -127,9 +127,11 @@ cd frontend && npm install && npm run dev          # puis http://localhost:5173 
 
 L'interface (détails, routes et user stories dans `docs/FRONTEND.md`) :
 
-- **Accueil** : blindes et tapis de départ au choix, reprise de la partie en cours après un rechargement, état
-  d'Ollama et des modèles avec la commande `ollama pull` à copier, préférences d'affichage (thème clair, jeu à
-  quatre couleurs, grandes cartes, animations).
+- **Entraîneur Jeton** (écran d'accueil, plein écran) : niveau, situation, correction, débrief et fiche. Le menu
+  **Plus** de l'en-tête ouvre les autres modes, et chaque page revient à l'entraîneur par « Entraîneur ».
+- **Partie contre l'IA** (menu) : blindes et tapis de départ au choix, reprise de la partie en cours après un
+  rechargement, état d'Ollama et des modèles avec la commande `ollama pull` à copier, préférences d'affichage (thème
+  clair, jeu à quatre couleurs, grandes cartes, animations).
 - **Table** : donneur, blindes, mises du tour et dernière action sur chaque siège ; nom de votre main et de ses
   cinq cartes, calculé par l'évaluateur du moteur ; termes reliés au glossaire.
 - **Actions** : seules les actions légales sont actives ; montants rapides (½ pot, ¾ pot, pot, tapis), curseur,
@@ -137,7 +139,8 @@ L'interface (détails, routes et user stories dans `docs/FRONTEND.md`) :
 - **Coach** en chat (questions de suite, arrêt), **Repères** chiffrés par le code (cote du pot, équité, outs),
   **Statistiques** de la partie et depuis toujours, bilan ajoutable à `notes/sessions.md` (lu par le coach CLI).
 - **Mains précédentes** : revoir une main étape par étape, courbe du tapis, export texte ou JSON, bilan de fin
-  de partie. Pages **Mes parties**, **Glossaire** et **Classement des mains** ; visite guidée à la première partie.
+  de partie. Pages **Mes parties**, **Glossaire**, **Classement des mains** et **Banque de situations**, dans le menu
+  **Plus** ; visite guidée à la première partie.
 
 ## Question en ligne de commande
 

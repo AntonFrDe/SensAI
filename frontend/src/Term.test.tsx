@@ -37,8 +37,7 @@ describe('GlossaryScreen', () => {
       { term: 'Équité', aliases: [], definition: 'Part du pot qui vous revient en moyenne.' },
       { term: 'Flop', aliases: [], definition: 'Les trois premières cartes communes.' },
     ] }));
-    const onBack = vi.fn();
-    render(<GlossaryScreen onBack={onBack} />);
+    render(<GlossaryScreen />);
     expect(await screen.findByText('3 termes')).toBeInTheDocument();
     await userEvent.type(screen.getByRole('searchbox', { name: 'Chercher un terme' }), 'equi');
     expect(screen.getByText('1 terme')).toBeInTheDocument();
@@ -46,13 +45,11 @@ describe('GlossaryScreen', () => {
     await userEvent.clear(screen.getByRole('searchbox'));
     await userEvent.type(screen.getByRole('searchbox'), 'dealer');
     expect(screen.getByText('Marque le donneur.')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: '← Accueil' }));
-    expect(onBack).toHaveBeenCalledOnce();
   });
 
   it('reports an unavailable glossary', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({}, { status: 500 }));
-    render(<GlossaryScreen onBack={vi.fn()} />);
+    render(<GlossaryScreen />);
     expect(await screen.findByRole('alert')).toHaveTextContent('Glossaire indisponible.');
   });
 });

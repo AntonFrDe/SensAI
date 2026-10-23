@@ -72,7 +72,7 @@ afterEach(() => {
 describe('TrainerApp', () => {
   it('walks through a level, a situation, the verdict, the debrief and the summary', async () => {
     const fetchMock = routerFetch();
-    render(<TrainerApp onBack={vi.fn()} />);
+    render(<TrainerApp onNavigate={vi.fn()} />);
 
     await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
     expect(await screen.findByText(/Table 6 joueurs, 100 blindes/)).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('TrainerApp', () => {
   it('sends the pseudo once when none is stored, then opens the session with it', async () => {
     localStorage.clear();
     const fetchMock = routerFetch();
-    render(<TrainerApp onBack={vi.fn()} />);
+    render(<TrainerApp onNavigate={vi.fn()} />);
     await userEvent.type(await screen.findByRole('textbox', { name: 'Ton pseudo' }), 'Sam');
     await userEvent.click(screen.getByRole('button', { name: 'C’est moi' }));
     expect(await screen.findByRole('button', { name: /Je découvre/ })).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('TrainerApp', () => {
   it('refuses an invalid pseudo before calling the server', async () => {
     localStorage.clear();
     const fetchMock = routerFetch();
-    render(<TrainerApp onBack={vi.fn()} />);
+    render(<TrainerApp onNavigate={vi.fn()} />);
     await userEvent.type(await screen.findByRole('textbox', { name: 'Ton pseudo' }), 'Élise');
     await userEvent.click(screen.getByRole('button', { name: 'C’est moi' }));
     expect(screen.getByText(/Pseudo : 1 à 32 lettres sans accent/)).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe('TrainerApp', () => {
     routerFetch({
       'POST /api/sessions/s1/decision': () => Response.json({ error: 'action impossible ici' }, { status: 400 }),
     });
-    render(<TrainerApp onBack={vi.fn()} />);
+    render(<TrainerApp onNavigate={vi.fn()} />);
     await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
     await userEvent.click(await screen.findByRole('button', { name: /Relancer/ }));
     expect(await screen.findByText('action impossible ici')).toBeInTheDocument();
@@ -139,7 +139,7 @@ describe('TrainerApp', () => {
 
   it('plays the decision with the keyboard shortcut of the action', async () => {
     const fetchMock = routerFetch();
-    render(<TrainerApp onBack={vi.fn()} />);
+    render(<TrainerApp onNavigate={vi.fn()} />);
     await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
     await screen.findByRole('button', { name: /Relancer/ });
     await act(async () => {
@@ -152,7 +152,7 @@ describe('TrainerApp', () => {
 
   it('lists the steps and keeps the later ones closed until a decision exists', async () => {
     routerFetch();
-    render(<TrainerApp onBack={vi.fn()} />);
+    render(<TrainerApp onNavigate={vi.fn()} />);
     const etapes = await screen.findByRole('navigation', { name: 'Étapes de l’exercice' });
     expect(within(etapes).getByRole('button', { name: 'Niveau' })).toBeEnabled();
     expect(within(etapes).getByRole('button', { name: 'Correction' })).toBeDisabled();
