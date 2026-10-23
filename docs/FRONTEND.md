@@ -11,8 +11,8 @@ python3 server.py                          # API sur http://127.0.0.1:8000
 cd frontend && npm install && npm run dev  # http://localhost:5173, Vite relaie /api vers le port 8000
 ```
 
-Sans Ollama, la partie reste jouable : l'IA joue avec sa règle de secours et l'écran d'accueil dit quel modèle
-manque (voir « État de l'IA locale »). `SENSAI_API=http://127.0.0.1:<port> npm run dev` relaie vers un autre
+Sans Ollama, la partie reste jouable : l'IA joue avec sa règle de secours et l'écran « Partie contre l'IA » dit quel
+modèle manque (voir « État de l'IA locale »). `SENSAI_API=http://127.0.0.1:<port> npm run dev` relaie vers un autre
 backend.
 
 ## Choix techniques
@@ -33,16 +33,22 @@ dans des modules `camelCase.ts` testés à part. Tous les appels HTTP sont dans 
 
 | Écran ou zone | Composants | Logique |
 |---|---|---|
-| Accueil | `HomeScreen` (blindes, tapis de départ, reprise de partie), `ServerStatus`, `PreferencesPanel` | `savedGame.ts`, `preferences.ts` |
+| Accueil : entraîneur Jeton, plein écran | `TrainerApp` (écrans Jeton), `TrainerHeader` | `progress.ts`, `sfx.ts`, `tilt.ts` |
+| Navigation (en-tête commun) | `JetonShell` (fond et cadre), `JetonBrand`, `PageHeader` (retour « Entraîneur »), `ModeMenu` (menu « Plus ») | `navigation.ts` |
+| Partie contre l'IA (préparation) | `HomeScreen` (blindes, tapis de départ, reprise de partie), `ServerStatus`, `PreferencesPanel` | `savedGame.ts`, `preferences.ts` |
 | Visite guidée | `GuidedTour` (première partie, puis bouton « Visite guidée ») | — |
 | Table | `PokerTable`, `Seat`, `PlayingCard`, `CommunityCards`, `HandInfo`, `HandBadge`, `OpponentNote`, `Term` | — |
 | Actions | `ActionControls` (boutons, montant, curseur, montants rapides, raccourcis) | `betSizing.ts`, `shortcuts.ts` |
 | Colonne de droite | `CoachPanel` (chat), `OddsPanel` (repères), `SessionStats` | `sessionStats.ts` |
 | Après les mains | `HandHistory`, `HandLog`, `HandReplay`, `StackChart`, `GameSummary` | `handTracking.ts`, `handLog.ts`, `handExport.ts` |
 | Mes parties | `GameRecords` (date, blindes, mains, gagnées, bilan, résultat) | `gameRecords.ts` |
-| Pages d'aide | `GlossaryScreen`, `HandRankings`, `Banque` (situations générées, partie d'Anton) | — |
+| Pages d'aide | `GlossaryScreen`, `HandRankings`, `Banque` (situations générées, partie d'Anton) : accès par le menu, retour par l'en-tête | — |
 
-`App.tsx` tient la partie en cours, envoie les actions et demande à l'IA de jouer quand c'est son tour.
+`App.tsx` tient la partie en cours, envoie les actions et demande à l'IA de jouer quand c'est son tour. Il choisit la
+vue : l'entraîneur Jeton s'ouvre en premier, les autres modes (`navigation.ts`) s'affichent dans `JetonShell` avec
+l'en-tête commun. Le menu « Plus » propose les cinq modes ; la partie en cours reste reprenable depuis
+« Partie contre l'IA », y compris après un rechargement. Changer de mode remonte l'entraîneur à son premier écran
+(la progression reste dans le navigateur).
 `useHandTracking` détecte la fin de chaque main (passage à l'abattage) ; les statistiques et le journal des mains
 s'y abonnent, ce qui évite deux détections différentes.
 
@@ -178,10 +184,14 @@ par un test Vitest, un test Playwright ou un essai dans le navigateur.
    - « Reprendre la partie » rend les mêmes cartes et les mêmes tapis.
    - Une partie que le serveur ne connaît plus est oubliée sans message d'erreur.
 3. En tant que joueur dont Ollama n'est pas prêt, je veux savoir ce qui manque, afin de le réparer seul.
-   - L'accueil dit si Ollama répond et si les modèles du coach et de l'adversaire sont installés.
+   - L'écran « Partie contre l'IA » dit si Ollama répond et si les modèles du coach et de l'adversaire sont installés.
    - La commande `ollama pull` exacte se copie en un clic.
 4. En tant que tout nouveau joueur, je veux une visite de la table, afin de savoir où regarder.
    - À la première partie, quatre étapes encadrent tour à tour mes cartes, les actions, le coach et les mains.
    - « Passer la visite » ou Échap la ferme pour de bon ; « Visite guidée » la relance.
 5. En tant que joueur qui voit mal certaines couleurs, je veux adapter l'affichage, afin de lire les cartes.
    - Jeu à quatre couleurs, grandes cartes, thème clair et animations coupées, retenus d'une visite à l'autre.
+6. En tant que joueur, je veux passer d'un mode à l'autre sans me perdre, afin de revenir à l'entraînement quand je veux.
+   - Le menu « Plus » de l'en-tête donne accès à la partie contre l'IA, à la banque, au glossaire, au classement des mains et à mes parties.
+   - Chaque page a un retour « Entraîneur » ; l'entraîneur s'ouvre toujours sur son premier écran.
+   - Une partie en cours reste reprenable depuis « Partie contre l'IA ».
