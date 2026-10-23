@@ -125,6 +125,7 @@ export default function App() {
   if (view === 'trainer') return <TrainerApp onNavigate={setView} />;
 
   let page = null;
+  let atTable = false;
   if (view === 'banque') page = <Banque />;
   else if (view === 'glossary') page = <GlossaryScreen />;
   else if (view === 'rankings') page = <HandRankings />;
@@ -134,36 +135,39 @@ export default function App() {
       savedGame={game ? (game.state.gameOver ? null : game) : savedGame} onResume={resumeGame}
       preferences={preferences} onPreferencesChange={setPreferences} />;
   } else {
-    page = <section aria-label="Partie">
-        <h2>Table de poker</h2>
+    atTable = true;
+    page = <section className="game-page" aria-label="Partie">
+        <h2 className="sr-only">Table de poker</h2>
         <div className="game-layout">
-          <PokerTable {...state}
-            opponentNote={opponentMove} opponentThinking={busy === 'opponent'}
-            controls={{
-              ...state.controls,
-              onAction: busy ? undefined : (action, amount) => {
-                void send('/api/actions', { gameId: game.gameId, action, amount }, 'player');
-              },
-            }} />
+          <div className="table-column">
+            <PokerTable {...state}
+              opponentNote={opponentMove} opponentThinking={busy === 'opponent'}
+              controls={{
+                ...state.controls,
+                onAction: busy ? undefined : (action, amount) => {
+                  void send('/api/actions', { gameId: game.gameId, action, amount }, 'player');
+                },
+              }} />
+            {state.phase === 'showdown' && <section className="result" aria-label="Résultat de la main" aria-live="polite">
+              {state.awards.map((award, index) => <p key={index}>{describeAward(award, state.hands)}</p>)}
+              {state.gameOver && <GameSummary hands={playedHands} playerWon={state.seats.opponent.stack === 0} />}
+              <button type="button" disabled={busy !== ''} onClick={() => state.gameOver
+                ? startGame(options)
+                : void send('/api/next-hand', { gameId: game.gameId }, 'player')}>
+                {state.gameOver ? 'Nouvelle partie' : 'Main suivante'}
+              </button>
+            </section>}
+            <div className="game-footer">
+              <button type="button" disabled={busy !== ''} onClick={() => setView('trainer')}>Retour à l’entraîneur</button>
+              <button type="button" className="link-button" onClick={() => setTouring(true)}>Visite guidée</button>
+            </div>
+          </div>
           <div className="side-panel">
             <CoachPanel key={version} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
             <OddsPanel key={`odds-${version}`} gameId={game.gameId} available={!busy && state.controls.allowedActions.length > 0} />
             <SessionStats session={stats.session} lifetime={stats.lifetime} onResetLifetime={stats.resetLifetime} />
+            <HandLog hands={playedHands} />
           </div>
-        </div>
-        {state.phase === 'showdown' && <section className="result" aria-label="Résultat de la main" aria-live="polite">
-          {state.awards.map((award, index) => <p key={index}>{describeAward(award, state.hands)}</p>)}
-          {state.gameOver && <GameSummary hands={playedHands} playerWon={state.seats.opponent.stack === 0} />}
-          <button type="button" disabled={busy !== ''} onClick={() => state.gameOver
-            ? startGame(options)
-            : void send('/api/next-hand', { gameId: game.gameId }, 'player')}>
-            {state.gameOver ? 'Nouvelle partie' : 'Main suivante'}
-          </button>
-        </section>}
-        <HandLog hands={playedHands} />
-        <div className="game-footer">
-          <button type="button" disabled={busy !== ''} onClick={() => setView('trainer')}>Retour à l’entraîneur</button>
-          <button type="button" className="link-button" onClick={() => setTouring(true)}>Visite guidée</button>
         </div>
         {touring && <GuidedTour onClose={() => setTouring(false)} />}
       </section>;
@@ -171,7 +175,7 @@ export default function App() {
 
   return (
     <JetonShell label="SensAI">
-      <div className="jt-wrap">
+      <div className={atTable ? 'jt-wrap jt-wrap-wide' : 'jt-wrap'}>
         <PageHeader view={view} onNavigate={setView} />
         <main className="jt-page">
           {error && <p role="alert">{error} {opponentToPlay && <button type="button" onClick={() => setError('')}>Relancer l’IA</button>}</p>}

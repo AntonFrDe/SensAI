@@ -64,30 +64,34 @@ export default function PokerTable({
   const isBest = (card?: CardData) => card !== undefined && best.some(other => sameCard(other, card));
   return (
     <section className="poker-table" aria-label="Table de Texas Hold’em à deux joueurs">
-      <HandInfo phase={phase} currentBet={currentBet} />
-      <Seat seat={withoutBetAfterHand(seatOrStack(seats?.opponent, 'IA', opponentStack), phase)} label="Adversaire IA" avatar="IA" position="top"
-        active={playing && currentPlayer === 'opponent'} lastAction={lastActionOf(history, 'IA', phase)}>
-        {opponentCards.length > 0 && <div className="cards" role="group" aria-label="Cartes de l’IA">
-          {opponentCards.map(card => <PlayingCard key={card.rank + card.suit} card={card} highlighted={isBest(card)} />)}
-        </div>}
-        {revealedForTraining && opponentCards.length > 0 && <p className="training-note">Dévoilées pour l’entraînement</p>}
-        <HandBadge hand={hands?.opponent} owner="Main de l’IA" />
-      </Seat>
-      <OpponentNote thinking={opponentThinking} note={opponentNote} />
-      <div className="table-center">
-        <CommunityCards cards={communityCards} highlighted={best} />
-        <p className="chip-info pot" aria-live="polite"><Term term="pot">Pot</Term> : <ChipAmount amount={pot} /></p>
-        {blinds && <p className="blinds">Blindes : {blinds.small} / {blinds.big}</p>}
+      <div className="table-bar">
+        <HandInfo phase={phase} currentBet={currentBet} />
+        <p className="chip-info" aria-live="polite">Tour : {phase === 'showdown' ? 'main terminée' : currentPlayer === 'player' ? 'à vous de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>
       </div>
-      <Seat seat={withoutBetAfterHand(seatOrStack(seats?.player, 'Vous', playerStack), phase)} label="Vous" avatar="V" position="bottom"
-        active={playing && currentPlayer === 'player'} lastAction={lastActionOf(history, 'Vous', phase)}>
-        <div className="cards" role="group" aria-label="Vos cartes privées">
-          <PlayingCard card={playerCards[0]} highlighted={isBest(playerCards[0])} />
-          <PlayingCard card={playerCards[1]} highlighted={isBest(playerCards[1])} />
+      <div className="felt">
+        <Seat seat={withoutBetAfterHand(seatOrStack(seats?.opponent, 'IA', opponentStack), phase)} label="Adversaire IA" avatar="IA" position="top"
+          active={playing && currentPlayer === 'opponent'} lastAction={lastActionOf(history, 'IA', phase)}>
+          {opponentCards.length > 0 && <div className="cards" role="group" aria-label="Cartes de l’IA">
+            {opponentCards.map(card => <PlayingCard key={card.rank + card.suit} card={card} highlighted={isBest(card)} />)}
+          </div>}
+          {revealedForTraining && opponentCards.length > 0 && <p className="training-note">Dévoilées pour l’entraînement</p>}
+          <HandBadge hand={hands?.opponent} owner="Main de l’IA" />
+        </Seat>
+        <div className="table-center">
+          <CommunityCards cards={communityCards} highlighted={best} />
+          <p className="chip-info pot" aria-live="polite"><Term term="pot">Pot</Term> : <ChipAmount amount={pot} /></p>
+          {blinds && <p className="blinds">Blindes : {blinds.small} / {blinds.big}</p>}
+          <OpponentNote thinking={opponentThinking} note={opponentNote} />
         </div>
-        <HandBadge hand={hands?.player} owner="Votre main" />
-      </Seat>
-      <p className="chip-info" aria-live="polite">Tour : {phase === 'showdown' ? 'main terminée' : currentPlayer === 'player' ? 'à vous de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>
+        <Seat seat={withoutBetAfterHand(seatOrStack(seats?.player, 'Vous', playerStack), phase)} label="Vous" avatar="V" position="bottom"
+          active={playing && currentPlayer === 'player'} lastAction={lastActionOf(history, 'Vous', phase)}>
+          <div className="cards" role="group" aria-label="Vos cartes privées">
+            <PlayingCard card={playerCards[0]} highlighted={isBest(playerCards[0])} />
+            <PlayingCard card={playerCards[1]} highlighted={isBest(playerCards[1])} />
+          </div>
+          <HandBadge hand={hands?.player} owner="Votre main" />
+        </Seat>
+      </div>
       <ActionControls
         {...controls}
         pot={pot}
