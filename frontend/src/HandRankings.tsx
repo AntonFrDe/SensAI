@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchHandRankings, type HandRanking } from './api';
 import PlayingCard from './PlayingCard';
 
-export type HandRankingsProps = { onBack: () => void };
-
-export default function HandRankings({ onBack }: HandRankingsProps) {
+export default function HandRankings() {
   const [rankings, setRankings] = useState<HandRanking[]>([]);
   const [error, setError] = useState('');
 
@@ -20,7 +18,6 @@ export default function HandRankings({ onBack }: HandRankingsProps) {
     <section className="rankings" aria-label="Classement des mains">
       <h2>Classement des mains</h2>
       <p>De la plus forte à la plus faible. Votre main est la meilleure combinaison de 5 cartes parmi vos 2 cartes et les 5 du board.</p>
-      <button type="button" onClick={onBack}>← Accueil</button>
       {error && <p role="alert">{error}</p>}
       <ol className="rankings-list">
         {rankings.map(ranking => (

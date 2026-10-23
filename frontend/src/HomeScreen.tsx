@@ -8,11 +8,6 @@ export type HomeScreenProps = {
   options: TableOptions;
   busy: boolean;
   onPlay: (options: TableOptions) => void;
-  onOpenBanque: () => void;
-  onOpenGlossary?: () => void;
-  onOpenRankings?: () => void;
-  onOpenRecords?: () => void;
-  onOpenTrainer?: () => void;
   savedGame?: GameResponse | null;
   onResume?: () => void;
   preferences?: Preferences;
@@ -25,9 +20,7 @@ const minDepth = 20;
 const maxDepth = 500;
 const formatter = new Intl.NumberFormat('fr-FR');
 
-export default function HomeScreen({
-  options, busy, onPlay, onOpenBanque, onOpenGlossary, onOpenRankings, onOpenRecords, onOpenTrainer, savedGame, onResume, preferences, onPreferencesChange,
-}: HomeScreenProps) {
+export default function HomeScreen({ options, busy, onPlay, savedGame, onResume, preferences, onPreferencesChange }: HomeScreenProps) {
   const [blinds, setBlinds] = useState<BlindLevel>(options.blinds);
   const [depth, setDepth] = useState(String(options.stackBigBlinds));
   const [revealAtEnd, setRevealAtEnd] = useState(options.revealAtEnd ?? false);
@@ -41,8 +34,8 @@ export default function HomeScreen({
   }
 
   return (
-    <section className="home" aria-label="Accueil">
-      <h2>Entraînez-vous au Texas Hold’em</h2>
+    <section className="home" aria-label="Partie contre l’IA">
+      <h2>Partie contre l’IA</h2>
       <p>Affrontez une IA et apprenez à comprendre vos décisions.</p>
       {savedGame && onResume && <div className="resume" role="group" aria-label="Partie en cours">
         <p>Une partie est en cours : votre tapis est de {formatter.format(savedGame.state.seats.player.stack)} jetons,
@@ -84,11 +77,6 @@ export default function HomeScreen({
         </label>
         <div className="home-actions">
           <button type="submit" className="primary" disabled={busy || !validDepth}>{busy ? 'Distribution…' : 'Jouer'}</button>
-          <button type="button" onClick={onOpenBanque}>Banque de situations</button>
-          {onOpenGlossary && <button type="button" onClick={onOpenGlossary}>Glossaire</button>}
-          {onOpenRankings && <button type="button" onClick={onOpenRankings}>Classement des mains</button>}
-          {onOpenRecords && <button type="button" onClick={onOpenRecords}>Mes parties</button>}
-          {onOpenTrainer && <button type="button" onClick={onOpenTrainer}>Entraîneur Jeton</button>}
         </div>
       </form>
       <ServerStatus />

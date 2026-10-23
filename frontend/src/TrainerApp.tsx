@@ -15,6 +15,7 @@ import DebriefScreen from './DebriefScreen';
 import LevelScreen from './LevelScreen';
 import LevelUpOverlay from './LevelUpOverlay';
 import { JetonContext, type JetonLook } from './JetonContext';
+import JetonShell from './JetonShell';
 import Particules from './Particules';
 import SituationScreen from './SituationScreen';
 import SummaryScreen from './SummaryScreen';
@@ -24,10 +25,11 @@ import {
   BADGES, NIVEAU_MENTHE, OBJECTIF_JOUR, chatouiller, chargerProgression, couleurDeJeton, enregistrerProgression, enregistrerPseudo,
   jourDe, lirePseudo, niveauDe, noterExercice, objectifDuJour, ouvrirCoffre, serieEnCours, type Progress,
 } from './progress';
+import type { View } from './navigation';
 import { SFX, sonActif } from './sfx';
 import { ecouterInclinaisons } from './tilt';
 
-export type TrainerAppProps = { onBack: () => void };
+export type TrainerAppProps = { onNavigate: (view: View) => void };
 
 type Decision = { action: TrainerActionKey; verdict: TrainerVerdict; reference: TrainerReference; gain: number };
 type Rafale = { id: number; x: string; y: string; nombre: number; distance: number; duree: number; grand: boolean };
@@ -53,7 +55,7 @@ function ajouterResultat(resultats: TrainerResultats, theme: TrainerTheme, verdi
   return { ...resultats, [theme]: { ...compte, [verdict]: compte[verdict] + 1 } };
 }
 
-export default function TrainerApp({ onBack }: TrainerAppProps) {
+export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   const racine = useRef<HTMLElement>(null);
   const [pseudo, setPseudo] = useState(lirePseudo);
   const [session, setSession] = useState<TrainerSession | null>(null);
@@ -316,14 +318,7 @@ export default function TrainerApp({ onBack }: TrainerAppProps) {
 
   return (
     <JetonContext.Provider value={{ look, pokeLine, onPoke: caresser }}>
-      <section className="jt-app" ref={racine} onClickCapture={rafaleAuClic} aria-label="Entraîneur Jeton">
-        <span className="jt-blob jt-blob-1" />
-        <span className="jt-blob jt-blob-2" />
-        <span className="jt-blob jt-blob-3" />
-        <span className="jt-suit jt-suit-1" aria-hidden="true">♠</span>
-        <span className="jt-suit jt-suit-2" aria-hidden="true">♥</span>
-        <span className="jt-suit jt-suit-3" aria-hidden="true">♣</span>
-        <span className="jt-suit jt-suit-4" aria-hidden="true">♦</span>
+      <JetonShell shellRef={racine} onClickCapture={rafaleAuClic} label="Entraîneur Jeton">
         <div className="jt-wrap">
           <TrainerHeader
             pseudo={pseudo}
@@ -331,7 +326,7 @@ export default function TrainerApp({ onBack }: TrainerAppProps) {
             serie={serie}
             objectif={objectif}
             onSon={() => setProgression(actuel => ({ ...actuel, son: !actuel.son }))}
-            onAccueil={onBack}
+            onNavigate={onNavigate}
           />
           <div className="jt-prog" aria-hidden="true">
             <div className="jt-progf" style={{ width: `${largeurEtape}%` }} />
@@ -361,7 +356,7 @@ export default function TrainerApp({ onBack }: TrainerAppProps) {
             <Particules nombre={rafale.nombre} distance={rafale.distance} duree={rafale.duree} grand={rafale.grand} />
           </span>
         ))}
-      </section>
+      </JetonShell>
     </JetonContext.Provider>
   );
 }

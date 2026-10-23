@@ -1,7 +1,7 @@
 :root { font-family: system-ui, sans-serif; color: #f1f5f9; background: #101820; }
 * { box-sizing: border-box; }
 body { margin: 0; }
-main { max-width: 900px; margin: auto; padding: 24px; }
+
 button { font: inherit; padding: 12px 20px; border: 0; border-radius: 8px; cursor: pointer; }
 button:focus-visible { outline: 3px solid #fbbf24; outline-offset: 4px; }
 .poker-table { display: grid; gap: 24px; margin: 24px 0; padding: 32px 16px; border: 12px solid #593b2c; border-radius: 100px; background: #14532d; }
@@ -44,7 +44,7 @@ kbd { padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; font
 .shortcut-help dl div { display: grid; grid-template-columns: 5em 1fr; gap: 8px; }
 .shortcut-help dd { margin: 0; }
 .game-layout { display: grid; gap: 24px; align-items: start; }
-@media (min-width: 900px) { main { max-width: 1200px; } .game-layout { grid-template-columns: minmax(0, 1fr) 320px; } }
+@media (min-width: 900px) { .game-layout { grid-template-columns: minmax(0, 1fr) 320px; } }
 .ai-note { min-height: 1.5em; margin: 0; text-align: center; color: #bae6fd; }
 .ai-note.thinking { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; }
 .elapsed { color: #94a3b8; font-variant-numeric: tabular-nums; }
@@ -183,7 +183,6 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .playing-card { transition: transform .15s ease-out, box-shadow .15s ease-out; }
 .actions button, .home-actions button { min-height: 44px; }
 @media (max-width: 600px) {
-  main { padding: 12px; }
   h1 { font-size: 1.5rem; }
   .poker-table { gap: 16px; padding: 20px 8px; border-width: 8px; border-radius: 40px; }
   .playing-card { width: 46px; height: 66px; font-size: 1.1rem; }
@@ -289,7 +288,7 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 [data-theme='light'] .chart-grid { stroke: #e2e8f0; }
 [data-theme='light'] .chart-end { fill: #0f172a; }
 [data-theme='light'] .chart-dot { stroke: #fff; }
-.jt-app{font-family:'Rubik',system-ui,sans-serif;color:#fff;background:#1A1042;border-radius:32px;position:relative;overflow:hidden;font-size:15px;line-height:1.5;--pink:#FF4F8B;--pinkD:#C22D63;--yel:#FFC83D;--yelD:#D3940A;--sky:#3EC5FF;--skyD:#1A8BC7;--mint:#2EE59D;--mintD:#12A56B;--red:#FF5E62;--redD:#C7383D;--lav:#A98BFF;--soft:#C7BBF2;--g1:rgba(255,255,255,.07);--g2:rgba(255,255,255,.13)}
+.jt-app{font-family:'Rubik',system-ui,sans-serif;color:#fff;background:#1A1042;min-height:100vh;position:relative;overflow:hidden;font-size:15px;line-height:1.5;--pink:#FF4F8B;--pinkD:#C22D63;--yel:#FFC83D;--yelD:#D3940A;--sky:#3EC5FF;--skyD:#1A8BC7;--mint:#2EE59D;--mintD:#12A56B;--red:#FF5E62;--redD:#C7383D;--lav:#A98BFF;--soft:#C7BBF2;--g1:rgba(255,255,255,.07);--g2:rgba(255,255,255,.13)}
 .jt-app *{box-sizing:border-box}
 .jt-app button{font-family:inherit}
 .jt-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;pointer-events:none}
@@ -300,7 +299,7 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .jt-suit-2{font-size:70px;left:auto;right:6%;top:12%;animation-delay:-3s}
 .jt-suit-3{font-size:110px;left:auto;right:10%;top:62%;animation-delay:-6s}
 .jt-suit-4{font-size:80px;left:12%;top:80%;animation-delay:-2s}
-.jt-wrap{position:relative;z-index:1;padding:18px 22px 26px}
+.jt-wrap{position:relative;z-index:1;width:100%;max-width:1080px;margin:0 auto;padding:18px 22px 26px}
 .jt-glass{background:var(--g1);border:1px solid var(--g2);border-radius:26px;backdrop-filter:blur(14px)}
 .jt-btn{--c:var(--g2);--sh:rgba(0,0,0,.35);position:relative;overflow:hidden;font-family:inherit;font-weight:700;font-size:15px;color:#fff;background:var(--c);border:none;border-radius:18px;padding:13px 20px;height:auto;box-shadow:0 5px 0 var(--sh);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s cubic-bezier(.3,1.8,.5,1),box-shadow .15s,filter .2s}
 .jt-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 8px 0 var(--sh);filter:brightness(1.1)}
@@ -335,7 +334,7 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .jt-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .jt-brand{display:flex;align-items:center;gap:10px}
 .jt-logo{width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,var(--pink),var(--yel));display:grid;place-items:center;font-size:25px;box-shadow:0 5px 0 #8E1F4B;transform:rotate(-7deg);color:#fff}
-.jt-brand-name{font-size:25px;font-weight:900;letter-spacing:-.02em}
+.jt-brand-name{margin:0;font-size:25px;font-weight:900;letter-spacing:-.02em}
 .jt-pills{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 .jt-avatar{width:38px;height:38px;border-radius:50%;background:var(--sky);color:#05324A;display:grid;place-items:center;font-weight:900;box-shadow:0 4px 0 var(--skyD)}
 .jt-lvl{color:var(--yel)}
@@ -343,6 +342,14 @@ code { padding: 1px 5px; border-radius: 4px; background: #0f1a24; font-size: .85
 .jt-ring{display:block}
 .jt-ring-arc{transition:stroke-dashoffset 1s cubic-bezier(.3,1.4,.5,1)}
 .jt-back{margin-left:auto}
+.jt-menu{position:relative}
+.jt-menu-toggle{border:none;cursor:pointer;height:auto}
+.jt-menu-list[hidden]{display:none}
+.jt-menu-list{position:absolute;z-index:50;top:calc(100% + 10px);right:0;display:grid;gap:4px;min-width:250px;padding:8px;border:1px solid var(--g2);border-radius:22px;background:#2A1A5E;box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.jt-menu-item{padding:10px 14px;border:none;border-radius:14px;background:transparent;color:#fff;font:600 14px 'Rubik',sans-serif;text-align:left;cursor:pointer;height:auto}
+.jt-menu-item:hover{background:var(--g2)}
+.jt-menu-item[aria-current='page']{color:var(--yel)}
+.jt-page{display:grid;gap:20px;min-width:0}
 .jt-screen{min-height:470px}
 .jt-title{font-size:26px;font-weight:800}
 .jt-title-xl{font-size:30px;font-weight:900;letter-spacing:-.02em}

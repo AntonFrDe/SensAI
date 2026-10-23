@@ -14,7 +14,7 @@ const situation: Situation = {
 describe('Banque', () => {
   it('lists the stored situations with their reference', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ situations: [situation] }));
-    render(<Banque onBack={vi.fn()} />);
+    render(<Banque />);
     const card = await screen.findByRole('article', { name: 'Situation : Ouverture avant le flop, Débutant' });
     expect(within(card).getByText('LLM après 2 essais')).toBeInTheDocument();
     expect(within(card).getByRole('group', { name: 'Vos cartes privées' })).toHaveTextContent('K♠9♠');
@@ -29,7 +29,7 @@ describe('Banque', () => {
       .mockResolvedValueOnce(Response.json({ situations: [] }))
       .mockResolvedValueOnce(Response.json({ situation: { ...situation, source: 'repli', tentatives: 3 } }, { status: 201 }))
       .mockResolvedValueOnce(Response.json({ error: 'Thème inconnu.' }, { status: 400 }));
-    render(<Banque onBack={vi.fn()} />);
+    render(<Banque />);
     expect(await screen.findByText('La banque est vide pour l’instant.')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Générer une situation' }));

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { GameRecord } from './gameRecords';
 
-export type GameRecordsProps = { records: GameRecord[]; onClear: () => void; onBack: () => void };
+export type GameRecordsProps = { records: GameRecord[]; onClear: () => void };
 
 const results = { playing: 'En cours', won: 'Victoire', lost: 'Défaite' };
 const formatter = new Intl.NumberFormat('fr-FR');
@@ -12,7 +12,7 @@ function dateText(iso: string): string {
   return Number.isNaN(parsed.getTime()) ? '—' : dates.format(parsed);
 }
 
-export default function GameRecords({ records, onClear, onBack }: GameRecordsProps) {
+export default function GameRecords({ records, onClear }: GameRecordsProps) {
   const [confirming, setConfirming] = useState(false);
   const finished = records.filter(record => record.result !== 'playing');
   const victories = finished.filter(record => record.result === 'won').length;
@@ -25,7 +25,6 @@ export default function GameRecords({ records, onClear, onBack }: GameRecordsPro
   return (
     <section className="game-records" aria-label="Mes parties">
       <h2>Mes parties</h2>
-      <button type="button" onClick={onBack}>← Accueil</button>
       {records.length === 0 ? <p>Aucune partie enregistrée : elles apparaissent ici dès la première main jouée.</p> : <>
         <p>{finished.length} partie{finished.length > 1 ? 's' : ''} terminée{finished.length > 1 ? 's' : ''}, {victories} victoire{victories > 1 ? 's' : ''}.</p>
         <table>

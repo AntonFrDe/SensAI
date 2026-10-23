@@ -12,7 +12,7 @@ const records: GameRecord[] = [
 
 describe('GameRecords', () => {
   it('lists the games with their result and counts the victories', () => {
-    render(<GameRecords records={records} onClear={vi.fn()} onBack={vi.fn()} />);
+    render(<GameRecords records={records} onClear={vi.fn()} />);
     expect(screen.getByText('2 parties terminées, 1 victoire.')).toBeInTheDocument();
     const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
     expect(rows.map(row => within(row).getAllByRole('cell').slice(1).map(cell => cell.textContent?.replace(/\s/g, ' ')))).toEqual([
@@ -25,18 +25,15 @@ describe('GameRecords', () => {
 
   it('asks before clearing the history', async () => {
     const onClear = vi.fn();
-    render(<GameRecords records={records} onClear={onClear} onBack={vi.fn()} />);
+    render(<GameRecords records={records} onClear={onClear} />);
     await userEvent.click(screen.getByRole('button', { name: 'Effacer l’historique' }));
     expect(onClear).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Confirmer l’effacement' }));
     expect(onClear).toHaveBeenCalledOnce();
   });
 
-  it('explains when there is nothing yet', async () => {
-    const onBack = vi.fn();
-    render(<GameRecords records={[]} onClear={vi.fn()} onBack={onBack} />);
+  it('explains when there is nothing yet', () => {
+    render(<GameRecords records={[]} onClear={vi.fn()} />);
     expect(screen.getByText(/Aucune partie enregistrée/)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: '← Accueil' }));
-    expect(onBack).toHaveBeenCalledOnce();
   });
 });

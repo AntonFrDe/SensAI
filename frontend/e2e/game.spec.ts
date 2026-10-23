@@ -6,8 +6,14 @@ test.beforeEach(async ({ page }, testInfo) => {
   }
 });
 
+async function openMode(page: Page, name: string) {
+  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name, exact: true }).click();
+}
+
 async function startGame(page: Page) {
   await page.goto('/');
+  await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Jouer' }).click();
   await expect(page.getByText('Tour : à vous de jouer')).toBeVisible();
 }
@@ -65,23 +71,26 @@ test('resumes the game after a reload', async ({ page }) => {
   await startGame(page);
   const cards = await page.getByRole('group', { name: 'Vos cartes privées' }).first().textContent() ?? '';
   await page.reload();
+  await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Reprendre la partie' }).click();
   await expect(page.getByRole('group', { name: 'Vos cartes privées' }).first()).toHaveText(cards);
 });
 
 test('finds a term in the glossary and shows the hand rankings', async ({ page }) => {
   await page.goto('/');
+  await openMode(page, 'Partie contre l’IA');
   await expect(page.getByRole('region', { name: 'État des modèles' })).toContainText('Coach : ok installé');
-  await page.getByRole('button', { name: 'Glossaire' }).click();
+  await openMode(page, 'Glossaire');
   await page.getByRole('searchbox', { name: 'Chercher un terme' }).fill('kicker');
   await expect(page.getByText(/Carte accompagnant/)).toBeVisible();
-  await page.getByRole('button', { name: '← Accueil' }).click();
-  await page.getByRole('button', { name: 'Classement des mains' }).click();
+  await page.getByRole('button', { name: 'Entraîneur', exact: true }).click();
+  await openMode(page, 'Classement des mains');
   await expect(page.getByRole('listitem')).toHaveCount(10);
 });
 
 test('shows the guided tour on the first game', async ({ page }) => {
   await page.goto('/');
+  await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Jouer' }).click();
   const tour = page.getByRole('dialog');
   await expect(tour).toContainText('Vos cartes et le board');
@@ -89,6 +98,7 @@ test('shows the guided tour on the first game', async ({ page }) => {
   for (let step = 0; step < 3; step++) await tour.getByRole('button', { name: 'Suivant' }).click();
   await tour.getByRole('button', { name: 'Terminer' }).click();
   await page.reload();
+  await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Reprendre la partie' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });

@@ -1,5 +1,8 @@
-import { IconCards, IconFlame, IconVolume, IconVolumeOff } from '@tabler/icons-react';
+import { IconFlame, IconVolume, IconVolumeOff } from '@tabler/icons-react';
 import CountUp from './CountUp';
+import JetonBrand from './JetonBrand';
+import ModeMenu from './ModeMenu';
+import type { View } from './navigation';
 import { OBJECTIF_JOUR, avancementDuNiveau, niveauDe, type Progress } from './progress';
 
 export type TrainerHeaderProps = {
@@ -8,21 +11,18 @@ export type TrainerHeaderProps = {
   serie: number;
   objectif: number;
   onSon: () => void;
-  onAccueil: () => void;
+  onNavigate: (view: View) => void;
 };
 
 const RAYON = 14;
 const CIRCONFERENCE = 88;
 
-export default function TrainerHeader({ pseudo, progression, serie, objectif, onSon, onAccueil }: TrainerHeaderProps) {
+export default function TrainerHeader({ pseudo, progression, serie, objectif, onSon, onNavigate }: TrainerHeaderProps) {
   const niveau = niveauDe(progression.xp);
   const initiale = pseudo ? pseudo[0].toUpperCase() : '?';
   return (
     <header className="jt-head">
-      <div className="jt-brand">
-        <span className="jt-logo"><IconCards size={25} stroke={2} aria-hidden="true" /></span>
-        <span className="jt-brand-name">SensAI</span>
-      </div>
+      <JetonBrand />
       <div className="jt-pills">
         <button type="button" className="jt-pill jt-pill-round" onClick={onSon}
           aria-label={progression.son ? 'Couper le son' : 'Activer le son'}>
@@ -50,7 +50,7 @@ export default function TrainerHeader({ pseudo, progression, serie, objectif, on
           <span><CountUp valeur={progression.xp % 500} /></span>
         </span>
         <span className="jt-avatar" aria-label={pseudo ? `Joueur ${pseudo}` : 'Joueur'}>{initiale}</span>
-        <button type="button" className="jt-pill jt-back" onClick={onAccueil}>Accueil</button>
+        <ModeMenu current="trainer" onSelect={onNavigate} />
       </div>
     </header>
   );

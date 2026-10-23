@@ -64,7 +64,7 @@ function SituationCard({ situation }: { situation: Situation }) {
   );
 }
 
-export default function Banque({ onBack }: { onBack: () => void }) {
+export default function Banque() {
   const [situations, setSituations] = useState<Situation[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -99,7 +99,6 @@ export default function Banque({ onBack }: { onBack: () => void }) {
   return (
     <section aria-label="Banque de situations">
       <h2>Banque de situations</h2>
-      <button type="button" onClick={onBack}>← Accueil</button>
       <form className="banque-form" onSubmit={event => void generate(event)}>
         <label>Thème
           <select value={theme} disabled={busy} onChange={event => setTheme(event.target.value as Theme)}>

@@ -36,8 +36,34 @@ function fakeServer(routes: Record<string, (body: Record<string, unknown>) => ob
   return calls;
 }
 
+const setup = 'Partie contre l’IA';
+
+async function openMode(name: string) {
+  await userEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  await userEvent.click(screen.getByRole('button', { name }));
+}
+
 describe('App', () => {
   beforeEach(() => localStorage.clear());
+
+  it('opens on the Jeton trainer, without the old home', () => {
+    fakeServer({});
+    render(<App />);
+    expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'SensAI Poker' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Jouer' })).not.toBeInTheDocument();
+  });
+
+  it('gives every page a way back to the trainer', async () => {
+    fakeServer({});
+    for (const name of [setup, 'Banque de situations', 'Glossaire', 'Classement des mains', 'Mes parties']) {
+      const { unmount } = render(<App />);
+      await openMode(name);
+      await userEvent.click(screen.getByRole('button', { name: 'Entraîneur' }));
+      expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
+      unmount();
+    }
+  });
 
   it('lets the AI speak first, then plays the human action and deals the next hand', async () => {
     const calls = fakeServer({
@@ -58,6 +84,7 @@ describe('App', () => {
     });
     render(<App />);
 
+    await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByText('L’IA relance à 60.')).toBeInTheDocument();
     expect(calls).toEqual(['/api/games', '/api/opponent']);
@@ -74,8 +101,8 @@ describe('App', () => {
     expect(calls.at(-1)).toBe('/api/next-hand');
     expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Retour à l’accueil' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Mes parties' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Retour à l’entraîneur' }));
+    await openMode('Mes parties');
     const row = within(screen.getByRole('table')).getAllByRole('row')[1];
     expect(within(row).getAllByRole('cell').slice(1).map(cell => cell.textContent)).toEqual(['10/20', '1', '0', '-10', 'En cours']);
   });
@@ -83,6 +110,7 @@ describe('App', () => {
   it('shows a readable error when the server is down', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
     render(<App />);
+    await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByText(/^Failed to fetch/, { selector: 'main > p' })).toHaveAttribute('role', 'alert');
   });
@@ -96,6 +124,7 @@ describe('App', () => {
       }) }),
     });
     render(<App />);
+    await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByText('Vous remportez 200 jetons avec : couleur.')).toBeInTheDocument();
   });
@@ -106,11 +135,13 @@ describe('App', () => {
       '/api/state': body => ({ gameId: String(body.gameId), state: state({ playerStack: 1500 }) }),
     });
     render(<App />);
+    await openMode(setup);
     await userEvent.click(await screen.findByRole('button', { name: 'Reprendre la partie' }));
     expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();
     expect(bodies[0]).toEqual({ gameId: 'g9' });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Retour à l’accueil' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Retour à l’entraîneur' }));
+    await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Reprendre la partie' }));
     expect(screen.getByRole('region', { name: 'Partie' })).toBeInTheDocument();
   });
@@ -120,17 +151,20 @@ describe('App', () => {
     fakeServer({});
     render(<App />);
     await waitFor(() => expect(localStorage.getItem('sensai-game-id')).toBeNull());
+    await openMode(setup);
     expect(screen.queryByRole('button', { name: 'Reprendre la partie' })).not.toBeInTheDocument();
   });
 
   it('offers the guided tour on the first game only', async () => {
     fakeServer({ '/api/games': () => ({ gameId: 'g3', state: state({}) }) });
     const { unmount } = render(<App />);
+    await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     expect(await screen.findByRole('dialog', { name: 'Vos cartes et le board' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Passer la visite' }));
     unmount();
     render(<App />);
+    await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
     await screen.findByText(/à vous de jouer/);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -138,4 +172,3 @@ describe('App', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
-

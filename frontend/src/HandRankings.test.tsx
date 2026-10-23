@@ -1,5 +1,4 @@
 import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import HandRankings from './HandRankings';
 
@@ -12,18 +11,15 @@ describe('HandRankings', () => {
       ] },
       { rank: 9, name: 'Paire', description: 'Deux cartes de même valeur.', cards: [] },
     ] }));
-    const onBack = vi.fn();
-    render(<HandRankings onBack={onBack} />);
+    render(<HandRankings />);
     const items = await screen.findAllByRole('listitem');
     expect(items.map(item => within(item).getByRole('heading').textContent)).toEqual(['Quinte flush royale', 'Paire']);
     expect(within(items[0]).getByRole('group', { name: 'Exemple de quinte flush royale' })).toHaveTextContent('A♠K♠Q♠J♠10♠');
-    await userEvent.click(screen.getByRole('button', { name: '← Accueil' }));
-    expect(onBack).toHaveBeenCalledOnce();
   });
 
   it('reports a failure', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({}, { status: 500 }));
-    render(<HandRankings onBack={vi.fn()} />);
+    render(<HandRankings />);
     expect(await screen.findByRole('alert')).toHaveTextContent('Classement des mains indisponible.');
   });
 });
