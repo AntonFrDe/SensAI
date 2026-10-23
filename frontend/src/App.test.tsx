@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -63,6 +63,31 @@ describe('App', () => {
       expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
       unmount();
     }
+  });
+
+  it('stays where the player went when the AI answers later', async () => {
+    let releaseOpponent: () => void = () => undefined;
+    const answer = new Promise<void>(resolve => { releaseOpponent = resolve; });
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const path = String(input);
+      if (path === '/api/status') return Response.json(status);
+      if (path === '/api/games') return Response.json({ gameId: 'g5', state: state({ currentPlayer: 'opponent', controls: { allowedActions: [] } }) });
+      if (path === '/api/opponent') {
+        await answer;
+        return Response.json({ gameId: 'g5', state: state({}), opponentAction: { action: 'call', source: 'llm' } });
+      }
+      return Response.json({ error: 'Not found.', body: init?.body }, { status: 404 });
+    });
+    render(<App />);
+    await openMode(setup);
+    await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Entraîneur' }));
+    await act(async () => {
+      releaseOpponent();
+      await new Promise(resolve => setTimeout(resolve, 20));
+    });
+    expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Partie' })).not.toBeInTheDocument();
   });
 
   it('lets the AI speak first, then plays the human action and deals the next hand', async () => {

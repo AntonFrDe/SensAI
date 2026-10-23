@@ -105,7 +105,7 @@ export default function App() {
       const result = await postGame(path, body);
       setGame(result);
       setVersion(previous => previous + 1);
-      setView('game');
+      setView(current => (current === 'setup' ? 'game' : current));
       setOpponentMove(result.opponentAction ? describeMove(result.opponentAction) : '');  // stale once you act
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Connexion au serveur impossible.');
