@@ -94,6 +94,18 @@ def test_bad_chat_requests_are_rejected():
     assert FakeOllama.requests == []                                               # nothing reached Ollama
 
 
+def test_compare_answers_as_the_coach_with_the_documentation():
+    FakeOllama.reset()
+    history = [{"role": "user", "content": "a"}, {"role": "assistant", "content": "b"},
+               {"role": "user", "content": "Que veut dire UTG ?"}]
+    body = {"requests": [{"model": "a", "messages": history}], "coach": True}
+    assert compare([], body=json.dumps(body).encode())[0] == 200
+    sent = FakeOllama.requests[-1]
+    assert sent["messages"][0] == {"role": "system", "content": ai.SYSTEM} and sent["messages"][1:3] == history[:2]
+    assert "UTG" in sent["messages"][3]["content"] and sent["messages"][3]["content"].startswith("Contexte")
+    assert "keep_alive" not in sent  # a lone model stays warm for the next question
+
+
 def test_compare_tags_each_model_and_unloads_it_afterwards():
     FakeOllama.reset()
     status, events = compare(["a", "b"])

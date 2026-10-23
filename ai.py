@@ -68,9 +68,70 @@ def glossary_entries_in(question: str) -> list[glossary.Entry]:
     return found
 
 
-def glossary_context(question: str | None = None) -> str:
-    """Le glossaire de poker, une ligne textuelle par entrée : tout, ou seulement les termes de la question."""
-    entries = glossary.ENTRIES if question is None else glossary_entries_in(question)
+EMBED_MODEL = "bge-m3"  # multilingue, bon en français : ollama pull bge-m3
+EMBED_URL = "http://localhost:11434/api/embed"
+EMBED_CACHE = DATA / "glossary_embeddings.json"  # recalculé si le modèle ou le glossaire change
+SIMILAR_TOP = 4
+SIMILAR_MIN = 0.55  # en dessous, l'entrée n'a rien à voir avec la question
+SIMILAR_MIN_WORDS = 4  # « salut » ou « suite » ressemblent vaguement à tout : pas de recherche par le sens
+
+
+def embed(texts: list[str]) -> list[list[float]]:
+    """Les vecteurs normalisés des textes (Ollama /api/embed) : leur produit scalaire est leur similarité."""
+    request = urllib.request.Request(EMBED_URL, data=json.dumps({"model": EMBED_MODEL, "input": texts}).encode(),
+                                     headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(request, timeout=120) as response:
+        return json.load(response)["embeddings"]
+
+
+def _entry_text(entry: glossary.Entry) -> str:
+    return " ; ".join((entry.term, *entry.aliases, entry.definition or ""))
+
+
+def glossary_vectors() -> dict[str, list[float]]:
+    """Un vecteur par entrée du glossaire, calculé une fois puis lu depuis EMBED_CACHE."""
+    key = f"{EMBED_MODEL}:{len(glossary.ENTRIES)}:{sum(map(len, map(_entry_text, glossary.ENTRIES)))}"
+    try:
+        cache = json.loads(EMBED_CACHE.read_text())
+        if cache["key"] == key:
+            return cache["vectors"]
+    except (OSError, ValueError, KeyError):
+        pass  # pas de cache ou cache illisible : on recalcule
+    vectors = dict(zip((e.id for e in glossary.ENTRIES), embed([_entry_text(e) for e in glossary.ENTRIES])))
+    EMBED_CACHE.write_text(json.dumps({"key": key, "vectors": vectors}))
+    return vectors
+
+
+def glossary_entries_like(question: str) -> list[glossary.Entry]:
+    """Les entrées du glossaire les plus proches de la question par le sens, même sans le mot exact.
+
+    Seulement le lexique : les abréviations de chat (« gla », « brb ») ne valent que tapées telles quelles.
+    Vide (avec un avertissement) si le modèle d'embedding est absent : la recherche par mots suffit alors.
+    """
+    if len(question.split()) < SIMILAR_MIN_WORDS:
+        return []
+    try:
+        vectors = glossary_vectors()
+        [q] = embed([question])
+    except (urllib.error.URLError, KeyError, ValueError) as e:
+        print(f"(recherche par le sens indisponible : {e} ; ollama pull {EMBED_MODEL})", file=sys.stderr)
+        return []
+    by_id = {e.id: e for e in glossary.ENTRIES if e.source == "lexique"}
+    scores = sorted(((sum(a * b for a, b in zip(q, v)), id_) for id_, v in vectors.items() if id_ in by_id),
+                    reverse=True)
+    return [by_id[id_] for score, id_ in scores[:SIMILAR_TOP] if score >= SIMILAR_MIN]
+
+
+def glossary_entries_for(question: str) -> list[glossary.Entry]:
+    """Les entrées citées dans la question, puis celles proches par le sens, sans doublon."""
+    found = glossary_entries_in(question)
+    return [*found, *(e for e in glossary_entries_like(question) if e not in found)]
+
+
+def glossary_context(question: str | None = None, entries: list[glossary.Entry] | None = None) -> str:
+    """Le glossaire de poker, une ligne textuelle par entrée : tout, les termes de la question, ou `entries`."""
+    if entries is None:
+        entries = glossary.ENTRIES if question is None else glossary_entries_for(question)
     lines = []
     for entry in entries:
         aliases = f" (alias : {', '.join(entry.aliases)})" if entry.aliases else ""
@@ -96,7 +157,7 @@ def ambigu_context() -> str:
                 "2.(Deuxieme reformulation)" \
                 "3. (Troisieme si nescssaire, pas plus)"
 
-    return "CONTEXTE AMBIGU \n" ++ line1 ++ serial_ex ++ ambigue ++ ambigue_ex 
+    return "CONTEXTE AMBIGU \n" + line1 + serial_ex + ambigue + ambigue_ex
 
 # « Ah », « 10d », « Q♣ » : valeur en majuscule, couleur en minuscule, pour ne pas lire « as » ou « je » comme des cartes.
 CARD = re.compile(r"(?<!\w)(?:10|[2-9TJQKA])[shdc♠♥♦♣](?!\w)")

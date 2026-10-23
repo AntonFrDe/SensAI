@@ -16,6 +16,7 @@ import sys
 from collections.abc import Iterator
 from contextlib import closing
 
+import ai
 import coach
 import generation
 import profils
@@ -26,6 +27,31 @@ from mcp_client import Toolbox
 DIM, RED, RESET = "\033[2m", "\033[31m", "\033[0m"
 KEYS = {"fold": "f", "call": "c", "raise": "r", "moi": "m", "adversaire": "a", "egalite": "e"}
 ICONS = {"bon": "✅", "acceptable": "🟡", "erreur": "❌"}
+CHARS_PER_TOKEN = 3   # ponytail: rough estimate, use Ollama's prompt_eval_count if the context still overflows
+
+
+def with_context(text: str, history: list[dict]) -> str:
+    """The question, preceded by the glossary entries not already in the history and the question's own data.
+
+    Keywords never miss a term written in the question, embeddings add the ones close in meaning, the tools
+    catch the rest.
+    """
+    given = "\n".join(m["content"] for m in history if m["role"] == "user")
+    new = [e for e in ai.glossary_entries_for(text) if f"\n- {e.term}" not in given]
+    parts = (ai.glossary_context(entries=new), ai.preflop_context(text), ai.situation_context(text))
+    context = "\n\n".join(p for p in parts if p)
+    return f"Contexte :\n{context}\n\nQuestion : {text}" if context else text
+
+
+def trim(history: list[dict], cfg: dict) -> list[dict]:
+    """Forget the oldest whole turns while the history would overflow the model's context."""
+    fixed = len(cfg["system_prompt"]) + len(json.dumps(cfg.get("tools", [])))
+    budget = cfg["num_ctx"] * 3 // 4 * CHARS_PER_TOKEN - fixed  # a quarter left free for the answer
+    while any(m["role"] == "user" for m in history[1:]) and sum(len(m["content"]) for m in history) > budget:
+        history = history[1:]
+        while history and history[0]["role"] != "user":  # never start on an orphan answer or tool result
+            history = history[1:]
+    return history
 
 
 def style(text: str, code: str, stream) -> str:
@@ -139,8 +165,8 @@ def chat_loop(cfg: dict, toolbox: Toolbox) -> int:
             print("Conversation oubliée.")
         elif text == "/tools":
             list_tools(toolbox)
-        elif (turn := answer(history, text, cfg, toolbox)) is not None:
-            history = [*history, *turn]
+        elif (turn := answer(history, with_context(text, history), cfg, toolbox)) is not None:
+            history = trim([*history, *turn], cfg)
 
 
 def ask_level(session: trainer.Session) -> bool:
@@ -314,7 +340,8 @@ def main() -> int:
             fail(f"outils indisponibles, {warning}")
         cfg = {**cfg, "tools": toolbox.specs}
         if args.libre:
-            return chat_loop(cfg, toolbox)
+            system = f"{cfg['system_prompt']}\n\n{ai.hand_rankings_context()}"
+            return chat_loop({**cfg, "system_prompt": system}, toolbox)
         return trainer_loop(cfg, toolbox, random.Random(args.seed), profil)
     finally:
         toolbox.close()

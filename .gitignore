@@ -15,3 +15,9 @@ graphify-out/
 
 # Player profiles (profils.py): personal, never committed
 /profiles/
+
+# Impeccable: catalogue references (third-party images) and decision-page state
+/.impeccable/mocks/reference/
+/.impeccable/questions/
+/.impeccable/review/
+data/glossary_embeddings.json

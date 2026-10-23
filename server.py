@@ -136,9 +136,27 @@ def parse_messages(raw: bytes) -> list[dict]:
     return clean_messages(parse_json(raw).get("messages"))
 
 
-def parse_requests(raw: bytes, installed: set[str]) -> list[tuple[str, list[dict]]]:
-    """Body of /api/compare: {"requests": [{"model": ..., "messages": [...]}, ...]}."""
-    reqs = parse_json(raw).get("requests")
+def as_coach(messages: list[dict]) -> list[dict]:
+    """The conversation with the documentation's context added to its last question."""
+    return [*messages[:-1], {"role": "user", "content": ai.build_prompt(messages[-1]["content"])}]
+
+
+def compare_jobs(body: dict, installed: set[str], cfg: dict) -> list[Job]:
+    """Body of /api/compare: {"requests": [{"model": ..., "messages": [...]}, ...], "coach"?: true}.
+
+    With "coach", every model answers as SensAI the poker coach, with the documentation's context.
+    """
+    parsed = parse_requests(body, installed)
+    coach = body.get("coach") is True
+    # keep_alive 0: with several models, each leaves RAM as soon as it has answered; a lone one stays warm
+    unload = {"keep_alive": 0} if len(parsed) > 1 else {}
+    system = {"system_prompt": ai.SYSTEM} if coach else {}
+    return [(model, {**cfg, "model": model, **unload, **system}, as_coach(messages) if coach else messages)
+            for model, messages in parsed]
+
+
+def parse_requests(body: dict, installed: set[str]) -> list[tuple[str, list[dict]]]:
+    reqs = body.get("requests")
     if not isinstance(reqs, list) or not 1 <= len(reqs) <= MAX_COMPARED:
         raise ValueError(f"Expected between 1 and {MAX_COMPARED} requests.")
     parsed = []
@@ -211,12 +229,7 @@ class Handler(BaseHTTPRequestHandler):
             elif self.path == "/api/chat":
                 jobs = [(self.cfg["model"], self.cfg, parse_messages(raw))]
             else:
-                installed = {m["name"] for m in list_models(self.cfg)}
-                # keep_alive 0: each model leaves RAM as soon as it has answered
-                jobs = [
-                    (model, {**self.cfg, "model": model, "keep_alive": 0}, messages)
-                    for model, messages in parse_requests(raw, installed)
-                ]
+                jobs = compare_jobs(parse_json(raw), {m["name"] for m in list_models(self.cfg)}, self.cfg)
         except UnknownGame:
             return self._send_json(404, {"error": "Unknown game."})
         except UnknownSession:
