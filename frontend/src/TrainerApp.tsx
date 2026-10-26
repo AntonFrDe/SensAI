@@ -48,6 +48,8 @@ function ajouterResultat(resultats: TrainerResultats, theme: TrainerTheme, verdi
 
 export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   const racine = useRef<HTMLDivElement>(null);
+  const ficheEnCours = useRef<Promise<unknown> | null>(null);
+  const exercice = useRef(0);
   const [pseudo, setPseudo] = useState(lirePseudo);
   const [session, setSession] = useState<TrainerSession | null>(null);
   const [erreurSession, setErreurSession] = useState('');
@@ -123,6 +125,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   }
 
   function nouvelleSituation() {
+    exercice.current += 1;
     setSituation(null);
     setDecision(null);
     setMessagesReprise(undefined);
@@ -143,6 +146,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
     setChargementSituation(true);
     setErreurSituation('');
     try {
+      await ficheEnCours.current?.catch(() => undefined);
       const suivante = await nouvelleSituationApi(session.sessionId);
       setSituation(suivante);
       setNumero(precedent => precedent + 1);
@@ -194,10 +198,18 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   async function demanderFiche() {
     if (!session) return;
     setFiche({ fiche: null, chargement: true, erreur: '' });
+    const numero = exercice.current;
+    const promesse = ecrireFiche(session.sessionId);
+    ficheEnCours.current = promesse;
     try {
-      setFiche({ fiche: await ecrireFiche(session.sessionId), chargement: false, erreur: '' });
+      const ecrite = await promesse;
+      if (numero === exercice.current) setFiche({ fiche: ecrite, chargement: false, erreur: '' });
     } catch {
-      setFiche({ fiche: null, chargement: false, erreur: 'Jeton n’a pas réussi à écrire ta fiche. Réessaie dans un instant.' });
+      if (numero === exercice.current) {
+        setFiche({ fiche: null, chargement: false, erreur: 'Jeton n’a pas réussi à écrire ta fiche. Réessaie dans un instant.' });
+      }
+    } finally {
+      if (ficheEnCours.current === promesse) ficheEnCours.current = null;
     }
   }
 

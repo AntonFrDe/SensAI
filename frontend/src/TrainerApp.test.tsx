@@ -40,8 +40,8 @@ function streamOf(lignes: string[]): Response {
   }));
 }
 
-function routerFetch(extra: Record<string, () => Response> = {}) {
-  const routes: Record<string, () => Response> = {
+function routerFetch(extra: Record<string, () => Response | Promise<Response>> = {}) {
+  const routes: Record<string, () => Response | Promise<Response>> = {
     'POST /api/sessions': () => Response.json(session, { status: 201 }),
     'POST /api/sessions/s1/niveau': () => Response.json({ niveau: 'debutant', raison: null }),
     'POST /api/sessions/s1/situations': () => Response.json({ numero: 1, situation }, { status: 201 }),
@@ -135,6 +135,30 @@ describe('TrainerApp', () => {
     await userEvent.click(await screen.findByRole('button', { name: /Raise/ }));
     expect(await screen.findByText('action impossible ici')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Raise/ })).toBeEnabled();
+  });
+
+  it('waits for the fiche being written before drawing the next situation', async () => {
+    let finirFiche: (reponse: Response) => void = () => undefined;
+    const fetchMock = routerFetch({
+      'POST /api/sessions/s1/fiche': () => new Promise<Response>(resolve => { finirFiche = resolve; }),
+    });
+    const situations = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/situations')).length;
+    render(<TrainerApp onNavigate={vi.fn()} />);
+    await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
+    await userEvent.click(await screen.findByRole('button', { name: /Raise/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Voir ma fiche' }));
+    expect(await screen.findByText('Jeton écrit ta fiche…')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /Continuer/ }));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(situations()).toBe(1);
+
+    await act(async () => {
+      finirFiche(Response.json({ fiche: { a_retenir: 'Ancienne fiche.', theme_a_revoir: 'aucun' } }));
+    });
+    await waitFor(() => expect(situations()).toBe(2));
+    expect(await screen.findByRole('button', { name: /Raise/ })).toBeEnabled();
+    expect(screen.queryByText('Ancienne fiche.')).not.toBeInTheDocument();
   });
 
   it('plays the decision with the keyboard shortcut of the action', async () => {
