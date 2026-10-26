@@ -21,6 +21,7 @@ export const BADGES = {
 
 export const XP_PAR_NIVEAU = 500;
 export const OBJECTIF_JOUR = 5;
+export const XP_QUIZ = 10;
 const XP_PAR_VERDICT: Record<Verdict, number> = { bon: 20, acceptable: 10, erreur: 5 };
 const SERIE_BADGE = 7;
 const STORAGE_KEY = 'sensai-trainer-progress';
@@ -137,4 +138,9 @@ export function effacerPseudo(): void {
     localStorage.removeItem(PSEUDO_KEY);
   } catch {
   }
+}
+
+export function gagnerXp(progression: Progress, xp: number): { progression: Progress; nouveauNiveau: boolean } {
+  const suivante = { ...progression, xp: progression.xp + xp };
+  return { progression: suivante, nouveauNiveau: niveauDe(suivante.xp) > niveauDe(progression.xp) };
 }

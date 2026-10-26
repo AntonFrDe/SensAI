@@ -22,7 +22,7 @@ import TrainerHeader from './TrainerHeader';
 import VerdictScreen from './VerdictScreen';
 import {
   BADGES, OBJECTIF_JOUR, chargerProgression, enregistrerProgression, enregistrerPseudo,
-  jourDe, lirePseudo, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
+  XP_QUIZ, gagnerXp, jourDe, lirePseudo, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
 } from './progress';
 import type { View } from './navigation';
 import { SFX, sonActif } from './sfx';
@@ -201,6 +201,12 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
     }
   }
 
+  function quizReussi() {
+    const resultat = gagnerXp(progression, XP_QUIZ);
+    setProgression(resultat.progression);
+    if (resultat.nouveauNiveau) window.setTimeout(() => setNiveauAtteint(niveauDe(resultat.progression.xp)), 900);
+  }
+
   function ajouterRafale(rafale: Omit<Rafale, 'id'>) {
     const id = Date.now() + Math.random();
     setRafales(suite => [...suite, { ...rafale, id }]);
@@ -271,6 +277,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
           reference={decision.reference}
           reprise={messagesReprise}
           onFini={() => aller(4)}
+          onQuizReussi={quizReussi}
         />
       );
     } else if (etape === 4) {

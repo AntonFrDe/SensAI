@@ -639,3 +639,11 @@ code { padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .3); font
   .jt-head:not(.jt-head-trainer) .jt-pills { width: auto; flex-wrap: nowrap; margin-left: auto; }
   .jt-wrap { padding: 14px 12px 22px; }
 }
+.jt-quiz-box { position: relative; }
+.jt-quiz-retour { position: relative; margin-top: 10px; font-size: 14px; font-weight: 700; }
+.jt-quiz-retour.jt-juste { color: var(--mintText); }
+.jt-quiz-retour.jt-faux { color: var(--bad); }
+.jt-faux-choix { opacity: .55; text-decoration: line-through; }
+
+.jt-quiz-opts .jt-btn:disabled { opacity: 1; }
+.jt-quiz-opts .jt-btn.jt-faux-choix:disabled { opacity: .55; }
