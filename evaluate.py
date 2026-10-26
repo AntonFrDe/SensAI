@@ -1,6 +1,6 @@
 """Jeu d'évaluation : le modèle local répond aux questions, puis compare lui-même sa réponse à la référence.
 
-    python3 evaluate.py                                  # les 33 questions, modèle de ai.py
+    python3 evaluate.py                                  # les 87 questions, modèle de ai.py
     python3 evaluate.py --modele llama3.2:3b             # un autre modèle installé
     python3 evaluate.py --questions q01 q28              # seulement certaines questions
 

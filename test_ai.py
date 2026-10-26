@@ -92,6 +92,16 @@ def test_two_preflop_hands_get_their_head_to_head_equity():
         assert prompt.index("KK contre QQ") < prompt.index("quelles chances")
 
 
+def test_meaning_search_skips_short_messages_and_survives_a_missing_ollama():
+        url, ai.EMBED_URL = ai.EMBED_URL, "http://localhost:1/api/embed"
+        try:
+            assert ai.glossary_entries_like("salut") == []
+            assert ai.glossary_entries_like("quand je tire quatre cartes à la couleur") == []
+            assert [e.term for e in ai.glossary_entries_for("Que veut dire UTG ?")][0] == "UTG"
+        finally:
+            ai.EMBED_URL = url
+
+
 if __name__ == "__main__":
         for name, test in list(globals().items()):
                 if name.startswith("test_"):

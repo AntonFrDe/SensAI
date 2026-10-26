@@ -30,7 +30,7 @@ def chat(stdin, *args, model="ok", url=OLLAMA, servers=None, tool_call=None, mod
     FakeOllama.tool_call = tool_call
     with tempfile.TemporaryDirectory() as tmp:
         config = Path(tmp) / "config.json"
-        config.write_text(json.dumps({"model": model, "ollama_url": url, "num_ctx": 1024,
+        config.write_text(json.dumps({"model": model, "ollama_url": url, "num_ctx": 8192,
                                       "system_prompt_file": "prompts/system.txt", "mcp_servers": servers or {},
                                       "banque_file": str(Path(tmp) / "banque.jsonl"),
                                       "profiles_dir": profiles or str(Path(tmp) / "profiles")}))
@@ -101,7 +101,7 @@ def test_ctrl_c_stops_the_answer_and_keeps_the_session():
     FakeOllama.reset()
     with tempfile.TemporaryDirectory() as tmp:
         config = Path(tmp) / "config.json"
-        config.write_text(json.dumps({"model": "slow1", "ollama_url": OLLAMA, "num_ctx": 1024,
+        config.write_text(json.dumps({"model": "slow1", "ollama_url": OLLAMA, "num_ctx": 8192,
                                       "system_prompt_file": "prompts/system.txt"}))
         p = subprocess.Popen([sys.executable, str(ROOT / "main.py"), "--config", str(config), "--libre"], cwd=ROOT,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

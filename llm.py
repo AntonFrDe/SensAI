@@ -71,11 +71,13 @@ def complete(messages: list[dict], cfg: dict) -> str:
 
 
 def list_models(cfg: dict) -> list[dict]:
-    """Models installed in Ollama, as [{"name": ..., "size": bytes}]."""
+    """Chat models installed in Ollama, as [{"name": ..., "size": bytes}]."""
     try:
         r = requests.get(f"{cfg['ollama_url']}/api/tags", timeout=5)
         r.raise_for_status()
-        return [{"name": m["name"], "size": m["size"]} for m in r.json()["models"]]
+        # ponytail: embedding models are BERT-based (bge-m3, nomic-embed); check the capabilities if another kind shows up
+        return [{"name": m["name"], "size": m["size"]} for m in r.json()["models"]
+                if "bert" not in m.get("details", {}).get("family", "")]
     except (requests.RequestException, KeyError, ValueError):
         raise _unreachable(cfg) from None
 
