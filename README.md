@@ -225,6 +225,7 @@ Le correcteur est le même petit modèle : relire les verdicts, il peut être in
 python3 evaluate_coach.py                          # 30 situations, coach et juge de config.json
 python3 evaluate_coach.py --nombre 6 --graine 1    # moins de situations, un autre tirage
 python3 evaluate_coach.py --modele llama3.2:3b     # un autre coach ; --juge pour un autre correcteur
+python3 evaluate_coach.py --ratees                 # rejoue seulement les situations déjà ratées
 ```
 
 Le principe de SensAI est que le coach explique la référence calculée par le code sans la contredire : ce script
@@ -235,6 +236,12 @@ puis les faits chiffrés) : présent, absent ou contredit. Score principal : la 
 contradiction. Résultats dans `evaluation/coach_resultats.md` et `.json` ; un verdict illisible n'est pas compté.
 Le code vérifie aussi, sans modèle, que le débrief nomme la bonne action et cite les chiffres de la référence
 (`--relire` recalcule cette vérification sur les résultats enregistrés).
+
+Chaque situation ratée (une contradiction selon le juge, ou un fait que le code ne retrouve pas dans le débrief)
+est ajoutée une seule fois à `evaluation/coach_ratees.jsonl` : `--ratees` les rejoue après un changement de prompt
+ou de modèle, comme des tests de non-régression. Une évaluation complète réécrit la ligne suivante :
+
+Dernier score enregistré : 2026-10-22, coach `qwen3:4b-instruct-2507-q4_K_M`, juge `llama3.2:3b`, 8 situations : **3/8 débriefs sans contradiction**, 21/24 faits retrouvés par le code.
 
 Premier essai (2026-10-22, 8 situations, coach `qwen3:4b-instruct`) : **21 faits sur 24 retrouvés par le code**,
 mais le juge `llama3.2:3b` n'en voit qu'1 sur 28 et signale 5 contradictions sur 8, la plupart fausses (il
