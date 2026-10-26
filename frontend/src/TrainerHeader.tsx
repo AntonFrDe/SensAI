@@ -21,7 +21,7 @@ export default function TrainerHeader({ pseudo, progression, serie, objectif, on
   const niveau = niveauDe(progression.xp);
   const initiale = pseudo ? pseudo[0].toUpperCase() : '?';
   return (
-    <header className="jt-head">
+    <header className="jt-head jt-head-trainer">
       <JetonBrand />
       <div className="jt-pills">
         <button type="button" className="jt-pill jt-pill-round" onClick={onSon}
