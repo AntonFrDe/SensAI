@@ -20,14 +20,14 @@ async function startGame(page: Page) {
 
 test('plays a hand against the opponent and keeps it in the history', async ({ page }) => {
   await startGame(page);
-  await expect(page.getByText('L’IA suit.')).toBeVisible();
+  await expect(page.getByText('L’IA : Call.')).toBeVisible();
   await page.getByRole('button', { name: 'Check' }).click();
   await expect(page.getByText('Phase : Flop')).toBeVisible();
   await expect(page.getByLabel(/^Ta main :/)).toBeVisible();
 
   await expect(page.getByRole('button', { name: 'Fold' })).toBeEnabled();
   await page.getByRole('button', { name: 'Fold' }).click();
-  await expect(page.getByText(/L’IA remporte \d+ jetons \(adversaire couché\)\./)).toBeVisible();
+  await expect(page.getByText(/L’IA remporte \d+ jetons \(tu as fold\)\./)).toBeVisible();
   await expect(page.getByRole('region', { name: 'Statistiques' })).toContainText('Mains jouées1');
   await expect(page.getByRole('region', { name: 'Mains précédentes' }).getByRole('listitem')).toHaveCount(1);
 
@@ -46,7 +46,7 @@ test('plays with the keyboard and a bet preset', async ({ page }) => {
   await page.keyboard.press('t');
   await expect(page.getByRole('spinbutton', { name: 'Montant total (Bet / Raise)' })).not.toHaveValue('');
   await page.keyboard.press('r');
-  await expect(page.locator('.action-bubble').filter({ hasText: /^Relance à/ })).toBeVisible();
+  await expect(page.locator('.action-bubble').filter({ hasText: /^Raise à/ })).toBeVisible();
 });
 
 test('streams the coach advice and answers a follow-up question', async ({ page }) => {

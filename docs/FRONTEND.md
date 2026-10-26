@@ -144,7 +144,7 @@ par un test Vitest, un test Playwright ou un essai dans le navigateur.
 
 1. En tant que joueur, je veux voir qui est donneur, qui a payé les blindes et combien chacun a misé, afin de
    comprendre le pot.
-   - Badges D, SB et BB sur les sièges ; mise du tour devant chaque joueur ; « Couché » et « Tapis » affichés.
+   - Badges D, SB et BB sur les sièges ; mise du tour devant chaque joueur ; « Fold » et « Tapis » affichés.
    - Le joueur qui doit parler est encadré et annoncé.
 2. En tant que débutant, je veux savoir quelle main j'ai, afin d'apprendre les combinaisons en jouant.
    - Dès le flop, le nom de ma main s'affiche (« Double paire ») et ses 5 cartes sont mises en évidence.

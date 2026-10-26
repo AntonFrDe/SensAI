@@ -24,6 +24,7 @@ import PageHeader from './PageHeader';
 import type { View } from './navigation';
 import TrainerApp from './TrainerApp';
 import { handLabels } from './HandBadge';
+import { ACTION_NAMES } from './pokerTerms';
 import './styles.css';
 
 const optionsKey = 'sensai-table-options';
@@ -37,11 +38,11 @@ function loadOptions(): TableOptions {
   }
 }
 
-const verbs = { fold: 'se couche', check: 'checke', call: 'suit', bet: 'mise', raise: 'relance à' };
 
 function describeMove({ action, amount, source }: OpponentAction): string {
   const fallback = source === 'fallback' ? ' (règle de secours : réponse du modèle inutilisable)' : '';
-  return `L’IA ${verbs[action]}${amount === undefined ? '' : ` ${amount}`}${fallback}.`;
+  const name = action === 'raise' ? `${ACTION_NAMES.raise} à` : ACTION_NAMES[action];
+  return `L’IA : ${name}${amount === undefined ? '' : ` ${amount}`}${fallback}.`;
 }
 
 function describeAward({ amount, winners, reason }: Award, hands?: GameState['hands']): string {
@@ -49,7 +50,8 @@ function describeAward({ amount, winners, reason }: Award, hands?: GameState['ha
   const withHand = hand ? ` avec : ${handLabels[hand.rank].toLowerCase()}` : '';
   if (winners.length > 1) return `Égalité : pot de ${amount} jetons partagé${withHand}.`;
   const who = winners[0] === 'Vous' ? 'Tu remportes' : 'L’IA remporte';
-  return `${who} ${amount} jetons${reason === 'fold' ? ' (adversaire couché)' : withHand}.`;
+  const fold = winners[0] === 'Vous' ? ' (l’IA a fold)' : ' (tu as fold)';
+  return `${who} ${amount} jetons${reason === 'fold' ? fold : withHand}.`;
 }
 
 export default function App() {

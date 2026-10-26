@@ -25,7 +25,7 @@ describe('OpponentNote', () => {
 
 describe('last actions on the seats', () => {
   it('shortens an action with its amount', () => {
-    expect(shortAction({ street: 'flop', player: 'IA', action: 'raise', amount: 1200 })).toMatch(/^Relance à 1\s200$/);
+    expect(shortAction({ street: 'flop', player: 'IA', action: 'raise', amount: 1200 })).toMatch(/^Raise à 1\s200$/);
     expect(shortAction({ street: 'flop', player: 'Vous', action: 'check' })).toBe('Check');
   });
 
@@ -35,7 +35,7 @@ describe('last actions on the seats', () => {
       { street: 'pre_flop', player: 'IA', action: 'check' },
       { street: 'flop', player: 'IA', action: 'bet', amount: 40 },
     ]} />);
-    expect(screen.getByLabelText('Dernière action : Mise 40')).toBeInTheDocument();
-    expect(screen.queryByLabelText(/Dernière action : Suit/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Dernière action : Bet 40')).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Dernière action : Call/)).not.toBeInTheDocument();
   });
 });

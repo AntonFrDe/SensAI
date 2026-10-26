@@ -40,7 +40,7 @@ export default function HandLog({ hands }: HandLogProps) {
           <li key={hand.number} className={open === hand.number ? 'selected' : undefined}>
             <span className="hand-number">n°{hand.number}</span>
             <span className="hand-cards">{cardsText(hand.playerCards)}</span>
-            <span className="hand-made">{hand.playerHand ? handLabels[hand.playerHand.rank] : hand.history.some(entry => entry.action === 'fold') ? 'Couché' : '—'}</span>
+            <span className="hand-made">{hand.playerHand ? handLabels[hand.playerHand.rank] : hand.history.some(entry => entry.action === 'fold') ? 'Fold' : '—'}</span>
             <span className={`hand-net ${hand.net > 0 ? 'up' : hand.net < 0 ? 'down' : ''}`}>{netText(hand.net)}</span>
             <button type="button" className="link-button" aria-label={`Revoir la main n°${hand.number}`}
               onClick={() => setOpen(hand.number)}>Revoir</button>

@@ -3,12 +3,10 @@ import { fetchBanque, genererSituation, toCard, type Niveau, type Situation, typ
 import type { PokerAction } from './ActionControls';
 import CommunityCards from './CommunityCards';
 import PlayingCard from './PlayingCard';
+import { ACTION_NAMES } from './pokerTerms';
 
 const themes: Record<Theme, string> = { ouverture: 'Ouverture avant le flop', tirage: 'Suivre un tirage' };
 const niveaux: Record<Niveau, string> = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé' };
-const actionLabels: Record<PokerAction, string> = {
-  fold: 'Se coucher', check: 'Checker', call: 'Suivre', bet: 'Miser', raise: 'Relancer',
-};
 const formatter = new Intl.NumberFormat('fr-FR');
 
 function Source({ situation }: { situation: Situation }) {
@@ -46,7 +44,7 @@ function SituationCard({ situation }: { situation: Situation }) {
           {situation.actions.map(action => {
             const { icon, text, className } = verdict(situation, action);
             return <li key={action} className={className}>
-              <span aria-hidden="true">{icon}</span> {actionLabels[action]} : {text}
+              <span aria-hidden="true">{icon}</span> {ACTION_NAMES[action]} : {text}
             </li>;
           })}
         </ul>

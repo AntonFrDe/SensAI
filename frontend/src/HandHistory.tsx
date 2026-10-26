@@ -1,26 +1,20 @@
 import type { PokerAction } from './ActionControls';
 import { phaseLabels, type GamePhase } from './HandInfo';
+import { ACTION_NAMES } from './pokerTerms';
 
 export type HistoryEntry = { street: GamePhase; player: string; action: PokerAction; amount?: number };
 export type HandHistoryProps = { entries: HistoryEntry[] };
 
-const verbs = {
-  ai: { fold: 'se couche', check: 'checke', call: 'suit', bet: 'mise', raise: 'relance à' },
-  you: { fold: 'te couches', check: 'checkes', call: 'suis', bet: 'mises', raise: 'relances à' },
-};
-
 const formatter = new Intl.NumberFormat('fr-FR');
 
-const shortLabels = { fold: 'Couché', check: 'Check', call: 'Suit', bet: 'Mise', raise: 'Relance à' };
-
 export function shortAction(entry: HistoryEntry): string {
-  const label = shortLabels[entry.action];
+  const label = entry.action === 'raise' ? `${ACTION_NAMES.raise} à` : ACTION_NAMES[entry.action];
   return entry.amount === undefined ? label : `${label} ${formatter.format(entry.amount)}`;
 }
 
 export function describeEntry(entry: HistoryEntry): string {
-  const sentence = entry.player === 'Vous' ? `Tu ${verbs.you[entry.action]}` : `L’IA ${verbs.ai[entry.action]}`;
-  return entry.amount === undefined ? sentence : `${sentence} ${formatter.format(entry.amount)} jetons`;
+  const sentence = `${entry.player === 'Vous' ? 'Toi' : 'L’IA'} : ${shortAction(entry)}`;
+  return entry.amount === undefined ? sentence : `${sentence} jetons`;
 }
 
 export default function HandHistory({ entries }: HandHistoryProps) {

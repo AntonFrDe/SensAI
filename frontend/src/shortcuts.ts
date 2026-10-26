@@ -3,9 +3,9 @@ import type { PokerAction } from './ActionControls';
 export type ShortcutResult = { type: 'play'; action: PokerAction } | { type: 'focus-amount' } | { type: 'all-in' } | null;
 export const shortcutKeys: Partial<Record<PokerAction, string>> = { fold: 'F', check: 'C', call: 'C', bet: 'R', raise: 'R' };
 export const shortcutHelp: [string, string][] = [
-  ['F', 'Se coucher (fold)'],
-  ['C', 'Checker ou suivre (check / call)'],
-  ['R', 'Miser ou relancer avec le montant choisi, sinon aller au montant'],
+  ['F', 'Fold'],
+  ['C', 'Check ou Call'],
+  ['R', 'Bet ou Raise avec le montant choisi, sinon aller au montant'],
   ['T', 'Préparer un tapis'],
   ['Entrée', 'Dans le champ du montant : miser ou relancer'],
 ];
