@@ -38,9 +38,8 @@ function bouche(mood: Mood): ReactElement {
 }
 
 export default function Mascot({ mood, size, opponent, pokable = !opponent }: MascotProps) {
-  const { look, onPoke } = useJeton();
-  const main = opponent === undefined;
-  const palette = opponent ?? look.palette;
+  const { onPoke } = useJeton();
+  const palette = opponent ?? 'pink';
   const couleurs = PALETTES[palette];
   const [retard] = useState(() => Math.random() * 3);
   const [flash, setFlash] = useState<{ mood: Mood; id: number } | null>(null);
@@ -124,22 +123,7 @@ export default function Mascot({ mood, size, opponent, pokable = !opponent }: Ma
       <ellipse cx="27" cy="57" rx="5.5" ry="3.2" fill={couleurs[2]} />
       <ellipse cx="73" cy="57" rx="5.5" ry="3.2" fill={couleurs[2]} />
       {triste && <path d="M30 31 L44 35 M70 31 L56 35" stroke="#4A0C26" strokeWidth={3.5} strokeLinecap="round" />}
-      {main && look.shades && (
-        <g>
-          <rect x="28" y="36" width="21" height="15" rx="6" fill="#14102A" />
-          <rect x="51" y="36" width="21" height="15" rx="6" fill="#14102A" />
-          <path d="M48 41 H52" stroke="#14102A" strokeWidth={3} />
-          <path d="M32 40 L38 40" stroke="rgba(255,255,255,.7)" strokeWidth={2.5} strokeLinecap="round" />
-          <path d="M55 40 L61 40" stroke="rgba(255,255,255,.7)" strokeWidth={2.5} strokeLinecap="round" />
-        </g>
-      )}
       <g className="jt-bouche">{bouche(affiche)}</g>
-      {main && look.crown && (
-        <g transform="translate(0,-15)">
-          <path d="M33 20 L37 5 L45 14 L50 0 L55 14 L63 5 L67 20 Z" fill="#FFC83D" stroke="#D3940A" strokeWidth={2.5} strokeLinejoin="round" />
-          <circle cx="50" cy="1" r="3.2" fill="#3EC5FF" />
-        </g>
-      )}
     </svg>
   );
 

@@ -11,7 +11,6 @@ export type Progress = {
   objectif: number;
   badges: string[];
   chatouilles: number;
-  coffre: boolean;
   son: boolean;
 };
 
@@ -24,7 +23,6 @@ export const BADGES = {
 
 export const XP_PAR_NIVEAU = 500;
 export const OBJECTIF_JOUR = 5;
-export const NIVEAU_MENTHE = 5;
 const XP_PAR_VERDICT: Record<Verdict, number> = { bon: 20, acceptable: 10, erreur: 5 };
 const SERIE_BADGE = 7;
 const CHATOUILLES_BADGE = 6;
@@ -43,7 +41,6 @@ export const PROGRESSION_INITIALE: Progress = {
   objectif: 0,
   badges: [],
   chatouilles: 0,
-  coffre: false,
   son: true,
 };
 
@@ -113,14 +110,6 @@ export function chatouiller(progression: Progress): { progression: Progress; bad
   const gagnes = chatouilles >= CHATOUILLES_BADGE && !progression.badges.includes(BADGES.chatouilleur)
     ? [BADGES.chatouilleur] : [];
   return { progression: { ...progression, chatouilles, badges: [...progression.badges, ...gagnes] }, badges: gagnes };
-}
-
-export function ouvrirCoffre(progression: Progress): Progress {
-  return { ...progression, coffre: true };
-}
-
-export function couleurDeJeton(xp: number): 'pink' | 'mint' {
-  return niveauDe(xp) >= NIVEAU_MENTHE ? 'mint' : 'pink';
 }
 
 export function chargerProgression(): Progress {

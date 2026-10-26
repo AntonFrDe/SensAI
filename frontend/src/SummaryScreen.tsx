@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconGift, IconLock, IconPlayerPlay, IconQuestionMark } from '@tabler/icons-react';
+import { IconLock, IconPlayerPlay, IconQuestionMark } from '@tabler/icons-react';
 import type { TrainerFiche, TrainerResultats, TrainerTheme } from './api';
 import CountUp from './CountUp';
 import Mascot from './Mascot';
-import Particules from './Particules';
 import { BADGE_ICONES } from './BadgeToast';
 import { BADGES, OBJECTIF_JOUR, serieEnCours, type Progress } from './progress';
-import { SFX } from './sfx';
 import { THEME_LABELS } from './trainerLabels';
 
 export type SummaryScreenProps = {
@@ -19,7 +17,6 @@ export type SummaryScreenProps = {
   chargementFiche: boolean;
   erreurFiche: string;
   onDemanderFiche: () => void;
-  onCoffre: () => void;
   onSuivant: () => void;
 };
 
@@ -32,9 +29,7 @@ const BADGES_AFFICHES = [
   { nom: BADGES.chatouilleur, couleur: 'var(--pink)', secret: true },
 ];
 
-export default function SummaryScreen({ progression, gain, objectif, resultats, aujourdhui, fiche, chargementFiche, erreurFiche, onDemanderFiche, onCoffre, onSuivant }: SummaryScreenProps) {
-  const [secoue, setSecoue] = useState(false);
-  const [ouvert, setOuvert] = useState(false);
+export default function SummaryScreen({ progression, gain, objectif, resultats, aujourdhui, fiche, chargementFiche, erreurFiche, onDemanderFiche, onSuivant }: SummaryScreenProps) {
   const [barres, setBarres] = useState(false);
   const demande = useRef(false);
 
@@ -50,22 +45,7 @@ export default function SummaryScreen({ progression, gain, objectif, resultats, 
     return () => window.clearTimeout(minuterie);
   }, []);
 
-  useEffect(() => {
-    if (!secoue) return undefined;
-    const minuterie = window.setTimeout(() => {
-      setSecoue(false);
-      setOuvert(true);
-      SFX.coffre();
-      onCoffre();
-    }, 1200);
-    return () => window.clearTimeout(minuterie);
-  }, [secoue, onCoffre]);
 
-  function ouvrirCoffre() {
-    if (progression.coffre || secoue) return;
-    SFX.tic();
-    setSecoue(true);
-  }
 
   const serie = serieEnCours(progression, aujourdhui);
   const precision = progression.exercices > 0 ? Math.round((progression.bons / progression.exercices) * 100) : 0;
@@ -97,27 +77,6 @@ export default function SummaryScreen({ progression, gain, objectif, resultats, 
           </div>
         ))}
       </div>
-      <button type="button" className="jt-glass jt-chest" onClick={ouvrirCoffre} aria-label={progression.coffre ? 'Coffre du jour ouvert' : 'Ouvrir le coffre du jour'}>
-        {progression.coffre ? (
-          <>
-            <Mascot mood="happy" size={66} />
-            <span>
-              <span className="jt-chest-yel">Coffre ouvert</span>
-              <span className="jt-chest-title">Lunettes de star pour Jeton !</span>
-              <span className="jt-chest-sub">Il les porte maintenant partout, regarde-le.</span>
-            </span>
-          </>
-        ) : (
-          <>
-            <span className={`jt-chest-ic ${secoue ? 'jt-shake3' : 'jt-wob'}`}><IconGift size={36} aria-hidden="true" /></span>
-            <span>
-              <span className="jt-chest-title">Coffre du jour</span>
-              <span className="jt-chest-sub">Touche-le pour l’ouvrir. Qu’est-ce qu’il y a dedans ?</span>
-            </span>
-          </>
-        )}
-        {ouvert && <Particules nombre={110} distance={260} duree={1500} grand />}
-      </button>
       <div className="jt-glass jt-streak">
         <div>
           <div className="jt-tile-title">Série de {serie} jour{serie > 1 ? 's' : ''}</div>
