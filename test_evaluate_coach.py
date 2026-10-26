@@ -89,6 +89,11 @@ def test_present_par_code_finds_the_action_and_the_numbers():
     assert evaluate_coach.present_par_code(fait, "payer 6 bb dans un pot de 14 bb, soit 30.0 %")
     assert not evaluate_coach.present_par_code(fait, "payer 6 bb pour 14 bb, soit 33 %")
     assert evaluate_coach.present_par_code("Ta meilleure main : Couleur", "une couleur") is None
+    equite = "Équité de 42o contre la range d'ouverture du SB : 31,8 %"
+    assert evaluate_coach.present_par_code(equite, "Avec 4♥ 2♣, ton équité est de 31,8 %.")
+    realisee = "Équité réalisée hors position (environ 80 %) : 25,4 %"
+    assert evaluate_coach.present_par_code(realisee, "tu réalises 25,4 % hors position")
+    assert evaluate_coach.present_par_code("99 : ouvrir partout", "99 s'ouvre partout") is None
 
 
 
@@ -97,13 +102,13 @@ def test_failed_situations_are_kept_once_for_the_next_run():
     ok = {"contredit": False, "faits": [{"code": True}]}
     contredit = {"contredit": True, "faits": [{"code": True}]}
     manque = {"contredit": False, "faits": [{"code": None}, {"code": False}]}
-    assert [evaluate_coach.rate(r) for r in (ok, contredit, manque)] == [False, True, True]
+    assert [evaluate_coach.rate(r) for r in (ok, contredit, manque)] == [False, False, True]
     with tempfile.TemporaryDirectory() as tmp:
         chemin = Path(tmp) / "ratees.jsonl"
         assert evaluate_coach.lire_ratees(chemin) == []
-        assert evaluate_coach.garder_ratees(tirees, [ok, contredit, manque], chemin) == 2
-        assert evaluate_coach.garder_ratees(tirees, [contredit, contredit, ok], chemin) == 1
-        assert [s["id"] for s in evaluate_coach.lire_ratees(chemin)] == [tirees[i]["id"] for i in (1, 2, 0)]
+        assert evaluate_coach.garder_ratees(tirees, [ok, contredit, manque], chemin) == 1
+        assert evaluate_coach.garder_ratees(tirees, [manque, manque, manque], chemin) == 2
+        assert [s["id"] for s in evaluate_coach.lire_ratees(chemin)] == [tirees[i]["id"] for i in (2, 0, 1)]
 
 
 def test_the_readme_line_gets_the_last_score_and_its_date():

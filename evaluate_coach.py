@@ -36,6 +36,7 @@ QUESTION = "Pourquoi ? Explique-moi."
 NIVEAU_DU_THEME = {"ouverture": "intermediaire", "tirage": "intermediaire", generation.QUI_GAGNE: "debutant",
                    generation.DEFENSE: "avance"}
 NOMBRE_RE = re.compile(r"\d+(?:[.,]\d+)?")
+CADRE_RE = re.compile(r"\b[2-9TJQKA]{2}[so]?(?= contre| :)|\(environ [^)]*\)")
 BONNE_REPONSE = "La bonne réponse est : "
 HORS_FAITS = ("Référence :", "Hypothèse :", "Règle :")   # le cadre de la référence, pas un fait à expliquer
 
@@ -104,7 +105,7 @@ def present_par_code(fait: str, reponse: str) -> bool | None:
     if fait.startswith(BONNE_REPONSE):
         actions = fait.removeprefix(BONNE_REPONSE).rstrip(".").split(" ou ")
         return any(action.lower() in reponse.lower() for action in actions)
-    nombres = _nombres(fait) - {6, 100}   # « 6-max, 100 blindes » : le cadre, pas un résultat
+    nombres = _nombres(CADRE_RE.sub("", fait)) - {6, 100}   # « 6-max, 100 blindes » : le cadre, pas un résultat
     return nombres <= _nombres(reponse) if nombres else None
 
 
@@ -170,7 +171,7 @@ def enregistrer(resultats: list[dict], cfg: dict, juge: str, graine: int) -> Non
 
 
 def rate(resultat: dict) -> bool:
-    return resultat["contredit"] or any(f.get("code") is False for f in resultat["faits"])
+    return any(f.get("code") is False for f in resultat["faits"])
 
 
 def lire_ratees(chemin=RATEES) -> list[dict]:

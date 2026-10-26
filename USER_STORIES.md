@@ -100,4 +100,5 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
    - ✅ Le README affiche le dernier score et sa date : une évaluation complète réécrit sa ligne.
    - ✅ Les situations ratées par l'évaluation servent de tests : gardées dans `evaluation/coach_ratees.jsonl`,
      rejouées par `evaluate_coach.py --ratees`.
+   - ✅ Dernier essai (2026-10-26, 30 situations) : 74 faits sur 81 retrouvés par le code, 6 situations ratées.
    - ✅ Le score est versionné dans `evaluation/coach_resultats.md`.

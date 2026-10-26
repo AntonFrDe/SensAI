@@ -2,23 +2,23 @@
  "coach": "qwen3:4b-instruct-2507-q4_K_M",
  "juge": "llama3.2:3b",
  "graine": 2026,
- "date": "2026-10-22T14:22:56",
+ "date": "2026-10-26T21:39:37",
  "score": {
-  "situations": 8,
-  "jugees": 8,
-  "sans_contradiction": 3,
-  "faits_presents": 1,
-  "faits": 28,
-  "faits_retrouves_par_code": 21,
-  "faits_verifiables": 24
+  "situations": 30,
+  "jugees": 30,
+  "sans_contradiction": 1,
+  "faits_presents": 6,
+  "faits": 111,
+  "faits_retrouves_par_code": 74,
+  "faits_verifiables": 81
  },
  "resultats": [
   {
-   "id": "a987c0ed",
+   "id": "27aefb08",
    "theme": "ouverture",
    "situation": "Table 6 joueurs, 100 blindes · tu es sous le canon (UTG).\nTu parles en premier (UTG). Tu as 9♠ 6♠.",
    "action": "raise",
-   "reponse": "Parce que tu es en UTG (premier joueur), et que **96s** (assorties) **ne doivent pas être ouvertes en UTG** selon la référence.\n\nLa référence dit clairement :  \n👉 **\"96s : ouvrir en BTN, SB ; se coucher en UTG, MP, CO\"**\n\nDonc en UTG, **la bonne action est de se coucher**.  \nTu n’as pas le range ni la cote pour relancer ici.  \n\nTu as 96s, qui est une main de \"cœur\" (mid-range), mais **en UTG, tu n’as pas de pouvoir de pression**.  \nLes joueurs à droite (BTN, SB) ont une position avantageuse, et tu es en position faible.\n\n👉 **Le relancer ici est une erreur** : c’est hors de la plage d’ouverture autorisée en UTG.\n\nTu n’as pas besoin d’aller plus loin.  \n**Se coucher = la bonne action.**  \n\nTu as compris ?  \n👉 Pose-moi une question pour vérifier :  \n1. Quel est le niveau de position de 96s en UTG ?  \n2. Quelle est la cote du pot en 100 blindes avec 96s en UTG ?  \n3. Quelle est la plage d’ouverture autorisée pour 96s en 6-max ?  \n\nChoisis une seule.",
+   "reponse": "Tu es UTG avec 9♠6♠.  \nLa référence dit : **96s se coucher en UTG, MP, CO**.  \n\n→ Donc, **relancer en UTG est une erreur**.  \n\nPourquoi ?  \n- 96s est une main **faible en UTG**.  \n- En position de départ (UTG), tu n’as pas de position sur les autres joueurs.  \n- La référence précise que **96s ne doit pas être ouverte en UTG**.  \n- Le **côté du pot** est de 100 blindes, donc le pot est petit, et 96s ne peut pas payer un relance.  \n\n→ En UTG, **se coucher** est la **seule action acceptable**.  \n→ Relancer = **sortir de la main**, car tu n’as pas le potentiel de gagner un relance.  \n\n👉 **Conclusion** :  \nTu as 96s. Tu es UTG.  \n→ **Se coucher** est la bonne action.  \n→ **Relancer = erreur**.  \n\nTu as compris ?  \nPose-moi une question à choix :  \n1. Quel est le cote du pot en UTG avec 96s ?  \n2. Quelle est la meilleure action avec 96s en UTG ?  \n3. Quelle main peut ouvrir en UTG ?  \n\nChoisis l’un.",
    "faits": [
     {
      "fait": "La bonne réponse est : se coucher.",
@@ -27,38 +27,43 @@
     },
     {
      "fait": "96s : ouvrir en BTN, SB ; se coucher en UTG, MP, CO",
-     "verdict": "absent",
-     "code": true
+     "verdict": "contredit",
+     "code": null
     }
    ],
-   "contredit": false,
+   "contredit": true,
    "illisible": false,
-   "secondes": 79.4
+   "secondes": 25.9
   },
   {
-   "id": "aa6fe0fe",
+   "id": "b1c0fc5d",
    "theme": "tirage",
    "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nAu flop, ton adversaire mise 6 bb dans un pot de 8 bb. Tu as 4♥ 3♥.\nBoard : 5♠ 10♣ A♥ · pot 14 bb, à payer 6 bb.",
-   "action": "raise",
-   "reponse": "Parce que tu as **21,3 % de chance de toucher** ta main (4♥3♥) au turn, et **38,4 % d’ici la river**, mais tu dois **payer 6 bb pour un pot de 14 bb**, ce qui correspond à une **cote du pot de 30,0 %**.\n\nTa main n’a pas assez de chance d’être bonne pour justifier un relance.  \nTu as **10 outs**, mais ce n’est pas suffisant pour atteindre la cote du pot.\n\n👉 **Référence** :  \n- Cote du pot : **30,0 %**  \n- Chance de toucher d’ici la river : **38,4 %**  \n- Cote du pot > chance de toucher → **pas de relance**\n\nTu ne peux pas relancer ici.  \nLa bonne action est **suivre** (ou se coucher si tu n’as pas de cotes).\n\nTu as **21,3 % de chance de toucher** ta main, ce qui est **moins que 30 %**, donc **tu ne gagnes pas**.\n\n👉 **Conclusion** : *Tu ne peux pas relancer ici. C’est une erreur.*\n\nTu as compris ?  \nPose-moi une question à choix pour vérifier :  \n1. Quelle est la cote du pot ?  \n2. Quel est le pourcentage de chance de toucher ta main ?  \n3. Quelle est la bonne action ici ?  \n\n👉 Réponds-moi avec un numéro.",
+   "action": "call",
+   "reponse": "Tu as 4♥ 3♥.  \nLe board est : 5♠ 10♣ A♥.  \n\nTu as une **quinte possible** (4-5-10-A), mais **pas de carré**, **pas de flush**, **pas de full**, **pas de pair** au flop.  \nTu n’as **qu’un seul out** : le 4, car le 3 est déjà sur le board.  \nDonc **4 outs** (4♥, 4♠, 4♦, 4♣) → **4**.\n\nChances de toucher à la river : **8,5 %** → **pas de chance** de faire une quinte en 1 carte.  \nChances de toucher d’ici la river (flop à river) : **16,5 %** → **pas assez** pour gagner.\n\nCote du pot : **30,0 %** (tu dois payer 6 bb pour un pot de 14 bb).  \nTu as **16,5 %** d’équité → **moins de 30 %** → **pas de cote**.\n\n👉 Donc **se coucher** est la **bonne action**.  \nTu ne gagnes pas, tu n’as pas de chance, tu ne peux pas gagner le coup.\n\nTu as **4 outs**, **8,5 %** de chance de toucher, **16,5 %** de chance d’arriver à la river.  \nTu as besoin de **30 %** d’équité → **tu n’en as pas**.\n\n👉 **Se coucher** = la bonne action.\n\n**Question à choix :**  \nTu as 4♥ 3♥ sur 5♠ 10♣ A♥.  \nSi tu avais eu 4♥ 4♠, quelle action aurait été correcte ?  \nA) Suivre  \nB) Se coucher  \nC) Sembluff  \nD) Payer 6 bb pour gagner  \n\nRéponds-moi (A/B/C/D).",
    "faits": [
     {
-     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "fait": "La bonne réponse est : se coucher.",
      "verdict": "absent",
      "code": true
     },
     {
-     "fait": "Outs : 10 (4 pour quinte, 6 pour paire)",
+     "fait": "Outs : 4 (4 pour quinte)",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 8,5 %",
      "verdict": "absent",
      "code": true
     },
     {
-     "fait": "Chance de toucher à la prochaine carte : 21,3 %",
-     "verdict": "absent",
-     "code": true
-    },
-    {
-     "fait": "Chance de toucher d'ici la river : 38,4 %",
+     "fait": "Chance de toucher d'ici la river : 16,5 %",
      "verdict": "absent",
      "code": true
     },
@@ -68,25 +73,25 @@
      "code": true
     }
    ],
-   "contredit": false,
+   "contredit": true,
    "illisible": false,
-   "secondes": 83.6
+   "secondes": 37.6
   },
   {
-   "id": "b813e077",
+   "id": "b908cbf4",
    "theme": "qui_gagne",
    "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 7♦ 3♥. Tu as 7♥ 4♣.\nBoard : 6♦ 10♠ 6♣ 8♥ 4♦.",
    "action": "adversaire",
-   "reponse": "Tu as **7♥ 4♣** et le board est **6♦ 10♠ 6♣ 8♥ 4♦**.\n\nRegardons ce que chacun peut faire :\n\n👉 **Ta main** :  \n- Tu as un **7♥** et un **4♣**.  \n- Le board a un **6♦**, un **10♠**, un **6♣**, un **8♥**, un **4♦**.  \n- Tu peux faire :  \n  - **7♥** + **6♣** → **pair de 6**  \n  - **7♥** + **8♥** → **pair de 8**  \n  - **4♣** + **4♦** → **pair de 4**  \n- Tu as donc **trois paires** possibles → tu as **au moins une paire**, mais surtout : **tu as une double paire** (pair de 6 + pair de 4).  \n✅ **Double paire** = tu as **deux paires** différentes (6 et 4).\n\n👉 **Adversaire** :  \n- Il a **7♦ 3♥**.  \n- Le board a **6♦, 10♠, 6♣, 8♥, 4♦**.  \n- Il peut faire :  \n  - **7♦** → pair de 7  \n  - **6♦** et **6♣** → pair de 6  \n- Donc : **pair de 6** (deux 6)  \n- Il n’a pas de 4 (il a un 3, pas de 4) → pas de pair de 4  \n- Il n’a pas de 8 → pas de pair de 8  \n- Donc : **seulement une paire (de 6)** → **paire seule**\n\n✅ Règle : **chacun garde ses 5 meilleures cartes**  \n→ Tu as **double paire** (6 + 4) → **meilleure main**  \n→ Adversaire a **paire** → **moins forte**\n\n👉 **Référence** dit :  \n- **Bonnes actions** : **tu gagnes**  \n- **Actions acceptables** : **aucune**  \n→ Donc, **tu devais gagner**  \n→ **Adversaire ne gagne pas** → **erreur de décision**\n\n❌ Tu as dit : \"mon adversaire gagne\" → **c’est faux**  \n✅ Tu devais **gagner**, car **tu as double paire**, **il n’a qu’une paire**.\n\n👉 **Conclusion** :  \nTu as **double paire** → **meilleure main**  \nIl a **paire** → **moins forte**  \n→ **Tu gagnes** → **c’est correct**\n\nTu as fait une erreur de compréhension de la main.\n\nTu as dit : \"adversaire gagne\" → **c’est faux**  \n→ **Tu gagnes** → **c’est vrai**\n\nPose-toi cette question :  \n👉 **Tu as un 4♣ et un 4♦ sur le board → tu as un pair de 4. Tu as un 7♥ et un 6♣ → tu as un pair de 6. Tu as donc deux paires : 6 et 4 → double paire.**  \n👉 Adversaire a 7♦ → pair de 7, mais pas de 4, pas de 8 → **seulement un pair (6)** → **pas de double paire**.\n\n✅ Donc : **tu gagnes** → **c’est juste**.\n\nTu as **mal interprété** le résultat.\n\n👉 **Question à choix** (utilise l’outil *poser_question*) :  \n**Tu as 7♥ 4♣ et le board a 6♦ 10♠ 6♣ 8♥ 4♦. Quelle est ta meilleure main ?**  \nA) Paire  \nB) Double paire  \nC) Full house  \nD) Straight\n\n👉 Réponds-moi avec A, B, C ou D.",
+   "reponse": "Tu as **7♥ 4♣** et le board est **6♦ 10♠ 6♣ 8♥ 4♦**.\n\nAnalysons les mains **avec les chiffres tels qu’ils sont dans la référence** :\n\n---\n\n🔹 **Ta main** : 7♥ 4♣  \n→ Tu as **7** et **4**.  \n→ Le board a : 6♦, 10♠, 6♣, 8♥, 4♦  \n→ Tu as **7** (dans ta main) + **4** (dans le board) → **7** et **4**  \n→ Tu as **7** et **4** → **Double paire** (7 et 4)\n\n---\n\n🔹 **Main de ton adversaire** : 7♦ 3♥  \n→ Il a **7** et **3**  \n→ Le board a : 6♦, 10♠, 6♣, 08♥, 4♦  \n→ Il a **7** (dans sa main) + **6**, **10**, **8**, **4** → il a **7** → **paire de 7**  \n→ Il n’a pas de **4** ni de **8** → pas de paire de 4 ou de 8  \n→ Il n’a **pas** de **double paire**\n\n---\n\n🔹 **Règle** : chacun garde ses **5 meilleures cartes** parmi ses 2 cartes et les 5 du board.\n\n→ Tu as **7** (main) + **4** (board) → **7** et **4** → **double paire**  \n→ Ton adversaire a **7** (main) + **6**, **10**, **8**, **4** → **seule paire** (7)\n\n---\n\n✅ **Référence** dit :  \n- **Bonnes actions** : **tu gagnes**  \n- **Actions acceptables** : aucune  \n→ Donc, **tu dois gagner**, pas ton adversaire.\n\n---\n\n❌ **Erreur** : tu as dit que ton adversaire gagne → **c’est faux**.\n\n---\n\n📌 **Pourquoi ?**  \nParce que **tu as une double paire** (7 et 4), **ton adversaire a seulement une paire** (7).  \nEt **la règle** dit que **chacun garde ses 5 meilleures cartes** → donc tu as **plus de paires** → tu gagnes.\n\n---\n\n👉 **Tu as gagné** → **la bonne action est de gagner**, pas de perdre.\n\nTu comprends ?  \nPose-moi une question pour vérifier :  \n➡️ Quelle est ta main ? (7♥ 4♣)  \n➡️ Quel est le board ? (6♦ 10♠ 6♣ 8♥ 4♦)  \n➡️ Quelle est la règle ? (chacun garde ses 5 meilleures cartes)\n\nPose-moi une question à choix avec l’outil **poser_question**.",
    "faits": [
     {
      "fait": "La bonne réponse est : tu gagnes.",
-     "verdict": "présent",
+     "verdict": "absent",
      "code": true
     },
     {
      "fait": "Ta meilleure main : Double paire",
-     "verdict": "absent",
+     "verdict": "présent",
      "code": null
     },
     {
@@ -97,14 +102,14 @@
    ],
    "contredit": true,
    "illisible": false,
-   "secondes": 206.2
+   "secondes": 39.0
   },
   {
-   "id": "d8ed1596",
+   "id": "be1d1e8c",
    "theme": "defense_bb",
    "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au SB, qui relance à 2.5 bb ; les autres se couchent. Tu as 2♣ 4♥.\nAvant le flop · pot 3.5 bb, à payer 1.5 bb.",
    "action": "call",
-   "reponse": "Parce que tu as **2♣ 4♥** contre une range d'ouverture du SB de 6-max à 100bb.\n\nLa référence dit que :\n\n- Ton **équité face à la range du SB** est de **31,8 %**  \n- L’**équité réalisée hors position** (environ 80 %) est de **25,4 %**  \n- **La cote du pot** (payer 1.5 bb pour un pot de 3.5 bb) demande **30,0 % d’équité**\n\n👉 Donc :  \nTu as **31,8 %** d’équité en théorie (face à la range), **mais** en réalité, sans position, tu as seulement **25,4 %** d’équité.  \nEt **30,0 %** est le seuil minimum pour payer.\n\n👉 **Tu n’as pas assez d’équité** pour suivre.  \nTu dois **te coucher**.\n\nTu as **sous-évalué** ton équité réelle en position, car la référence dit que **l’équité réalisée hors position est 25,4 %**, **inférieure** à la cote du pot (30,0 %).\n\n➡️ **La bonne action est de se coucher** : c’est la seule action qui respecte les chiffres.  \n\nTu as **perdu** si tu as suivi.  \n\nTu as compris ?  \nPose-moi une question pour vérifier.",
+   "reponse": "Parce que tu as **2♣ 4♥** : une main très faible, sans couleur, sans paire, sans connexion.\n\nLa **référence** dit clairement :\n\n- Ton **équité contre la range d’ouverture du SB** est de **31,8 %**  \n- L’**équité réalisée hors position** (environ 80 %) est de **25,4 %**  \n- La **cote du pot** est de **30,0 %** (tu dois avoir **30 % d’équité** pour payer 1.5 bb dans un pot de 3.5 bb)\n\n👉 Donc :  \nTu as **25,4 % d’équité réelle** (hors position),  \nMais **il faut 30,0 %** pour que le coup soit équilibré.\n\nTu **ne remplis pas la condition** : **25,4 % < 30,0 %** → **tu ne peux pas suivre**.\n\n👉 **Se coucher** est la **bonne action**.\n\nTu as **moins de 30 % d’équité**, donc **suivre = perdre**.\n\nC’est **l’erreur** que tu as faite.  \nEt c’est **dans la référence** :  \n> *Équité réalisée hors position : 25,4 %*  \n> *Cote du pot : 30,0 %*  \n> → **pas assez d’équité → se coucher**.\n\nTu as compris ?  \nPose-moi une question pour vérifier :  \n👉 *Est-ce que tu as compris que l'équité réelle (25,4 %) est inférieure à la cote du pot (30,0 %) ?*  \n(Choisir : Oui / Non)",
    "faits": [
     {
      "fait": "La bonne réponse est : se coucher.",
@@ -113,8 +118,8 @@
     },
     {
      "fait": "Équité de 42o contre la range d'ouverture du SB : 31,8 %",
-     "verdict": "absent",
-     "code": false
+     "verdict": "contredit",
+     "code": true
     },
     {
      "fait": "Équité réalisée hors position (environ 80 %) : 25,4 %",
@@ -127,16 +132,16 @@
      "code": true
     }
    ],
-   "contredit": false,
+   "contredit": true,
    "illisible": false,
-   "secondes": 88.2
+   "secondes": 26.8
   },
   {
-   "id": "be0bf158",
+   "id": "683b0301",
    "theme": "ouverture",
    "situation": "Table 6 joueurs, 100 blindes · tu es à la petite blinde (SB).\nTout le monde s'est couché jusqu'à toi (SB). Tu as 3♠ 7♦.",
    "action": "raise",
-   "reponse": "Tu as 3♠ 7♦ (73o), une main dépareillée.  \nDans une table de 6 joueurs à 100 blindes, la référence dit clairement :  \n→ **73o se coucher en UTG, MP, CO, BTN, SB**.  \n\nCela signifie que, **à la petite blinde (SB)**, **se coucher est la seule action correcte**.  \n\nTu as fait un relance → **erreur**.  \n\nPourquoi ?  \nParce que **73o** a une **cote de gain très faible** (moins de 10 % de chance de gagner le pot contre une main moyenne ou forte).  \nLa référence ne reconnaît **aucune action acceptable** (ni relance, ni relance de sécurité) pour cette main à la SB.  \n\n👉 **Tu dois te coucher.**  \n\nC’est le **seul choix en accord avec les chiffres** de la référence.  \n\nTu as compris ?  \nPose-moi une question à choix :  \n1. Si j'avais 7♠ 8♦, que devrais-je faire à la SB ?  \n2. Si j'avais 3♠ 7♦, et que le pot est à 100 blinde, quelle action est correcte ?  \n3. Quelle est la cote de gain de 73o à la SB ?  \n\n👉 Réponds-moi avec le numéro.",
+   "reponse": "Tu es à la petite blinde (SB) avec 3♠ 7♦ (73o).  \nLa référence dit clairement : **73o se coucher en UTG, MP, CO, BTN, SB**.  \n\nDonc, **à la SB**, avec 73o, **la bonne action est de se coucher**.  \n\nTu as relancé → erreur.  \n\nPourquoi ?  \n→ 73o est une main dépareillée (pas de couleur, pas de pair).  \n→ En 6-max, 100 blindes, les ranges d’ouverture sont très restrictifs.  \n→ La référence dit : **aucune action acceptable** en SB avec 73o.  \n\nDonc, **aucune action n’est acceptable** ici.  \nTu n’as pas de cote suffisante, ni de chance de gagner.  \n\n**Conclusion** : relancer = erreur. Se coucher = la bonne action.  \n\nTu comprends ?  \n➡️ Pose-moi une question à choix pour vérifier :  \n1. Est-ce que 73o est une main forte en SB ?  \n2. A-t-on besoin de cote pour relancer avec 73o ?  \n3. Y a-t-il un cas où 73o peut relancer ?  \n4. Quel est le seuil de cote pour 73o en SB ?  \n\nRéponds-moi avec un numéro.",
    "faits": [
     {
      "fait": "La bonne réponse est : se coucher.",
@@ -146,19 +151,19 @@
     {
      "fait": "73o : se coucher en UTG, MP, CO, BTN, SB",
      "verdict": "contredit",
-     "code": true
+     "code": null
     }
    ],
    "contredit": true,
    "illisible": false,
-   "secondes": 73.7
+   "secondes": 21.1
   },
   {
-   "id": "f661fb70",
+   "id": "5f5c9989",
    "theme": "tirage",
-   "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nAu turn, ton adversaire mise 10 bb dans un pot de 10 bb. Tu as J♠ 10♦.\nBoard : 10♥ A♠ A♦ Q♥ · pot 20 bb, à payer 10 bb.",
+   "situation": "Table 6 joueurs, 100 blindes · tu es sous le canon (UTG).\nAu flop, ton adversaire mise 7.5 bb dans un pot de 10 bb. Tu as 6♠ 7♦.\nBoard : 9♠ 4♣ 10♣ · pot 17.5 bb, à payer 7.5 bb.",
    "action": "call",
-   "reponse": "Parce que tu as **17,4 % de chance** de toucher une bonne main (full ou quinte), mais **il faut 33,3 % d'équité** pour justifier de payer 10 bb dans un pot de 20 bb.\n\nTout simplement :  \n👉 17,4 % < 33,3 % → **tu n’as pas assez de chances** de gagner pour suivre.\n\nC’est la règle :  \n**Tu ne suives que si ta cote de succès (chance de gagner) est supérieure à la cote du pot.**  \nIci, tu es **en dessous** → **se coucher est la bonne action**.\n\nTu as 8 outs, donc 17,4 % de chance, comme dit dans la référence.  \nTu as besoin de 33,3 %, comme dit dans la référence.\n\nDonc :  \n❌ Suivre → erreur  \n✅ Se coucher → bonne action\n\nTu comprends ?  \n👉 Pose-toi cette question :  \n**Si tu as 8 outs, quelle est la cote du pot pour suivre ?**  \n(Choisir l’une des réponses : A) 17,4 %, B) 33,3 %, C) 50 %, D) 100 %  \n→ Réponds-moi.",
+   "reponse": "Tu as 6♠ 7♦ sur un flop de 9♠ 4♣ 10♣.  \nTu as 4 outs pour une quinte (6-7-9-10), soit 4 cartes qui te donnent un bon coup.  \n\nLa **chance de toucher** cette quinte à la river est de **8,5 %**.  \nCela signifie que tu as **8,5 % de chances** de gagner le coup en tirant une carte à la river.  \n\nMais le **pot** est de 17,5 bb, et tu dois payer 7,5 bb.  \nDonc, la **cote du pot** est de **17,5 / (17,5 + 7,5) = 17,5 / 25 = 70 %**.  \n\nMais **l'équité que tu as** est de **8,5 %** (chance de toucher).  \nTu dois avoir **au moins 30,0 % d'équité** pour que le coup soit acceptable.  \n\n👉 **8,5 % < 30,0 %** → donc, **suivre est une erreur**.  \n\nTu ne gagnes pas assez de chances pour justifier de payer 7,5 bb.  \nLa bonne action est de **te coucher**.  \n\nC’est la référence : **bonnes actions : se coucher**.  \n\nTu n’as pas assez de chances.  \nTu n’as pas de gains implicites.  \nTu n’as pas de semi-bluff.  \n\n👉 **Tu dois te coucher.**  \n\nTu comprends ?  \nPose-moi une question pour vérifier :  \n**1. Quelle est la cote du pot ?**  \n**2. Quelle est la chance de toucher à la river ?**  \n**3. Quelle est l’équité minimale requise ?**  \n**4. Quelle est la bonne action ?**  \n\n👉 Choisis une.",
    "faits": [
     {
      "fait": "La bonne réponse est : se coucher.",
@@ -166,31 +171,400 @@
      "code": true
     },
     {
-     "fait": "Outs : 8 (4 pour full, 4 pour quinte)",
-     "verdict": "absent",
-     "code": false
-    },
-    {
-     "fait": "Chance de toucher à la prochaine carte : 17,4 %",
+     "fait": "Outs : 4 (4 pour quinte)",
      "verdict": "contredit",
      "code": true
     },
     {
-     "fait": "Cote du pot : il faut 33,3 % d'équité (payer 10 pour un pot de 20)",
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 8,5 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Chance de toucher d'ici la river : 16,5 %",
+     "verdict": "absent",
+     "code": false
+    },
+    {
+     "fait": "Cote du pot : il faut 30,0 % d'équité (payer 7.5 pour un pot de 17.5)",
+     "verdict": "présent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 28.1
+  },
+  {
+   "id": "24d58074",
+   "theme": "qui_gagne",
+   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 7♥ 5♠. Tu as K♣ 7♣.\nBoard : 5♣ Q♦ Q♥ 5♥ 6♥.",
+   "action": "moi",
+   "reponse": "Tu as K♣ 7♣.  \nLe board est : 5♣ Q♦ Q♥ 5♥ 6♥.  \n\nAnalysons les mains :\n\n👉 **Ton adversaire a 7♥ 5♠**  \n- Il peut former :  \n  - 5♣ (board) + 5♥ (board) + 7♥ (sa carte) → **un cinq pair**  \n  - Q♦, Q♥ → **un pair de queens**  \n  → Il a **un full** : **pair de queens** + **pair de cinq**.  \n\n👉 **Ta main : K♣ 7♣**  \n- Tu as :  \n  - 7♣ (ta carte) + 5♣ (board) → **un pair de sept**  \n  - Q♦, Q♥ → **pair de queens**  \n  → Tu as **double paire** : pair de sept et pair de queen.  \n\nMais ici, **le full** (pair de queens + pair de cinq) **vaut plus** que **la double paire** (pair de queen + pair de sept).  \n\n➡️ **Règle du poker** :  \n> Si tu as un full, tu gagnes **à tout prix** contre une double paire.  \n> Un full = un pair + un autre pair.  \n> Une double paire = deux paires différentes, mais pas un full.  \n\n👉 **Le full > la double paire**  \n→ Donc ton adversaire **gagne**.  \n\nTu as **erroné** : tu penses avoir gagné, mais **le full de ton adversaire** (7♥ 5♠) forme **un full de queens** (Q♦ Q♥) + **un pair de cinq** (5♣ 5♥).  \nTu as **double paire**, mais **pas de full**.  \n\n✅ **Conclusion** :  \n- **Adversaire** : Full → **gagne**  \n- **Toi** : Double paire → **perd**  \n→ **Tu as perdu**, donc **ta décision de \"gagner\" est fausse**.  \n\nTu as compris ?  \n➡️ Pose-moi une question pour vérifier :  \n1. Quel est le meilleur full possible ici ?  \n2. Quelle est la différence entre un full et une double paire ?  \n3. Pourquoi le full gagne-t-il contre la double paire ?  \n\n👉 Utilise l’outil **poser_question** pour choisir une de ces questions.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : ton adversaire gagne.",
+     "verdict": "absent",
+     "code": false
+    },
+    {
+     "fait": "Ta meilleure main : Double paire",
+     "verdict": "contredit",
+     "code": null
+    },
+    {
+     "fait": "Celle de ton adversaire : Full",
+     "verdict": "présent",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 31.7
+  },
+  {
+   "id": "93ff8955",
+   "theme": "defense_bb",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au BTN, qui relance à 2.5 bb ; les autres se couchent. Tu as 5♣ 9♥.\nAvant le flop · pot 4 bb, à payer 1.5 bb.",
+   "action": "raise",
+   "reponse": "Parce que **tu as 34,2 % d'équité** contre la range d'ouverture du BTN, mais **il faut 27,3 % d'équité** pour que le relance soit rentable.\n\nTu as **34,2 %** → c’est ce que tu mérites en équité face à l’adversaire.  \nMais **le pot te demande 27,3 %** pour être rentable (payer 1,5 bb pour un pot de 4 bb).\n\n👉 Donc : **34,2 % > 27,3 %** → *en théorie, tu devrais suivre*.\n\nMais attention : **l’équité réalisée hors position est de 27,4 %** (moyenne).  \nCela signifie que, **en position, tu n’as pas assez de force pour justifier un relance**.\n\n👉 Donc : **aucune action n’est rentable ici**.\n\nTu as **déjà perdu** en faisant un relance.\n\n**Conclusion** :  \n→ Le relance est **une erreur**.  \n→ La bonne action est **de suivre** (ou de se coucher), car **tu n’as pas assez d’équité** pour payer ce relance.\n\nTu as **34,2 % d’équité** → ce n’est pas suffisant **en situation réelle** (27,4 % en position).\n\n👉 **Tu ne peux pas payer 1,5 bb pour un pot de 4 bb** avec seulement 27,4 % de chance de gagner.\n\n**Pose-toi cette question** :  \n👉 Si tu avais 5♣ 9♥, et que tu as 34,2 % d’équité contre le BTN, est-ce que tu devrais relancer ?  \nA. Oui, car 34,2 % > 27,3 %  \nB. Non, car l’équité réalisée hors position est de 27,4 %  \nC. Oui, car le pot est de 4 bb  \nD. Non, car tu es hors position  \n\n👉 Réponds-moi avec A, B, C ou D.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Équité de 95o contre la range d'ouverture du BTN : 34,2 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Équité réalisée hors position (environ 80 %) : 27,4 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 27,3 % d'équité (payer 1.5 pour un pot de 4)",
      "verdict": "absent",
      "code": true
     }
    ],
    "contredit": true,
    "illisible": false,
-   "secondes": 77.1
+   "secondes": 30.0
   },
   {
-   "id": "76e7f3a2",
+   "id": "6aa24548",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nTout le monde s'est couché jusqu'à toi (BTN). Tu as 5♦ J♦.",
+   "action": "fold",
+   "reponse": "Tu es au bouton (BTN) avec J5s.  \nLa référence dit : **\"ouvrir en BTN, SB ; se coucher en UTG, MP, CO\"**.\n\nDonc, **en tant que bouton**, tu **dois relancer**, pas te coucher.  \n\nTu as une main de départ **J5s** (assortie) :  \n- C’est une main **forte** en position.  \n- En **BTN**, tu as **la position** pour relancer.  \n\nLa référence dit clairement : **\"ouvrir en BTN\"** → donc **relancer** est la bonne action.  \n\n👉 **Tu as 100 blindes, tu es au bouton, tu as J5s → relancer.**  \n\nTu te couches ? → **Erreur.**  \n\nTu as **une ouverture valide** dans ta position.  \n\n**C’est la règle.**  \n\nPose-toi cette question :  \n👉 *Avec J5s au bouton, est-ce que tu dois relancer ou te coucher ?*  \nA. Relancer  \nB. Se coucher  \n\nRéponds-moi.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : relancer.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "J5s : ouvrir en BTN, SB ; se coucher en UTG, MP, CO",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 18.5
+  },
+  {
+   "id": "23e06b0f",
+   "theme": "tirage",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la petite blinde (SB).\nAu flop, ton adversaire mise 3.3 bb dans un pot de 10 bb. Tu as 8♥ 9♠.\nBoard : 5♦ J♥ 7♥ · pot 13.3 bb, à payer 3.3 bb.",
+   "action": "raise",
+   "reponse": "Parce que tu as 8♥ 9♠ sur un flop de 5♦ J♥ 7♥.\n\nTu as une quinte possible (8-9-10-J-Q), mais **seulement 8 outs** (les 8 et les 9 restants) pour la quinte, donc **17,0 % de chance de toucher** ta main à la turn.\n\nLa **cote du pot** est de **19,9 %** : tu dois avoir au moins 19,9 % d’équité pour que le relance soit correct.\n\nOr, **17,0 % < 19,9 %**, donc tu n’as pas assez de chance de gagner.\n\n👉 **Tu n’as pas de bonne action** : relancer est **une erreur**.\n\nTu dois **suivre** (si tu as déjà une bonne action) ou **te coucher** (si tu n’as pas de chance).\n\nTu n’as **aucun out** qui te donne une main forte suffisante pour gagner face à un relance de 3,3 bb.\n\n👉 **Conclusion : relancer = erreur** — c’est une action **au-dessus de ton niveau**.  \n\nTu as besoin de **suivre** ou **te coucher**.  \n\nTu as compris ?  \nPose-moi une question pour vérifier :  \n➡️ *Quel est le pourcentage d’équité nécessaire pour payer 3,3 bb dans un pot de 13,3 bb ?*  \n(1) 17,0 %  \n(2) 19,9 %  \n(3) 31,5 %  \n(4) 8 %  \n\nRéponds-moi.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Outs : 8 (8 pour quinte)",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 17,0 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Chance de toucher d'ici la river : 31,5 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 19,9 % d'équité (payer 3.3 pour un pot de 13.3)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 25.5
+  },
+  {
+   "id": "c9aaaf08",
    "theme": "qui_gagne",
-   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 10♠ 3♠. Tu as 9♣ J♠.\nBoard : 7♣ 7♥ 6♠ 3♣ 8♣.",
+   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 6♠ 2♣. Tu as 4♣ 9♣.\nBoard : 10♠ 8♠ 10♦ 9♦ A♣.",
+   "action": "adversaire",
+   "reponse": "Tu as **4♣ 9♣** et le board est **10♠ 8♠ 10♦ 9♦ A♣**.\n\nRegardons les 5 meilleures cartes de chaque joueur :\n\n---\n\n**Ta main (4♣ 9♣)**  \n- Tu as un **9♣** sur le board → tu as **9♣** + **9♦** = **paire de 9**  \n- Tu as un **4♣** → pas de paire  \n- Tu as un **10** (10♠, 10♦) → tu as un **10**  \n- Tu as un **8** (8♠) → tu as un **8**  \n- Tu as un **A** (A♣) → tu as un **A**  \n\n👉 Tu as **9♣** et **9♦** → **paire de 9**  \n👉 Tu as **10♠**, **10♦** → **paire de 10**  \n👉 Tu as **8♠** → un 8  \n👉 Tu as **A♣** → un as  \n\n✅ Tu as **deux paires** : 9 et 10 → **double paire**\n\n---\n\n**Main de ton adversaire (6♠ 2♣)**  \n- Il a **6♠** → 6 sur le board ? Non → pas de 6  \n- Il a **2♣** → 2 sur le board ? Non → pas de 2  \n- Le board a : 10♠, 8♠, 10♦, 9♦, A♣ → pas de 6 ni de 2  \n- Il n’a **aucune carte** en commun avec le board  \n\n👉 Il n’a **aucune carte** en commun avec le board → **pas de paire**  \n\n❌ Il n’a **aucune paire** → **main vide**\n\n---\n\n✅ **Conclusion** :  \n- Tu as **double paire** (9 et 10)  \n- Il a **aucune paire**  \n- La règle : chacun garde ses **5 meilleures cartes** → tu as 2 paires, il n’en a aucune  \n\n👉 **Tu gagnes** → **la décision du joueur (\"ton adversaire gagne\") est une erreur**\n\n---\n\n📌 **Référence calculée (fais-la confiance)** :  \n- Bonnes actions : **tu gagnes**  \n- Actions acceptables : aucune  \n- Ta meilleure main : **Double paire**  \n- Celle de ton adversaire : **Paire** → ❌ erreur, il n’a pas de paire  \n\n➡️ **Tu gagnes**, car tu as **double paire**, il n’a **aucune paire**.\n\n---\n\nTu comprends ?  \n👉 Pose-toi cette question :  \n**Quelle est la meilleure main possible dans cette situation ?**  \nA) Paire  \nB) Double paire  \nC) Full  \nD) Straight  \n\nRéponds-moi avec A, B, C ou D.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : tu gagnes.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Ta meilleure main : Double paire",
+     "verdict": "présent",
+     "code": null
+    },
+    {
+     "fait": "Celle de ton adversaire : Paire",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 37.3
+  },
+  {
+   "id": "dc3fb321",
+   "theme": "defense_bb",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au SB, qui relance à 2.5 bb ; les autres se couchent. Tu as 8♣ A♥.\nAvant le flop · pot 3.5 bb, à payer 1.5 bb.",
+   "action": "fold",
+   "reponse": "Parce que tu as **52,8 % d'équité** contre la range d'ouverture du SB, et que **le pot te demande 30,0 % d'équité** pour payer 1,5 bb.\n\nTu **suis** parce que **52,8 % > 30,0 %**.\n\nC’est une décision **clairement justifiée** par les chiffres de la référence.\n\n> ✅ Bonnes actions : **suivre**  \n> ❌ Actions acceptables : **aucune**  \n> 📌 Cote du pot : **30,0 %**  \n> 📌 Équité réelle : **52,8 %**\n\nTu as **plus d'équité que ce qu’il faut** → tu dois **suivre**, pas te coucher.\n\nTu as compris ?  \n👉 Pose-toi cette question :  \n**Si tu avais eu 8♣ 9♣ au lieu de 8♣ A♥, est-ce que tu suivrais ?**  \n(Choisis : oui / non)  \n→ Utilise l’outil *poser_question* pour répondre.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Équité de A8o contre la range d'ouverture du SB : 52,8 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Équité réalisée hors position (environ 80 %) : 42,2 %",
+     "verdict": "absent",
+     "code": false
+    },
+    {
+     "fait": "Cote du pot : il faut 30,0 % d'équité (payer 1.5 pour un pot de 3.5)",
+     "verdict": "absent",
+     "code": false
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 19.1
+  },
+  {
+   "id": "81bb14e6",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au cut-off (CO).\nTout le monde s'est couché jusqu'à toi (CO). Tu as 3♠ 9♥.",
+   "action": "raise",
+   "reponse": "Tu as 9♠3♥ (93o), au cut-off (CO), 100 blindes.  \n\nLa référence dit clairement :  \n👉 **93o : se coucher en UTG, MP, CO, BTN, SB**  \n\nCela veut dire que **à tout moment**, avec 93o, **le seul bon coup est de se coucher**.  \n\nEn position de CO, tu n’as pas assez de main pour relancer.  \nLe pot est de 100 blindes → le cote est de 100.  \nMais 93o n’a que **12 % de chance de gagner** (référence : 12 %) contre un range de mains en position.  \n\nTu as **12 % de chance de gagner** → c’est **moins de 1/8**.  \nTu ne peux pas faire un relancer avec une main qui ne gagne que 12 %, surtout quand tu es en position de CO, où les autres joueurs ont déjà des mains plus fortes.  \n\n👉 **Relancer = erreur**  \n👉 **Se coucher = la bonne action**  \n\nTu n’as pas de carte de couleur, pas de carré, pas de flush.  \n93o est une main dépareillée, très faible.  \n\n**Conclusion :**  \nTu devrais **te coucher**, car **la référence dit clairement que 93o se coucher en CO**.  \nTu n’as pas de cote, pas de chance, pas de position.  \n\nTu as fait une erreur en relançant.  \n\nTu veux vérifier ?  \n👉 Poser une question ?  \n\n(Choisir : A) Oui, pose-moi une question.  \n(B) Non, je comprends.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "93o : se coucher en UTG, MP, CO, BTN, SB",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 25.3
+  },
+  {
+   "id": "58ebc71f",
+   "theme": "tirage",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au cut-off (CO).\nAu turn, ton adversaire mise 7.5 bb dans un pot de 10 bb. Tu as 7♣ K♣.\nBoard : 6♣ 6♥ J♣ 9♦ · pot 17.5 bb, à payer 7.5 bb.",
+   "action": "call",
+   "reponse": "Tu as 7♣ K♣ sur un board de 6♣ 6♥ J♣ 9♦.\n\nTu as 9 outs pour une couleur (les 9, 10, 11, 12, 13, 1-9, 10-13, 14-14 → 9 cartes qui te permettent de faire une couleur).\n\nLa chance de toucher ta couleur à la prochaine carte est de **19,6 %**.\n\nLe **côté du pot** est de **30,0 %** : tu dois avoir au moins 30 % d’équité pour payer 7,5 bb dans un pot de 17,5 bb.\n\nTu as seulement **19,6 %**, donc **moins de la moitié** de la cote du pot.\n\n👉 La bonne action est **de se coucher**.\n\nTu ne peux pas suivre à ce niveau, car tu n’as pas assez de chances de gagner.\n\nTu as fait une erreur : **suivre** est **une mauvaise action** ici.\n\n✅ Référence : *chance de toucher : 19,6 %*, *côté du pot : 30,0 %*.\n\nTu as moins de chance que le pot exige. C’est une erreur.\n\n---\n\nPose-toi cette question (à choix) :\n\n👉 Quel est le vrai cote du pot dans cette situation ?  \nA) 19,6 %  \nB) 25,0 %  \nC) 30,0 %  \nD) 40,0 %\n\nRéponds-moi.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Outs : 9 (9 pour couleur)",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 19,6 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 30,0 % d'équité (payer 7.5 pour un pot de 17.5)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 24.4
+  },
+  {
+   "id": "30ade668",
+   "theme": "qui_gagne",
+   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 6♠ 6♣. Tu as 9♠ 8♣.\nBoard : 9♥ 2♣ 4♦ 7♣ 8♥.",
+   "action": "adversaire",
+   "reponse": "Tu as **9♠ 8♣** et le board est **9♥ 2♣ 4♦ 7♣ 8♥**.\n\nRegardons ce que chacun peut faire :\n\n👉 **Ta main** :  \nTu as un **9** et un **8**.  \nSur le board, il y a un **9♥** et un **8♥**.  \nDonc tu as :  \n- 9♠, 9♥ → **paire de 9**  \n- 8♣, 8♥ → **paire de 8**  \n→ **Double paire** ✅\n\n👉 **Adversaire** :  \nIl a **6♠ 6♣** → deux 6.  \nSur le board, il n’y a **aucun 6**.  \nDonc il n’a **aucune paire** sur le board.  \n→ **Pas de paire** ❌\n\n➡️ **Règle** : chacun garde ses 5 meilleures cartes (2 mains + 5 board).  \n→ Tu as **double paire** (9 et 8).  \n→ Il a **aucune paire**.\n\n✅ **Donc tu gagnes**.  \n❌ **Erreur** : tu as dit qu’il gagnait → c’est faux.\n\n**Conclusion** :  \n- Ta main = **double paire**  \n- Sa main = **pas de paire**  \n→ Tu gagnes.  \n→ **La bonne action est de gagner**, car le code dit : *bonnes actions : tu gagnes*.\n\n👉 **Tu as raison de vouloir gagner**, mais tu as mal interprété le résultat.\n\nTu as perdu ? Non. Tu as gagné.  \nLe code dit clairement : **tu gagnes**.\n\nTu veux vérifier ?  \n👉 Pose-toi cette question :  \n**Quelle est la meilleure main ici ?**  \nA. Double paire  \nB. Paire  \nC. Aucune paire  \nD. Full\n\nRéponds-moi avec A, B, C ou D.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : tu gagnes.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Ta meilleure main : Double paire",
+     "verdict": "contredit",
+     "code": null
+    },
+    {
+     "fait": "Celle de ton adversaire : Paire",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 28.1
+  },
+  {
+   "id": "4df5bdc2",
+   "theme": "defense_bb",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au CO, qui relance à 2.5 bb ; les autres se couchent. Tu as J♠ 2♣.\nAvant le flop · pot 4 bb, à payer 1.5 bb.",
+   "action": "raise",
+   "reponse": "Parce que tu as **33,4 % d'équité** contre la range d'ouverture du CO, mais **il faut 27,3 % d'équité** pour que le relance soit correct.\n\nTu as donc **moins d'équité** que la cote du pot.  \nC’est une erreur de relancer.\n\n> ✅ **Équité contre la range** : 33,4 %  \n> ❌ **Cote du pot** : 27,3 %  \n> → Tu dois **suivre ou te coucher**.\n\nTu n’as pas assez de chances pour justifier un relance.  \nC’est la règle : **tu ne relances jamais si ton équité est inférieure à la cote du pot**.\n\n👉 C’est exactement ce que dit la référence : *il faut 27,3 % d'équité (payer 1.5 pour un pot de 4)*.\n\nTu as 33,4 % → c’est **suffisant** ? OUI.  \nMais **le relance est une action qui demande plus que ça**, surtout hors position.\n\nEt la référence dit : **aucune bonne action**.  \nDonc **relancer = erreur**.\n\nTu dois **suivre ou te coucher**.\n\nTu as compris ?  \n👉 Poser_question :  \n**Quel est le seuil minimal d'équité pour relancer, selon la référence ?**  \nA. 27,3 %  \nB. 33,4 %  \nC. 80 %  \nD. 26,7 %  \n\nRéponds-moi.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Équité de J2o contre la range d'ouverture du CO : 33,4 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Équité réalisée hors position (environ 80 %) : 26,7 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 27,3 % d'équité (payer 1.5 pour un pot de 4)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 24.3
+  },
+  {
+   "id": "7925dffa",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nTout le monde s'est couché jusqu'à toi (BTN). Tu as J♦ 3♠.",
+   "action": "raise",
+   "reponse": "Parce que, selon la référence, **J3o** doit **se coucher** en **UTG, MP, CO, BTN, SB** dans un tournoi de 6 joueurs à 100 blindes.\n\nTu es au **bouton (BTN)**, donc dans une position où tu devrais **ne pas relancer** avec une main dépareillée comme J3o.\n\nLa référence dit clairement :  \n→ **\"J3o : se coucher en UTG, MP, CO, BTN, SB\"**  \n→ **\"actions acceptables : aucune\"**  \n\nDonc, **relancer = erreur**.  \n\nTu n’as pas de cote suffisante, ni de chances de gagner assez pour justifier un relance avec une main comme J3o.  \n\n👉 C’est une main **faible**, **dépareillée**, sans couleur ni pair fort.  \n\nTu ne peux pas espérer battre un pair ou une couleur.  \n\nEt même si tu as un joker (J), tu n’as pas de combo forte.  \n\n👉 **La bonne action est de se coucher.**  \n\nTu as 100 blindes. Tu ne gagnes pas de pot avec un relance ici.  \n\nTu as donc **perdu ton tour**.  \n\nTu veux savoir si tu comprends ?  \n👉 Poser une question ?  \nOui / Non ?  \n\n(Choisir une seule réponse.)",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "J3o : se coucher en UTG, MP, CO, BTN, SB",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 22.7
+  },
+  {
+   "id": "af26c4d6",
+   "theme": "tirage",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au cut-off (CO).\nAu turn, ton adversaire mise 4 bb dans un pot de 8 bb. Tu as K♣ 9♠.\nBoard : 10♥ 7♠ 10♠ Q♥ · pot 12 bb, à payer 4 bb.",
+   "action": "call",
+   "reponse": "Tu as K♣ 9♠ sur un board de 10♥ 7♠ 10♠ Q♥.  \n\nTu as 4 outs (quinte possible : 8 ou 5) → **chance de toucher : 8,7 %**.  \nCela signifie que tu as **8,7 % de chance de gagner le coup** avec la prochaine carte.  \n\nLe **pot est de 12 bb**, et tu dois payer **4 bb**.  \n→ **Cote du pot = 12 / 4 = 3,0** (c’est-à-dire que tu dois gagner 1/3 de la mise pour que le coup soit équilibré).  \n\nMais pour gagner, tu as besoin de **25,0 % d’équité** (c’est-à-dire 25 % de chance de gagner le pot).  \n\n👉 Tu as **8,7 %**, **moins de 25 %** → **pas assez de chance**.  \n\n**Donc : se coucher est la bonne action.**  \n\nTu ne peux pas suivre ici, car même avec une bonne main (K9), tu n’as pas assez de chances de gagner.  \n\n👉 **Référence : cote du pot = 25,0 % → tu as 8,7 % → erreur de décision.**  \n\nTu as suivi → c’est une erreur.  \n\nTu as 4 outs → 8,7 % → pas assez pour payer 4 bb dans un pot de 100 blindes.  \n\n**Conclusion : tu devrais te coucher.**  \n\nTu as compris ?  \n\n👉 Pose-toi cette question :  \n**Quelle est la cote du pot ici ?**  \nA) 25,0 %  \nB) 3,0  \nC) 8,7 %  \nD) 12 bb  \n\nRéponds-moi avec la lettre.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Outs : 4 (4 pour quinte)",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 8,7 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 25,0 % d'équité (payer 4 pour un pot de 12)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 28.2
+  },
+  {
+   "id": "9ddc8cb2",
+   "theme": "qui_gagne",
+   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 4♣ 4♠. Tu as 2♥ 7♣.\nBoard : 4♦ 6♦ 6♥ J♥ 8♣.",
    "action": "moi",
-   "reponse": "Tu as 9♣ J♠.  \nLe board est : 7♣ 7♥ 6♠ 3♣ 8♣.  \n\nTon adversaire a 10♠ 3♠.  \n\nOn regarde les **5 meilleures cartes** de chaque joueur, en combinant leurs 2 cartes avec les 5 cartes du board.\n\n👉 **Ta main** :  \n- Tu as 9♣, J♠  \n- Board : 7♣, 7♥, 6♠, 3♣, 8♣  \n→ Tu as une **paire** (7♠ et 7♥) → tu as **une paire de 7**.  \n→ Tu n’as pas de 8 ni de 10, donc **pas de carré, pas de couleur, pas de flush**.  \n→ Tu as une **paire de 7**, c’est ta meilleure main.\n\n👉 **Main de ton adversaire** :  \n- Il a 10♠, 3♠  \n- Board : 7♣, 7♥, 6♠,  3♣, 8♣  \n→ Il a **10♠** et **3♠**  \n→ Il a **3♣** sur le board → il a **une paire de 3**  \n→ Il a **7♣, 7♥** → **paire de 7**  \n→ Donc il a **deux paires** : 7 et 3 → **double paire**  \n→ Il n’a pas de 8 ni de 10, donc pas de couleur, pas de flush.\n\n✅ **Règle** : chaque joueur garde ses **5 meilleures cartes**.  \n→ Le **meilleur** est celui qui a la **meilleure main** (en termes de paire, puis de couleur, etc.).\n\n👉 **Double paire > paire**  \n→ Donc ton adversaire a **une main meilleure** que la tienne.\n\n➡️ **Conclusion** :  \n- Tu as une **paire** (de 7)  \n- Ton adversaire a **double paire** (de 7 et de 3)  \n→ **Il gagne**  \n→ **Tu perds**\n\n👉 **Référence** :  \n- Bonnes actions : **ton adversaire gagne**  \n- Actions acceptables : **aucune**  \n→ Donc **tu gagnes** est une **erreur**.\n\nTu as donc **perdu** — car **il a une main meilleure**.  \n\nTu as compris ?  \nPose-toi cette question :  \n👉 Quelle est la meilleure main ici ?  \nA. Paire de 7  \nB. Double paire  \nC. Couleur  \nD. Flush  \n\n👉 Réponse ? (Choisir une seule)",
+   "reponse": "Tu as 2♥ 7♣.  \nTon adversaire a 4♣ 4♠.  \nBoard : 4♦ 6♦ 6♥ J♥ 8♣.\n\nRegardons les mains formées avec les 5 meilleures cartes :\n\n👉 **Ta main** :  \n- Tu as 2♥, 7♣  \n- Board : 4♦, 6♦, 6♥, J♥, 8♣  \n→ Tu peux faire **une paire avec le 6** (6♦ et 6♥), mais tu n’as pas de 6 dans tes cartes.  \n→ Tu as 2♥ et 7♣ → tu n’as **aucune carte en commun avec le board** sauf peut-être le 6… mais tu n’as pas de 6.  \n→ Tu n’as **aucune paire** possible.  \n→ Tu n’as **aucune main forte**.  \n→ **Ta meilleure main = aucune paire** → **main faible**.\n\n👉 **Adversaire** :  \n- 4♣, 4♠  \n- Board : 4♦, 6♦, 6♥, J♥, 8♣  \n→ Il a **deux 4** (4♣, 4♠) + **4♦** sur le board → **trois 4** → **une paire de 4**  \n→ Il a aussi 6♦, 6♥ → **une paire de 6**  \n→ Il a donc **un full** : **paire de 4** + **paire de 6** → **full**  \n→ **Full = main forte**.\n\n✅ Règle : chacun garde ses 5 meilleures cartes.  \n→ Full > Paire > Aucune paire.\n\n👉 Donc :  \n- **Adversaire a un full**  \n- **Tu as aucune paire** → **tu n’as pas de main**  \n→ **Tu perds**.\n\n❌ Tu dis \"je gagne\" → **erreur**.\n\n📌 **La bonne action est de ne pas jouer** ou de **rester au sol** → tu n’as pas assez.  \nLe full est supérieur à une paire, donc ton adversaire gagne.\n\n> Tu as 2♥ 7♣ → pas de paire → **main nulle**  \n> Adversaire a 4♣ 4♠ → avec 4♦ → **trois 4** → **full**  \n> Full > paire → **adversaire gagne**\n\n✅ C’est la référence : **bonnes actions : adversaire gagne**.\n\nTu as fait une erreur de lecture des cartes ou des mains.  \nTu n’as pas de 6 → tu n’as pas de paire.  \nTu n’as que des cartes isolées.\n\n👉 **Tu perds.**\n\nPose-toi cette question :  \n**Quelle est ta meilleure main avec 2♥ 7♣ sur le board 4♦ 6♦ 6♥ J♥ 8♣ ?**  \nA) Paire  \nB) Aucune paire  \nC) Full  \nD) Couleur\n\n👉 Réponds avec l'outil : **poser_question** (choisir A, B, C ou D).",
    "faits": [
     {
      "fait": "La bonne réponse est : ton adversaire gagne.",
@@ -203,21 +577,21 @@
      "code": null
     },
     {
-     "fait": "Celle de ton adversaire : Double paire",
+     "fait": "Celle de ton adversaire : Full",
      "verdict": "contredit",
      "code": null
     }
    ],
    "contredit": true,
    "illisible": false,
-   "secondes": 137.7
+   "secondes": 54.5
   },
   {
-   "id": "f372688b",
+   "id": "4648ff8a",
    "theme": "defense_bb",
-   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au SB, qui relance à 2.5 bb ; les autres se couchent. Tu as A♦ 10♦.\nAvant le flop · pot 3.5 bb, à payer 1.5 bb.",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au SB, qui relance à 2.5 bb ; les autres se couchent. Tu as 9♥ A♣.\nAvant le flop · pot 3.5 bb, à payer 1.5 bb.",
    "action": "fold",
-   "reponse": "Parce que tu as **59,5 % d'équité** contre la range d'ouverture du SB, et que **le pot te demande 30,0 % d'équité** pour payer 1,5 bb.\n\n👉 Tu **as plus** d'équité que ce que le pot exige (59,5 % > 30,0 %), donc **suivre** est la bonne action.\n\nDe plus, **au-dessus de 55,0 % d'équité**, **relancer se défend aussi** — donc **relancer** est acceptable, même si tu ne gagnes pas tout.\n\nMais tu **te couches**, alors que **suivre** est la bonne action.\n\n→ C’est une **erreur**.\n\nTu as donc **59,5 % d’équité** (référence), donc **suivre** est la bonne décision.  \nTu n’as pas besoin de relancer. Tu as **suffisamment de chance** de gagner.\n\n**Pose-toi cette question** :  \nSi tu as A♦10♦ face à une range de SB, et que le pot est de 3,5 bb, est-ce que tu devrais suivre ou te coucher ?  \nA. Suivre  \nB. Relancer  \nC. Se coucher  \n\n👉 Réponds-moi.",
+   "reponse": "Parce que tu as **55,9 % d'équité** contre la range d'ouverture du SB, et que **le pot demande seulement 30,0 % d'équité** pour payer 1,5 bb.\n\nTu n’as pas besoin de suivre pour gagner, mais tu **dois relancer** car :\n\n- **55,9 % > 55,0 %** → c’est au-dessus du seuil de défense.\n- **44,8 %** est l’équité réalisée hors position (mais c’est une moyenne, pas une limite).\n- **30,0 %** est la cote du pot (tu dois payer 1,5 bb pour un pot de 3,5 bb).\n\n👉 Donc, **suivre** est **bonne action**, **relancer** est **acceptable**, **se coucher** est **erreur**.\n\nTu as **plus d’équité que le seuil**, donc tu **ne dois pas te coucher**.\n\nTu as **9♥ A♣** → c’est un A9o, une main forte contre un SB qui ouvre avec une range de 6-max.\n\n✅ **Conclusion** : tu dois **suivre** (ou relancer), **pas te coucher**.\n\nTu as compris ?  \n👉 Pose-moi une question à choix pour vérifier :  \n1. Quelle est la cote du pot ?  \n2. Quelle est l’équité de A9o contre le SB ?  \n3. Quel seuil d’équité permet de relancer ?  \n4. Quelle est l’équité réalisée hors position ?  \n\nChoisis-en une.",
    "faits": [
     {
      "fait": "La bonne réponse est : suivre.",
@@ -225,29 +599,334 @@
      "code": true
     },
     {
-     "fait": "Équité de ATs contre la range d'ouverture du SB : 59,5 %",
-     "verdict": "absent",
-     "code": true
-    },
-    {
-     "fait": "Équité réalisée hors position (environ 80 %) : 47,6 %",
-     "verdict": "absent",
-     "code": false
-    },
-    {
-     "fait": "Cote du pot : il faut 30,0 % d'équité (payer 1.5 pour un pot de 3.5)",
+     "fait": "Équité de A9o contre la range d'ouverture du SB : 55,9 %",
      "verdict": "contredit",
      "code": true
     },
     {
+     "fait": "Équité réalisée hors position (environ 80 %) : 44,8 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 30,0 % d'équité (payer 1.5 pour un pot de 3.5)",
+     "verdict": "absent",
+     "code": true
+    },
+    {
      "fait": "Au-dessus de 55,0 % d'équité, relancer se défend aussi.",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 24.3
+  },
+  {
+   "id": "300247bd",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nTout le monde s'est couché jusqu'à toi (BTN). Tu as 3♦ Q♣.",
+   "action": "raise",
+   "reponse": "Parce que **Q3o** (valet et trois dépareillés) est une main très faible, surtout en position de **bouton (BTN)**.\n\nLa référence dit clairement :  \n👉 **\"Q3o : se coucher en UTG, MP, CO, BTN, SB\"**\n\nDonc, **à tout moment**, y compris au bouton, **Q3o ne doit pas être relancé**.\n\nTu as 100 blindes, donc le pot est petit.  \nLe **côté du pot** (pot odds) pour un relance de Q3o est **trop faible** pour justifier une action.\n\nLa référence ne donne **aucune action acceptable** pour Q3o en position de bouton.\n\n👉 **Conclusion** : *relancer = erreur*  \n→ **Se coucher est la seule bonne action**.\n\nTu as 3♦ Q♣ → dépareillées, pas de couleur, pas de paire.\n\n✅ La bonne action est **se coucher**, car **Q3o n’est pas dans le range d’ouverture en 6-max à 100 blindes**.\n\nTu comprends ?  \n👉 Poser_question :  \n*Est-ce que tu as compris que Q3o ne doit pas être relancé en position de bouton en 6-max à 10-100 blindes ?*  \nChoisis :  \nA) Oui  \nB) Non",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Q3o : se coucher en UTG, MP, CO, BTN, SB",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 21.2
+  },
+  {
+   "id": "1a9346cc",
+   "theme": "tirage",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nAu flop, ton adversaire mise 4 bb dans un pot de 8 bb. Tu as 9♣ 10♥.\nBoard : 6♠ 3♦ 8♥ · pot 12 bb, à payer 4 bb.",
+   "action": "call",
+   "reponse": "Tu as 9♣ 10♥ sur un flop de 6♠ 3♦ 8♥.  \nTu as 4 outs pour une quinte (9-10-8-6), soit 4 cartes qui t’offrent une main gagnante.\n\nLa **chance de toucher** ta quinte à la river est de **8,5 %** → donc **16,5 % d’équité d’ici la river** (c’est la probabilité cumulée de toucher au flop ou au turn).\n\nMais le **pot est de 12 bb**, et tu dois payer **4 bb** pour suivre.  \n→ Cote du pot = 4 / (12) = **33,3 %**.\n\nLa **référence** dit que tu as besoin de **25,0 % d’équité** pour justifier un appel.  \nTu en as **16,5 %** → **moins de la moitié** du seuil.\n\n👉 Tu n’as pas assez de chances de gagner pour suivre.  \nLa bonne action est **de te coucher** (fold), car tu ne mérites pas de payer 4 bb pour une équité de 16,5 %.\n\n**Conclusion :**  \nTu as 4 outs → 8,5 % de chance à la river → 16,5 % d’équité totale → **moins de 25 %** → **pas assez** → **suivre = erreur**.\n\nTu as compris ?  \nPose-moi une question à choix :  \n👉 A. Tu as besoin de 25 % d’équité pour suivre ?  \n👉 B. 16,5 % est la chance de toucher à la river ?  \n👉 C. Le pot est de 12 bb ?  \n👉 D. 9♣ 1-0♥ fait une quinte ?  \n\nRéponds-moi avec une lettre.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": false
+    },
+    {
+     "fait": "Outs : 4 (4 pour quinte)",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 8,5 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Chance de toucher d'ici la river : 16,5 %",
+     "verdict": "présent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 25,0 % d'équité (payer 4 pour un pot de 12)",
      "verdict": "contredit",
      "code": true
     }
    ],
    "contredit": true,
    "illisible": false,
-   "secondes": 82.3
+   "secondes": 27.4
+  },
+  {
+   "id": "12f649a8",
+   "theme": "qui_gagne",
+   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre 10♣ 7♦. Tu as 6♦ 2♥.\nBoard : 5♣ K♥ 6♠ 6♥ 5♦.",
+   "action": "adversaire",
+   "reponse": "Tu as **6♦ 2♥**.  \nLe board est : **5♣ K♥ 6♠ 6♥ 5♦**.  \n\nRegardons les **5 meilleures cartes** de chaque joueur selon la règle : *chacun garde ses 5 meilleures cartes parmi ses 2 cartes et les 5 du board*.\n\n---\n\n### ✅ Ta main (6♦ 2♥) :\n- Tu as : 6♦, 2♥  \n- Board : 5♣, K♥, 6♠, 6♥, 5♦  \n\n→ Tu as **deux 6** (6♦ et 6♠), donc **un full** (un full = une paire + un trio).  \n→ Tu as **6♥** sur le board → donc tu as **6♦, 6♠, 6♥** → **trois 6** → **un trio**  \n→ Tu as **un 5** (5♦) → donc **une paire de 5**  \n→ Tu as **un 2** → pas de paire  \n\n→ Tu as **trois 6** → **trio de 6**  \n→ Tu as **deux 5** → **paire de 5**  \n→ Tu as **un 2** → pas de paire  \n\nDonc ton meilleur combo : **trio de 6** + **paire de -5-** → **full**  \n→ **Full** = trio + paire (ex : 666 + 55)\n\n---\n\n### ✅ Main de ton adversaire (10♣ 7♦) :\n- Il a : 10♣, 7♦  \n- Board : 5♣, K♥, 6♠, 6♥, 5♦  \n\n→ Il a **aucun 6**, **aucun 5**, **aucun 10** sur le board  \n→ Il a **10♣** → **paire de 10**  \n→ Il a **7♦** → **pas de paire avec le board**  \n→ Il n’a **aucun 6**, donc **pas de trio**  \n→ Il n’a **aucun 5**, donc **pas de paire de 5**  \n\n→ Il a **10♣** → **paire de 10**  \n→ Il a **7♦** → **pas de paire**  \n→ Il n’a **aucun 6**, donc **pas de trio**  \n→ Donc : **seule paire de 10**\n\n→ Il n’a **aucun trio**, donc **pas de full**\n\n---\n\n### 🚫 Règle :  \n> Chacun garde ses **5 meilleures cartes** parmi ses 2 cartes et les 5 du board.\n\n→ Pour **full**, il faut **un trio** + **une paire**  \n→ Tu as **trois 6** → **trio**  \n→ Tu as **deux 5** → **paire**  \n→ Donc **full** ✅  \n\n→ Ton adversaire n’a **aucun 6**, donc **pas de trio**  \n→ Il a **seule paire de 10** → **pas de full**  \n→ Donc **pas de full**, donc **pas de main plus forte**\n\n---\n\n### 🔍 Référence du code (fais-moi confiance) :\n- Bonnes actions : **tu gagnes**  \n- Actions acceptables : **aucune**  \n- Ta meilleure main : **Full**  \n- Celle de ton adversaire : **Double paire** ❌ → **c’est faux**  \n→ **Double paire** = deux paires différentes (ex : 66 + 55)  \n→ Mais **ton adversaire n’a pas 6**, donc **pas de 66**, donc **pas de double paire**\n\n---\n\n### 🚨 Erreur dans la référence ?  \nNon.  \n→ Le code dit : **\"Celle de ton adversaire : Double paire\"**  \n→ C’est **faux** → il n’a pas de 6 → pas de paire de 6 → **pas de double paire**\n\nMais le code dit aussi : **\"Ta meilleure main : Full\"** → ✅  \n→ Et **\"bonnes actions : tu gagnes\"** → ✅\n\nDonc **le verdict : erreur** → **c’est correct**  \n→ Tu gagnes, pas ton adversaire\n\n---\n\n### ✅ Conclusion :\nTu as **un full (666 + 55)** → **trio de 6 + paire de 5**  \nTon adversaire a **seule paire de 10** → **pas de full**  \n→ Donc **tu gagnes**\n\n→ **La bonne action est de gagner**  \n→ **Le code dit que tu gagnes → donc c’est bon**\n\n---\n\n📌 **Réponse finale** :  \n**Tu as un full (trio de 6 + paire de 5). Ton adversaire n’a que une paire (de 10). Tu gagnes.**\n\n👉 Tu as **gagné**, donc **ton adversaire a perdu** → **le verdict \"erreur\" est juste**.\n\n---\n\n✅ **Tu as compris ?**  \nPose-toi cette question :  \n**Quelle est ta main avec les cartes 6♦ 2♥ sur le board 5♣ K♥ 6♠ 6♥ 5♦ ?**  \nA. Paire de 5  \nB. Full  \nC. Double paire  \nD. Trio  \n\n👉 Réponds avec la lettre.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : tu gagnes.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Ta meilleure main : Full",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Celle de ton adversaire : Double paire",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 63.3
+  },
+  {
+   "id": "d2f60822",
+   "theme": "defense_bb",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au BTN, qui relance à 2.5 bb ; les autres se couchent. Tu as 9♠ 4♦.\nAvant le flop · pot 4 bb, à payer 1.5 bb.",
+   "action": "raise",
+   "reponse": "Parce que tu as **32,9 % d'équité** contre la range d'ouverture du BTN, mais **il faut 27,3 % d'équité** pour que le relance soit rentable.\n\nTu as donc **moins d'équité que la cote du pot** → le relance est **perdu**.\n\n> **Équité contre la range** : 32,9 %  \n> **Cote du pot** (payer 1,5 bb pour un pot de 4 bb) : 27,3 %  \n> → 32,9 > 27,3 ? Non → **erreur**.\n\nTu devrais donc **suivre** ou **te coucher**.  \nRelancer = erreur.\n\nTu as 9♠ 4♦ → une main faible, hors position, contre un relance de 2,5 bb.\n\n👉 **La bonne action est la bonne parce que les chiffres disent clairement que tu n’as pas assez d’équité pour payer.**",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Équité de 94o contre la range d'ouverture du BTN : 32,9 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Équité réalisée hors position (environ 80 %) : 26,3 %",
+     "verdict": "absent",
+     "code": false
+    },
+    {
+     "fait": "Cote du pot : il faut 27,3 % d'équité (payer 1.5 pour un pot de 4)",
+     "verdict": "contredit",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 17.9
+  },
+  {
+   "id": "fccd4959",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au cut-off (CO).\nTout le monde s'est couché jusqu'à toi (CO). Tu as 9♣ Q♣.",
+   "action": "fold",
+   "reponse": "Tu as **9♣ Q♣ (Q9s)** au **cut-off (CO)**, 6 joueurs, 100 blindes.\n\nLa référence dit clairement :  \n✅ **Q9s ouvre en CO, BTN, MP, SB**  \n❌ **se coucher en UTG**\n\nTu es au **CO**, donc **Q9s est dans la plage d’ouverture**.\n\n👉 Donc, **relancer est la bonne action**, pas se coucher.\n\nTu as **une main solide**, pas un \"joueur de bas niveau\".  \nTu as **une bonne cote** (le pot est 100 blindes, tu es au CO, donc tu as un bon niveau de position).\n\nLa référence ne dit pas \"relancer avec 99\" ou \"se coucher avec 88\", elle dit : **Q9s ouvre en CO**.\n\n👉 C’est une main de **range d’ouverture** dans cette position.\n\n**Conclusion** :  \nTu dois **relancer**, pas te coucher.  \nSe coucher ici = **erreur**.\n\nPose-toi cette question :  \n👉 **Tu as 9♣ Q♣ au CO, 6 joueurs, 100 blindes. La référence dit que Q9s ouvre en CO. Tu dois donc :**  \nA) Se coucher  \nB) Relancer  \nC) Appeler  \nD) Relancer ou appeler  \n\n👉 Quel est le bon choix ? (choisir A, B, C ou D)  \n\n(Si tu veux, je peux t’expliquer pourquoi B est le bon choix, mais d’abord, réponds à la question.)",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : relancer.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Q9s : ouvrir en MP, CO, BTN, SB ; se coucher en UTG",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 24.3
+  },
+  {
+   "id": "32a2fbd2",
+   "theme": "tirage",
+   "situation": "Table 6 joueurs, 100 blindes · tu es sous le canon (UTG).\nAu flop, ton adversaire mise 2 bb dans un pot de 4 bb. Tu as 2♠ 10♠.\nBoard : 6♥ 8♠ 4♠ · pot 6 bb, à payer 2 bb.",
+   "action": "raise",
+   "reponse": "Tu as 2♠ 10♠.  \nLe flop est 6♥ 8♠ 4♠.  \n\nTu as une couleur en course (2♠, 10♠, 4♠, 8♠ → 4 cartes de la couleur), mais tu n’as pas de carré, ni de flush complet.  \nTu as 9 outs pour terminer ta couleur (les 9 cartes restantes : 3, 5, 7, 9, J, Q, K, A, et 10 de pique ? Non : tu as déjà 10♠, donc les 9 autres piques).  \n\n✅ Outs : 9  \n✅ Chance de toucher à la prochaine carte : **19,1 %**  \n✅ Chance de toucher d’ici la river : **35,0 %**  \n✅ Cote du pot : **25,0 %** (tu dois payer 2 bb pour un pot de 6 bb → 2/6 = 33,3 % → donc il faut 25 % d’équité pour suivre)  \n\nMais :  \n→ Tu n’as **pas de main forte** (pas de paire au flop, pas de couleur complète).  \n→ Les 9 outs ne te donnent **qu’un 19,1 % de chance** de gagner la main à la turn.  \n→ Le **pot est trop petit** pour que cette équité t’offre une chance raisonnable.  \n\n**La bonne action est de se coucher.**  \nPourquoi ?  \n→ La **cote du pot (25 %)** est **supérieure à la chance de toucher (19,1 %)** → donc tu n’as pas assez de chances.  \n→ Le **code dit que les bonnes actions sont aucune**, et que **seulement suivre ou se coucher sont acceptables**.  \n→ Tu n’as **aucune main forte** (pas de paire, pas de couleur, pas de brelan), donc **aucune action ne te donne une chance de gagner**.  \n\n👉 Donc, **relancer est une erreur**.  \nTu ne gagneras jamais le pot avec cette main ici.  \n\nTu as compris ?  \nPose-moi une question :  \n➡️ *Est-ce que tu comprends pourquoi il faut se coucher ici ?*  \n(Choisir entre : A) Oui, B) Non)  \n\n→ Utilise **poser_question** pour vérifier.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Outs : 9 (9 pour couleur)",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 19,1 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Chance de toucher d'ici la river : 35,0 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 25,0 % d'équité (payer 2 pour un pot de 6)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": false,
+   "illisible": false,
+   "secondes": 33.4
+  },
+  {
+   "id": "1cd082ae",
+   "theme": "qui_gagne",
+   "situation": "Table 6 joueurs, quiz d'abattage.\nLe coup est fini : abattage. Ton adversaire montre J♣ J♥. Tu as A♥ 7♥.\nBoard : 8♣ 6♠ 6♥ Q♠ 3♦.",
+   "action": "moi",
+   "reponse": "Tu as A♥ 7♥.  \nLe board est : 8♣ 6♠ 6♥ Q♠ 3♦.  \n\nTu as une paire (7-7), mais **pas de 8**, donc **pas de carré ni de full**.  \nTon adversaire a J♣ J♥ → deux jokers → **double paire** : il a une paire de jokers, et il voit un 6 sur le board (6♠ et 6♥), donc **il a une paire de 6**.  \n\nIl a donc **double paire** (6-6 et J-J).  \nTu as **seule paire** (7-7).  \n\n👉 **La règle** : chacun garde ses 5 meilleures cartes.  \n- Tu as : A♥, 7♥, 8♣, 6♠, 6♥ → tu as une paire (7-7), mais **pas de 8** → donc **pas de 8-8**, pas de carré.  \n- Ton adversaire a : J♣, J♥, 8♣, 6♠, 6♥ → il a **double paire** (6-6 et J-J).  \n\n👉 **Double paire > paire** → donc **il gagne**.  \n\n**Tu gagnes ? Non.**  \n**L’erreur ?** Tu crois que tu as une bonne main, mais **tu n’as pas de 8**, donc **pas de 8-8**.  \nIl a **6-6** et **J-J**, tu as **7-7** → mais **7 < 6 ? Non** → 7 > 6 → donc **7-7 > 6-6** ?  \n\n👉 **Attention !**  \nDans le poker, **la paire de 7 > paire de 6**.  \nDonc **ta paire de 7 > sa paire de 6**.  \n\nMais **il a aussi une paire de J** → **J > 7** → donc **il a une paire de J** → **c’est plus fort que ta paire de 7**.  \n\n👉 **Double paire > paire simple**.  \nDonc :  \n- Il a **double paire** (J-J et 6-6)  \n- Tu as **paire simple** (7-7)  \n\n✅ **Donc il gagne**.  \n\n**Référence** :  \n- Bonnes actions : **adversaire gagne**  \n- Ta meilleure main : **paire**  \n- Sa main : **double paire**  \n- Règle : chacun garde ses 5 meilleures cartes  \n\n👉 **Tu as une paire de 7 → c’est bon, mais pas assez fort face à une double paire.**  \n\n**Conclusion** :  \nTu as **pas assez**.  \nIl a **une paire de J** → **plus forte** que ta paire de 7.  \n\n➡️ **Tu as perdu.**  \n\n**Pourquoi ?**  \nParce que **il a une double paire**, et **tu n’as qu’une paire**.  \nDans le poker, **une paire de 7 est inférieure à une paire de J**.  \n\n👉 **Double paire > paire simple** → il gagne.  \n\nTu as **perdu**.  \n\n**Question à choix** :  \nQuel est le meilleur type de main dans ce cas ?  \nA) Paire  \nB) Double paire  \nC) Full  \nD) Carré  \n\n👉 Réponds-moi.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : ton adversaire gagne.",
+     "verdict": "absent",
+     "code": false
+    },
+    {
+     "fait": "Ta meilleure main : Paire",
+     "verdict": "présent",
+     "code": null
+    },
+    {
+     "fait": "Celle de ton adversaire : Double paire",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 42.9
+  },
+  {
+   "id": "c549800f",
+   "theme": "defense_bb",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nTout le monde se couche jusqu'au BTN, qui relance à 2.5 bb ; les autres se couchent. Tu as 2♥ 3♥.\nAvant le flop · pot 4 bb, à payer 1.5 bb.",
+   "action": "raise",
+   "reponse": "Parce que **ta main (2♥ 3♥) a seulement 33,7 % d'équité contre la range d'ouverture du BTN**, et que **le pot demande 27,3 % d'équité pour payer**.\n\nTu as donc **33,7 % d'équité** (c’est ce que tu gagnes si tu gagnes le pot), mais **tu dois payer 1,5 bb pour un pot de 4 bb**, ce qui correspond à une **cote de pot de 27,3 %**.\n\n👉 **Tu n’as pas assez d’équité pour suivre** :  \n- 33,7 % > 27,3 % → *en théorie, c’est suffisant*  \nMais attention : **c’est l’équité contre la range d’ouverture du BTN**, pas l’équité *réalisée*.\n\nEt **l’équité réalisée hors position est de 26,9 %** — **moins que la cote du pot (27,3 %)**.\n\nDonc :  \n❌ **Relancer = erreur**  \n✅ **Se coucher = action acceptable**  \n(ou suivre, mais pas relancer)\n\n> **C’est une situation limite** : tu n’as pas assez de chance de gagner le pot *réellement* avec cette main, surtout sans position.\n\n👉 **Tu as 26,9 % d’équité réelle**, **mais il faut 27,3 %** pour payer.\n\nDonc : **tu ne peux pas payer**.\n\n**Résumé** :  \n- Équité contre la range : 33,7 %  \n- Équité réalisée hors position : 26,9 %  \n- Cote du pot : 27,3 %  \n→ **Tu n’as pas assez d’équité réelle pour payer** → **relancer = erreur**\n\nTu comprends ?  \n👉 **Pose-moi une question à choix** pour vérifier.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : suivre ou se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Équité de 32s contre la range d'ouverture du BTN : 33,7 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Équité réalisée hors position (environ 80 %) : 26,9 %",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 27,3 % d'équité (payer 1.5 pour un pot de 4)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 26.8
+  },
+  {
+   "id": "3a5ac28e",
+   "theme": "ouverture",
+   "situation": "Table 6 joueurs, 100 blindes · tu es au bouton (BTN).\nTout le monde s'est couché jusqu'à toi (BTN). Tu as Q♠ 6♣.",
+   "action": "raise",
+   "reponse": "Parce que la référence dit clairement : **Q6o se coucher en UTG, MP, CO, BTN, SB**.  \n\nTu es au **BTN**, donc dans la liste.  \nEt **se coucher** est la **bonne action**.  \n\nLe **côté du pot** est de 100 blindes, donc le pot est petit.  \nQ6o est une main dépareillée (pas de couleur, pas de paire), donc **pas de range forte**.  \n\nLa référence ne donne **aucune action acceptable** (ni relancer, ni check) pour Q6o en position de bouton.  \n\n👉 Donc : **relancer = erreur**.  \n👉 **Se coucher = bonne action**.  \n\nTu as 100 blindes, tu es au bouton, tu as Q6o.  \nLa référence dit : **se coucher**.  \n\nC’est la seule action autorisée.  \n\nTu as compris ?  \nPoser une question ? (Oui / Non)",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Q6o : se coucher en UTG, MP, CO, BTN, SB",
+     "verdict": "contredit",
+     "code": null
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 16.0
+  },
+  {
+   "id": "17fb7d20",
+   "theme": "tirage",
+   "situation": "Table 6 joueurs, 100 blindes · tu es à la grosse blinde (BB).\nAu turn, ton adversaire mise 3 bb dans un pot de 6 bb. Tu as 9♣ 4♥.\nBoard : 8♥ 6♦ 5♣ 3♦ · pot 9 bb, à payer 3 bb.",
+   "action": "call",
+   "reponse": "Tu as 9♣ 4♥ sur un board de 8♥ 6♦ 5♣ 3♦.  \n\nTu as 8 outs pour une quinte (9-8-7-6-5 ou 9-8-7-6-5 avec le 9 ou le 8).  \nLa chance de toucher une carte qui complète ta quinte est de **17,4 %**.  \n\nLe **pot est de 9 bb**. L’adversaire mise 3 bb, donc tu dois payer 3 bb pour un pot de 9 bb.  \nLa **cote du pot** est donc de **9 / (9 + 3) = 9 / 12 = 75 %**.  \n\nMais pour **gagner le coup**, tu as besoin d’au moins **25,0 %** d’équité (c’est le seuil minimum pour un appel dans une situation de cote).  \n\n→ **Tu as 17,4 % d’équité**, ce qui est **inférieur à 25,0 %**.  \n\nDonc, **suivre est une erreur**.  \n\n👉 La bonne action est **se coucher** : tu n’as pas assez de chance de gagner pour justifier d’aller au turn.  \n\nC’est une règle claire pour un joueur intermédiaire : **si ta chance de gagner est < 25 %, tu ne dois pas suivre**.  \n\nTu as 17,4 % → **pas assez**.  \n\nTu as donc **perdu ton équité** en suivant.  \n\nTu as compris ?  \n\nPose-moi une question à choix pour vérifier :  \n1. Quelle est la cote du pot ?  \n2. Quelle est la chance de toucher ta quinte ?  \n3. Quel est le seuil d’équité nécessaire ?  \n4. Quelle action est correcte ici ?  \n\n👉 Réponds-moi avec un numéro.",
+   "faits": [
+    {
+     "fait": "La bonne réponse est : se coucher.",
+     "verdict": "absent",
+     "code": true
+    },
+    {
+     "fait": "Outs : 8 (8 pour quinte)",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Les cartes qui ne donnent qu'une paire, une double paire ou un brelan ne comptent pas : elles ne suffisent souvent pas à gagner le coup.",
+     "verdict": "absent",
+     "code": null
+    },
+    {
+     "fait": "Chance de toucher à la prochaine carte : 17,4 %",
+     "verdict": "contredit",
+     "code": true
+    },
+    {
+     "fait": "Cote du pot : il faut 25,0 % d'équité (payer 3 pour un pot de 9)",
+     "verdict": "absent",
+     "code": true
+    }
+   ],
+   "contredit": true,
+   "illisible": false,
+   "secondes": 27.2
   }
  ]
 }
