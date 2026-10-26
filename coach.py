@@ -114,15 +114,22 @@ def schema_fiche() -> dict:
             "required": ["a_retenir", "theme_a_revoir"], "additionalProperties": False}
 
 
+def schema_retenir() -> dict:
+    return {"type": "object", "properties": {"a_retenir": {"type": "string"}},
+            "required": ["a_retenir"], "additionalProperties": False}
+
+
 def fiche(situation: dict, niveau: str, action: str, verdict: str, debrief: list[dict], cfg: dict) -> dict:
-    """La fiche de fin d'exercice, écrite par le modèle et vérifiée ; ValueError si elle est inutilisable."""
-    schema = schema_fiche()
+    """La fiche de fin d'exercice : « à retenir » écrit par le modèle et vérifié, thème à revoir déduit du verdict
+    par le code ; ValueError si la réponse du modèle est inutilisable."""
+    schema = schema_retenir()
     prompt = PROMPT_FICHE.read_text(encoding="utf-8").strip()
     fiche_cfg = {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict)}",
                  "format": schema, "temperature": 0, "tools": []}
     echanges = [m for m in debrief if m["role"] in ("user", "assistant") and m["content"]]   # sans les outils
     demande = {"role": "user", "content": "Écris la fiche de fin d'exercice."}
-    return lire_json(complete([*echanges, demande], fiche_cfg), schema)
+    a_retenir = lire_json(complete([*echanges, demande], fiche_cfg), schema)["a_retenir"]
+    return {"a_retenir": a_retenir, "theme_a_revoir": situation["theme"] if verdict != "bon" else "aucun"}
 
 
 def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, profil: dict | None = None) -> dict:

@@ -41,7 +41,8 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
 2. En tant que joueur qui enchaîne les exercices, je veux une fiche courte à la fin de chacun, afin de retenir
    l'essentiel.
    - ✅ La fiche a toujours les mêmes champs (`a_retenir`, `theme_a_revoir`), vérifiés par le code.
-   - ✅ Le thème à revoir fait partie de la liste des thèmes connus (ou « aucun »).
+   - ✅ Le thème à revoir est déduit du verdict par le code : celui de l'exercice après une erreur ou un coup
+     acceptable, « aucun » après un bon coup. Le modèle n'écrit que « à retenir ».
    - ✅ La fiche est enregistrée dans le profil. Elle s'écrit à la demande (`/fiche`) : un appel au modèle de plus
      coûte 15 à 40 s sur CPU.
 
