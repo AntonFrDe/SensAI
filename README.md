@@ -246,17 +246,25 @@ contradiction. Résultats dans `evaluation/coach_resultats.md` et `.json` ; un v
 Le code vérifie aussi, sans modèle, que le débrief nomme la bonne action et cite les chiffres de la référence
 (`--relire` recalcule cette vérification sur les résultats enregistrés).
 
-Chaque situation ratée (une contradiction selon le juge, ou un fait que le code ne retrouve pas dans le débrief)
-est ajoutée une seule fois à `evaluation/coach_ratees.jsonl` : `--ratees` les rejoue après un changement de prompt
+Chaque situation ratée (un fait que le code ne retrouve pas dans le débrief ; le juge, trop peu fiable, ne compte
+pas ici) est ajoutée une seule fois à `evaluation/coach_ratees.jsonl` : `--ratees` les rejoue après un changement de prompt
 ou de modèle, comme des tests de non-régression. Une évaluation complète réécrit la ligne suivante :
 
-Dernier score enregistré : 2026-10-22, coach `qwen3:4b-instruct-2507-q4_K_M`, juge `llama3.2:3b`, 8 situations : **3/8 débriefs sans contradiction**, 21/24 faits retrouvés par le code.
+Dernier score enregistré : 2026-10-26, coach `qwen3:4b-instruct-2507-q4_K_M`, juge `llama3.2:3b`, 30 situations : **1/30 débriefs sans contradiction**, 74/81 faits retrouvés par le code.
 
 Premier essai (2026-10-22, 8 situations, coach `qwen3:4b-instruct`) : **21 faits sur 24 retrouvés par le code**,
 mais le juge `llama3.2:3b` n'en voit qu'1 sur 28 et signale 5 contradictions sur 8, la plupart fausses (il
 marque « absent » des chiffres cités mot pour mot). Ce juge n'est pas fiable : il en faut un plus gros, ou
 d'une autre famille (`gemma3:4b`, prévu par le plan, n'est pas installé ici). Les vraies erreurs relevées en
 relisant : des chiffres inventés hors référence (« moins de 10 % de chance de gagner » pour 73o).
+
+Deuxième essai (2026-10-26, 30 situations, même coach et même juge) : **74 faits sur 81 retrouvés par le code**
+(91 %). Le juge ne voit que 6 faits sur 111 et déclare 29 débriefs sur 30 contradictoires ; relus à la main, la
+plupart citent la référence mot pour mot. Le juge reste donc indicatif. Les vraies erreurs : 6 situations
+ratées selon le code (bonne action non nommée sur deux « Qui gagne ? » et un tirage, chiffres d'équité ou de
+cote absents), plus des raisonnements confus malgré les bons chiffres (« un seul out » puis « 4 outs »). Ces 6
+situations sont dans `evaluation/coach_ratees.jsonl`. Les noms de main (« 42o ») et l'hypothèse « (environ
+80 %) » ne sont plus pris pour des chiffres à citer.
 
 ## Tests
 
