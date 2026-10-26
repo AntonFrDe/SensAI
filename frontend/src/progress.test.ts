@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  BADGES, PROGRESSION_INITIALE, avancementDuNiveau, chargerProgression, chatouiller, couleurDeJeton,
-  enregistrerProgression, jourDe, niveauDe, noterExercice, objectifDuJour, ouvrirCoffre, serieEnCours, type Progress,
+  BADGES, PROGRESSION_INITIALE, avancementDuNiveau, chargerProgression, chatouiller,
+  enregistrerProgression, jourDe, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
 } from './progress';
 
 const lundi = '2026-10-19';
@@ -80,7 +80,7 @@ describe('noterExercice', () => {
   });
 });
 
-describe('chatouiller and ouvrirCoffre', () => {
+describe('chatouiller', () => {
   it('unlocks the secret badge at the sixth tickle only', () => {
     let progression = PROGRESSION_INITIALE;
     for (let i = 0; i < 5; i++) {
@@ -92,23 +92,14 @@ describe('chatouiller and ouvrirCoffre', () => {
     expect(sixieme.badges).toEqual([BADGES.chatouilleur]);
     expect(chatouiller(sixieme.progression).badges).toEqual([]);
   });
-
-  it('opens the chest once', () => {
-    expect(ouvrirCoffre(PROGRESSION_INITIALE).coffre).toBe(true);
-  });
 });
 
-describe('niveaux et couleur de Jeton', () => {
+describe('niveaux', () => {
   it('derives the level and the bar from the XP', () => {
     expect(niveauDe(0)).toBe(1);
     expect(niveauDe(499)).toBe(1);
     expect(niveauDe(500)).toBe(2);
     expect(avancementDuNiveau(470)).toBeCloseTo(0.94);
-  });
-
-  it('turns Jeton mint from level five', () => {
-    expect(couleurDeJeton(1999)).toBe('pink');
-    expect(couleurDeJeton(2000)).toBe('mint');
   });
 });
 

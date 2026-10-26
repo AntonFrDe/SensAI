@@ -14,7 +14,7 @@ import BadgeToast from './BadgeToast';
 import DebriefScreen from './DebriefScreen';
 import LevelScreen from './LevelScreen';
 import LevelUpOverlay from './LevelUpOverlay';
-import { JetonContext, type JetonLook } from './JetonContext';
+import { JetonContext } from './JetonContext';
 import JetonShell from './JetonShell';
 import Particules from './Particules';
 import SituationScreen from './SituationScreen';
@@ -22,8 +22,8 @@ import SummaryScreen from './SummaryScreen';
 import TrainerHeader from './TrainerHeader';
 import VerdictScreen from './VerdictScreen';
 import {
-  BADGES, NIVEAU_MENTHE, OBJECTIF_JOUR, chatouiller, chargerProgression, couleurDeJeton, enregistrerProgression, enregistrerPseudo,
-  jourDe, lirePseudo, niveauDe, noterExercice, objectifDuJour, ouvrirCoffre, serieEnCours, type Progress,
+  BADGES, OBJECTIF_JOUR, chatouiller, chargerProgression, enregistrerProgression, enregistrerPseudo,
+  jourDe, lirePseudo, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
 } from './progress';
 import type { View } from './navigation';
 import { SFX, sonActif } from './sfx';
@@ -238,11 +238,6 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   const aujourdhui = jourDe();
   const serie = serieEnCours(progression, aujourdhui);
   const objectif = objectifDuJour(progression, aujourdhui);
-  const look: JetonLook = {
-    palette: couleurDeJeton(progression.xp),
-    crown: progression.badges.includes(BADGES.roiDuBouton),
-    shades: progression.coffre,
-  };
   const largeurEtape = Math.max(4, (etape / (ETAPES.length - 1)) * 100);
 
   let ecran = null;
@@ -309,7 +304,6 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
           chargementFiche={fiche.chargement}
           erreurFiche={fiche.erreur}
           onDemanderFiche={() => void demanderFiche()}
-          onCoffre={() => setProgression(actuel => ouvrirCoffre(actuel))}
           onSuivant={nouvelleSituation}
         />
       );
@@ -317,7 +311,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   }
 
   return (
-    <JetonContext.Provider value={{ look, pokeLine, onPoke: caresser }}>
+    <JetonContext.Provider value={{ pokeLine, onPoke: caresser }}>
       <JetonShell shellRef={racine} onClickCapture={rafaleAuClic} label="Entraîneur Jeton">
         <div className="jt-wrap">
           <TrainerHeader
@@ -349,7 +343,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
         </div>
         {toast && <BadgeToast badge={toast} />}
         {niveauAtteint !== null && (
-          <LevelUpOverlay niveau={niveauAtteint} menthe={niveauAtteint === NIVEAU_MENTHE} onFermer={() => setNiveauAtteint(null)} />
+          <LevelUpOverlay niveau={niveauAtteint} onFermer={() => setNiveauAtteint(null)} />
         )}
         {rafales.map(rafale => (
           <span key={rafale.id} className="jt-burst" style={{ left: rafale.x, top: rafale.y }}>
