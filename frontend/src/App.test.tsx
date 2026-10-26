@@ -49,7 +49,7 @@ describe('App', () => {
   it('opens on the Jeton trainer, without the old home', () => {
     fakeServer({});
     render(<App />);
-    expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
+    expect(screen.getByRole('main', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'SensAI Poker' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Jouer' })).not.toBeInTheDocument();
   });
@@ -60,7 +60,7 @@ describe('App', () => {
       const { unmount } = render(<App />);
       await openMode(name);
       await userEvent.click(screen.getByRole('button', { name: 'Entraîneur' }));
-      expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
+      expect(screen.getByRole('main', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
       unmount();
     }
   });
@@ -86,7 +86,7 @@ describe('App', () => {
       releaseOpponent();
       await new Promise(resolve => setTimeout(resolve, 20));
     });
-    expect(screen.getByRole('region', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
+    expect(screen.getByRole('main', { name: 'Entraîneur Jeton' })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Partie' })).not.toBeInTheDocument();
   });
 

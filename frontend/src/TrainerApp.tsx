@@ -47,7 +47,7 @@ function ajouterResultat(resultats: TrainerResultats, theme: TrainerTheme, verdi
 }
 
 export default function TrainerApp({ onNavigate }: TrainerAppProps) {
-  const racine = useRef<HTMLElement>(null);
+  const racine = useRef<HTMLDivElement>(null);
   const [pseudo, setPseudo] = useState(lirePseudo);
   const [session, setSession] = useState<TrainerSession | null>(null);
   const [erreurSession, setErreurSession] = useState('');
@@ -292,7 +292,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   }
 
   return (
-      <JetonShell shellRef={racine} onClickCapture={rafaleAuClic} label="Entraîneur Jeton">
+      <JetonShell shellRef={racine} onClickCapture={rafaleAuClic}>
         <div className="jt-wrap">
           <TrainerHeader
             pseudo={pseudo}
@@ -319,7 +319,7 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
               </button>
             ))}
           </nav>
-          <div className="jt-screen">{ecran}</div>
+          <main className="jt-screen" aria-label="Entraîneur Jeton">{ecran}</main>
         </div>
         {toast && <BadgeToast badge={toast} />}
         {niveauAtteint !== null && (

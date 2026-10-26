@@ -176,7 +176,7 @@ export default function App() {
   }
 
   return (
-    <JetonShell label="SensAI">
+    <JetonShell>
       <div className={atTable ? 'jt-wrap jt-wrap-wide' : 'jt-wrap'}>
         <PageHeader view={view} onNavigate={setView} />
         <main className="jt-page">
