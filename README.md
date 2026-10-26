@@ -74,8 +74,8 @@ coupe une réponse sans quitter.
   niveau, cite les thèmes à revoir et les sert plus souvent (jusqu'à 3 fois plus) ; le coach reçoit les résultats.
 - **Sorties structurées (T5)** : le niveau peut se dire en toutes lettres (« je compte mes outs ») ; le modèle le
   classe en `{niveau, raison}` (schéma JSON imposé à Ollama, `prompts/niveau.txt`), le code le vérifie et, s'il
-  est inutilisable, repose la question par numéro. `/fiche` écrit `{a_retenir, theme_a_revoir}`
-  (`prompts/fiche.txt`), vérifiée de la même façon.
+  est inutilisable, repose la question par numéro. `/fiche` écrit `{a_retenir, theme_a_revoir}` :
+  le modèle rédige `a_retenir` (`prompts/fiche.txt`, vérifié de la même façon), le code déduit le thème du verdict.
 - **Questions (X4)** : pendant le débrief, le coach peut appeler l'outil local `poser_question` ; la question
   s'affiche avec ses choix numérotés, le joueur répond par un numéro (envoyé en toutes lettres) ou par écrit.
 Ollama éteint, modèle absent, configuration illisible : message clair et arrêt. Message vide : refusé sans

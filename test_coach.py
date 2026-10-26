@@ -141,8 +141,19 @@ def test_fiche_is_checked_against_its_schema():
     messages, cfg = seen[0]
     assert [m["content"] for m in messages] == ["pourquoi ?", "Parce que K9s s'ouvre au bouton.",
                                                "Écris la fiche de fin d'exercice."]
-    assert cfg["format"] == coach.schema_fiche() and "Verdict : erreur." in cfg["system_prompt"]
+    assert cfg["format"] == coach.schema_retenir() and "Verdict : erreur." in cfg["system_prompt"]
     assert raises(coach.lire_json, '{"a_retenir": "x", "theme_a_revoir": "bluff"}', coach.schema_fiche())
+
+
+def test_the_theme_to_review_follows_the_verdict_not_the_model():
+    original = coach.complete
+    coach.complete = lambda messages, cfg: '{"a_retenir": "Ouvre K9s au bouton.", "theme_a_revoir": "defense_bb"}'
+    try:
+        themes = {verdict: coach.fiche(SITUATION, "debutant", "raise", verdict, [], CFG)["theme_a_revoir"]
+                  for verdict in ("bon", "acceptable", "erreur")}
+    finally:
+        coach.complete = original
+    assert themes == {"bon": "aucun", "acceptable": "ouverture", "erreur": "ouverture"}
 
 
 def test_lire_question_wants_a_question_and_two_to_four_choices():
