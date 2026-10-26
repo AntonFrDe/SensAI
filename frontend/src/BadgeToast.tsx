@@ -1,11 +1,10 @@
-import { IconCrown, IconFlame, IconMoodHappy, IconTargetArrow, type Icon } from '@tabler/icons-react';
+import { IconCrown, IconFlame, IconTargetArrow, type Icon } from '@tabler/icons-react';
 import { BADGES } from './progress';
 
 export const BADGE_ICONES: Record<string, Icon> = {
   [BADGES.roiDuBouton]: IconCrown,
   [BADGES.chasseurDeTirages]: IconTargetArrow,
   [BADGES.serie]: IconFlame,
-  [BADGES.chatouilleur]: IconMoodHappy,
 };
 
 export type BadgeToastProps = { badge: string };

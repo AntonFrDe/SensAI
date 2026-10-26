@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconLock, IconPlayerPlay, IconQuestionMark } from '@tabler/icons-react';
+import { IconLock, IconPlayerPlay } from '@tabler/icons-react';
 import type { TrainerFiche, TrainerResultats, TrainerTheme } from './api';
 import CountUp from './CountUp';
 import Mascot from './Mascot';
@@ -26,7 +26,6 @@ const BADGES_AFFICHES = [
   { nom: BADGES.roiDuBouton, couleur: 'var(--yel)' },
   { nom: BADGES.chasseurDeTirages, couleur: 'var(--sky)' },
   { nom: BADGES.serie, couleur: '#FF9F3D' },
-  { nom: BADGES.chatouilleur, couleur: 'var(--pink)', secret: true },
 ];
 
 export default function SummaryScreen({ progression, gain, objectif, resultats, aujourdhui, fiche, chargementFiche, erreurFiche, onDemanderFiche, onSuivant }: SummaryScreenProps) {
@@ -93,7 +92,7 @@ export default function SummaryScreen({ progression, gain, objectif, resultats, 
         <div className="jt-keep-text">
           {fiche ? fiche.a_retenir : erreurFiche || (chargementFiche ? 'Jeton écrit ta fiche…' : '')}
         </div>
-        {erreurFiche && <button type="button" className="jt-btn" onClick={onDemanderFiche}>Réessayer la fiche</button>}
+        {erreurFiche && <button type="button" className="jt-btn jt-pink" onClick={onDemanderFiche}>Réessayer la fiche</button>}
       </div>
       <div className="jt-glass jt-themes">
         <div className="jt-themes-head">
@@ -118,15 +117,15 @@ export default function SummaryScreen({ progression, gain, objectif, resultats, 
       </div>
       <div className="jt-tile-title">Tes badges</div>
       <div className="jt-badges">
-        {BADGES_AFFICHES.map(({ nom, couleur, secret }) => {
+        {BADGES_AFFICHES.map(({ nom, couleur }) => {
           const obtenu = progression.badges.includes(nom);
           const Icone = BADGE_ICONES[nom];
           return (
             <div key={nom} className="jt-bdg jt-tilt">
               <span className="jt-bdg-ic" style={{ background: obtenu ? couleur : 'var(--g2)', color: obtenu ? '#2A1860' : 'var(--soft)' }}>
-                {obtenu ? <Icone size={28} aria-hidden="true" /> : secret ? <IconQuestionMark size={28} aria-hidden="true" /> : <IconLock size={28} aria-hidden="true" />}
+                {obtenu ? <Icone size={28} aria-hidden="true" /> : <IconLock size={28} aria-hidden="true" />}
               </span>
-              <span style={{ color: obtenu ? '#fff' : 'var(--soft)' }}>{obtenu || !secret ? nom : 'Badge secret'}</span>
+              <span style={{ color: obtenu ? '#fff' : 'var(--soft)' }}>{nom}</span>
             </div>
           );
         })}
