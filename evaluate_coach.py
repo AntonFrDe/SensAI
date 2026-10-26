@@ -3,11 +3,13 @@
     python3 evaluate_coach.py                          # 30 situations, coach et juge de config.json
     python3 evaluate_coach.py --nombre 6 --graine 1    # moins de situations, un autre tirage
     python3 evaluate_coach.py --modele llama3.2:3b     # un autre coach ; --juge pour un autre correcteur
+    python3 evaluate_coach.py --ratees                 # rejoue les situations déjà ratées (evaluation/coach_ratees.jsonl)
 
 Pour chaque situation, le joueur prend la mauvaise décision (le coach a quelque chose à expliquer), demande
 « pourquoi ? », puis un juge d'une autre famille de modèle (config "judge_model", llama3.2:3b par défaut) coche
 chaque fait de la référence : présent, absent ou contredit. Le score principal est la part des débriefs sans
-contradiction. Le script remplit evaluation/coach_resultats.md et evaluation/coach_resultats.json.
+contradiction. Le script remplit evaluation/coach_resultats.md et evaluation/coach_resultats.json, ajoute les
+situations ratées à evaluation/coach_ratees.jsonl et écrit le dernier score dans le README.
 """
 import argparse
 import json
@@ -24,6 +26,9 @@ import trainer
 from llm import ROOT, LLMError, complete, load_config
 
 FOLDER = ROOT / "evaluation"
+RATEES = FOLDER / "coach_ratees.jsonl"
+README = ROOT / "README.md"
+DERNIER = "Dernier score enregistré : "
 NOMBRE = 30
 GRAINE = 2026   # le même jeu de situations d'une fois sur l'autre, pour comparer deux modèles ou deux prompts
 JUGE = "llama3.2:3b"   # une autre famille que le coach (qwen3) : il ne se corrige pas lui-même
@@ -164,6 +169,40 @@ def enregistrer(resultats: list[dict], cfg: dict, juge: str, graine: int) -> Non
                                                 encoding="utf-8")
 
 
+def rate(resultat: dict) -> bool:
+    return resultat["contredit"] or any(f.get("code") is False for f in resultat["faits"])
+
+
+def lire_ratees(chemin=RATEES) -> list[dict]:
+    if not chemin.exists():
+        return []
+    return [json.loads(ligne) for ligne in chemin.read_text(encoding="utf-8").splitlines() if ligne.strip()]
+
+
+def garder_ratees(tirees: list[dict], resultats: list[dict], chemin=RATEES) -> int:
+    connues = {situation["id"] for situation in lire_ratees(chemin)}
+    nouvelles = [situation for situation, resultat in zip(tirees, resultats)
+                 if rate(resultat) and situation["id"] not in connues]
+    if nouvelles:
+        with chemin.open("a", encoding="utf-8") as fichier:
+            fichier.writelines(json.dumps(situation, ensure_ascii=False) + "\n" for situation in nouvelles)
+    return len(nouvelles)
+
+
+def ligne_score(payload: dict) -> str:
+    s = payload["score"]
+    return (f"{DERNIER}{payload['date'][:10]}, coach `{payload['coach']}`, juge `{payload['juge']}`, "
+            f"{s['situations']} situations : **{s['sans_contradiction']}/{s['jugees']} débriefs sans contradiction**, "
+            f"{s['faits_retrouves_par_code']}/{s['faits_verifiables']} faits retrouvés par le code.")
+
+
+def maj_readme(payload: dict, chemin=README) -> bool:
+    texte = chemin.read_text(encoding="utf-8")
+    nouveau = re.sub(rf"^{DERNIER}.*$", lambda _: ligne_score(payload), texte, count=1, flags=re.MULTILINE)
+    chemin.write_text(nouveau, encoding="utf-8")
+    return nouveau != texte
+
+
 def relire() -> int:
     """Recalcule la vérification par le code et la page à partir de coach_resultats.json, sans appeler de modèle."""
     payload = json.loads((FOLDER / "coach_resultats.json").read_text(encoding="utf-8"))
@@ -173,6 +212,7 @@ def relire() -> int:
     payload = {**payload, "score": score(resultats), "resultats": resultats}
     (FOLDER / "coach_resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n",
                                                 encoding="utf-8")
+    maj_readme(payload)
     print(json.dumps(payload["score"], ensure_ascii=False))
     return 0
 
@@ -185,6 +225,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--graine", type=int, default=GRAINE, help=f"tirage des situations (défaut : {GRAINE})")
     parser.add_argument("--relire", action="store_true",
                         help="recalculer la vérification par le code sur les résultats enregistrés, sans modèle")
+    parser.add_argument("--ratees", action="store_true", help=f"rejouer les situations ratées ({RATEES.name})")
     args = parser.parse_args(argv)
     if args.relire:
         return relire()
@@ -192,7 +233,11 @@ def main(argv: list[str] | None = None) -> int:
     cfg = {**cfg, **({"model": args.modele} if args.modele else {}), **({"judge_model": args.juge} if args.juge else {})}
     juge = cfg.get("judge_model", JUGE)
 
-    resultats, tirees = [], situations(args.nombre, args.graine)
+    tirees = lire_ratees() if args.ratees else situations(args.nombre, args.graine)
+    if not tirees:
+        print(f"Aucune situation ratée dans {RATEES}.", file=sys.stderr)
+        return 1
+    resultats = []
     try:
         for situation in tirees:
             resultat = evaluer(situation, cfg)
@@ -208,7 +253,11 @@ def main(argv: list[str] | None = None) -> int:
     if resultats:
         s = score(resultats)
         print(f"\n{s['sans_contradiction']}/{s['jugees']} sans contradiction → {FOLDER / 'coach_resultats.md'}")
-    return 0 if len(resultats) == len(tirees) else 1
+        print(f"{garder_ratees(tirees, resultats)} situations ratées ajoutées à {RATEES}")
+    if resultats and len(resultats) == len(tirees):
+        maj_readme(json.loads((FOLDER / "coach_resultats.json").read_text(encoding="utf-8")))
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

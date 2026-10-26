@@ -3,6 +3,8 @@
     python3 test_evaluate_coach.py
 """
 import json
+import tempfile
+from pathlib import Path
 
 import evaluate_coach
 import generation
@@ -87,6 +89,35 @@ def test_present_par_code_finds_the_action_and_the_numbers():
     assert evaluate_coach.present_par_code(fait, "payer 6 bb dans un pot de 14 bb, soit 30.0 %")
     assert not evaluate_coach.present_par_code(fait, "payer 6 bb pour 14 bb, soit 33 %")
     assert evaluate_coach.present_par_code("Ta meilleure main : Couleur", "une couleur") is None
+
+
+
+def test_failed_situations_are_kept_once_for_the_next_run():
+    tirees = evaluate_coach.situations(3, 1)
+    ok = {"contredit": False, "faits": [{"code": True}]}
+    contredit = {"contredit": True, "faits": [{"code": True}]}
+    manque = {"contredit": False, "faits": [{"code": None}, {"code": False}]}
+    assert [evaluate_coach.rate(r) for r in (ok, contredit, manque)] == [False, True, True]
+    with tempfile.TemporaryDirectory() as tmp:
+        chemin = Path(tmp) / "ratees.jsonl"
+        assert evaluate_coach.lire_ratees(chemin) == []
+        assert evaluate_coach.garder_ratees(tirees, [ok, contredit, manque], chemin) == 2
+        assert evaluate_coach.garder_ratees(tirees, [contredit, contredit, ok], chemin) == 1
+        assert [s["id"] for s in evaluate_coach.lire_ratees(chemin)] == [tirees[i]["id"] for i in (1, 2, 0)]
+
+
+def test_the_readme_line_gets_the_last_score_and_its_date():
+    payload = {"date": "2026-10-26T10:00:00", "coach": "c", "juge": "j",
+               "score": {"situations": 4, "jugees": 3, "sans_contradiction": 2, "faits_retrouves_par_code": 5,
+                         "faits_verifiables": 6}}
+    with tempfile.TemporaryDirectory() as tmp:
+        chemin = Path(tmp) / "README.md"
+        chemin.write_text("# T\n\nDernier score enregistré : ancien.\nSuite.\n", encoding="utf-8")
+        assert evaluate_coach.maj_readme(payload, chemin)
+        lignes = chemin.read_text(encoding="utf-8").splitlines()
+        assert lignes[2].startswith("Dernier score enregistré : 2026-10-26, coach `c`, juge `j`, 4 situations")
+        assert "**2/3 débriefs sans contradiction**, 5/6 faits" in lignes[2] and lignes[3] == "Suite."
+        assert not evaluate_coach.maj_readme(payload, chemin)
 
 
 if __name__ == "__main__":

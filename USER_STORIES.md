@@ -94,6 +94,7 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
    - ✅ Chaque contradiction est listée avec la situation et le débrief.
    - ⚠️ Le juge est d'une autre famille (`llama3.2:3b`), mais trop peu fiable : le code vérifie aussi les faits.
 2. En tant que joueur, je veux savoir que les chiffres du coach sont vérifiés, afin de lui faire confiance.
-   - ⬜ Le README affiche le dernier score et sa date.
-   - ⬜ Les situations ratées par l'évaluation servent de tests.
+   - ✅ Le README affiche le dernier score et sa date : une évaluation complète réécrit sa ligne.
+   - ✅ Les situations ratées par l'évaluation servent de tests : gardées dans `evaluation/coach_ratees.jsonl`,
+     rejouées par `evaluate_coach.py --ratees`.
    - ✅ Le score est versionné dans `evaluation/coach_resultats.md`.
