@@ -168,7 +168,8 @@ def _nombres(texte: str) -> list[float]:
 
 def lire_question(arguments: object, outs: int | None = None, pourcentages: dict[str, list[float]] | None = None) -> dict:
     """{question, choix} d'un appel à poser_question ; ValueError s'il ne fait pas une question à choix, ou si une
-    question sur les outs, la cote, les chances ou l'équité ne propose pas la valeur calculée par le code."""
+    question sur les outs, la cote, les chances ou l'équité ne propose pas la valeur calculée par le code ; dans ce
+    cas, « bonne » donne l'indice du choix juste."""
     if not isinstance(arguments, dict):
         raise ValueError("arguments attendus : question et choix")
     question, choix = arguments.get("question"), arguments.get("choix")
@@ -176,16 +177,25 @@ def lire_question(arguments: object, outs: int | None = None, pourcentages: dict
         raise ValueError("question vide")
     if not (isinstance(choix, list) and 2 <= len(choix) <= 4 and all(isinstance(c, str) and c.strip() for c in choix)):
         raise ValueError("il faut de 2 à 4 choix, chacun un texte")
-    if outs is not None and "out" in question.lower() and not any(
-            re.search(rf"(?<!\d){outs}(?!\d)", c) for c in choix):
-        raise ValueError(f"aucun choix ne donne les {outs} outs de la référence : propose-les parmi les choix")
+    choix = [c.strip() for c in choix]
     texte = question.lower()
+    bonne = None
+    if outs is not None and "out" in texte:
+        justes = [i for i, c in enumerate(choix) if re.search(rf"(?<!\d){outs}(?!\d)", c)]
+        if not justes:
+            raise ValueError(f"aucun choix ne donne les {outs} outs de la référence : propose-les parmi les choix")
+        bonne = justes[0]
     for cle, valeurs in (pourcentages or {}).items():
-        if any(mot in texte for mot in REPERES[cle][1]) and not any(
-                abs(n - v) <= TOLERANCE for c in choix for n in _nombres(c) for v in valeurs):
+        if bonne is not None or not any(mot in texte for mot in REPERES[cle][1]):
+            continue
+        ecarts = [(min((abs(n - v) for n in _nombres(c) for v in valeurs), default=TOLERANCE + 1), i)
+                  for i, c in enumerate(choix)]
+        ecart, plus_proche = min(ecarts)
+        if ecart > TOLERANCE:
             attendu = " ou ".join(f"{v:g} %".replace(".", ",") for v in valeurs)
             raise ValueError(f"aucun choix ne donne la valeur de la référence ({attendu}) : propose-la parmi les choix")
-    return {"question": question.strip(), "choix": [c.strip() for c in choix]}
+        bonne = plus_proche
+    return {"question": question.strip(), "choix": choix, **({"bonne": bonne} if bonne is not None else {})}
 
 
 def repondre(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> Iterator[tuple[str, object]]:

@@ -165,7 +165,8 @@ def test_lire_question_wants_a_question_and_two_to_four_choices():
 
 
 def test_a_question_on_outs_must_offer_the_computed_count():
-    assert coach.lire_question({"question": "Combien d'outs ?", "choix": ["15", "9"]}, 9)["choix"] == ["15", "9"]
+    assert coach.lire_question({"question": "Combien d'outs ?", "choix": ["15", "9"]}, 9) == {
+        "question": "Combien d'outs ?", "choix": ["15", "9"], "bonne": 1}
     assert coach.lire_question({"question": "Quelle main ?", "choix": ["paire", "brelan"]}, 9)
     assert raises(coach.lire_question, {"question": "Combien d'outs ?", "choix": ["19", "15"]}, 9)
     assert coach.outs_de({"faits": ["Outs : 9 (9 pour couleur)", "Cote du pot : 25 %"]}) == 9
@@ -178,7 +179,9 @@ def test_a_question_on_odds_must_offer_the_computed_percentage():
     pourcentages = coach.pourcentages_de({"faits": faits})
     assert pourcentages == {"chance": [19.6, 35.0], "cote": [25.0]}
     cote = {"question": "Quelle cote du pot ?", "choix": ["25 %", "33 %", "50 %"]}
-    assert coach.lire_question(cote, 9, pourcentages)["choix"] == ["25 %", "33 %", "50 %"]
+    assert coach.lire_question(cote, 9, pourcentages)["bonne"] == 0
+    assert coach.lire_question({"question": "Tes chances ?", "choix": ["36 %", "20 %"]}, 9, pourcentages)["bonne"] == 1
+    assert "bonne" not in coach.lire_question({"question": "Quelle main ?", "choix": ["paire", "brelan"]}, 9, pourcentages)
     assert raises(coach.lire_question, {**cote, "choix": ["10 %", "40 %"]}, 9, pourcentages)
     assert coach.lire_question({"question": "Tes chances de toucher au turn ?", "choix": ["20 %", "45 %"]}, 9, pourcentages)
     assert raises(coach.lire_question, {"question": "Ta probabilité de toucher ?", "choix": ["5 %", "60 %"]}, 9, pourcentages)
