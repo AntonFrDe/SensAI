@@ -590,3 +590,13 @@ code { padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .3); font
   .jt-felt-cards { gap: 4px; }
   .jt-felt-cards .jt-c3 { width: 42px; height: 60px; }
 }
+@media (max-width: 600px) {
+  .felt { gap: 8px; padding: 14px 8px; border-radius: 44px; }
+  .seat-box { gap: 4px; padding: 6px 10px; }
+  .seat-head { gap: 8px; }
+  .avatar { width: 38px; height: 38px; }
+  .seat-status:empty { display: none; }
+  .table-center { gap: 6px; }
+  .board { gap: 14px; }
+  .board .cards { gap: 4px; }
+}
