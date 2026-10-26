@@ -206,8 +206,8 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
     setFiche({ fiche: null, chargement: true, erreur: '' });
     try {
       setFiche({ fiche: await ecrireFiche(session.sessionId), chargement: false, erreur: '' });
-    } catch (cause) {
-      setFiche({ fiche: null, chargement: false, erreur: messageDe(cause, 'La fiche est indisponible.') });
+    } catch {
+      setFiche({ fiche: null, chargement: false, erreur: 'Jeton n’a pas réussi à écrire ta fiche. Réessaie dans un instant.' });
     }
   }
 
