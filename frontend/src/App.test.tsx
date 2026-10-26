@@ -111,12 +111,12 @@ describe('App', () => {
 
     await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    expect(await screen.findByText('L’IA relance à 60.')).toBeInTheDocument();
+    expect(await screen.findByText('L’IA : Raise à 60.')).toBeInTheDocument();
     expect(calls).toEqual(['/api/games', '/api/opponent']);
     expect(bodies[0]).toEqual({ options: { blinds: '10/20', stackBigBlinds: 50, revealAtEnd: false } });
 
     await userEvent.click(screen.getByRole('button', { name: 'Fold' }));
-    expect(await screen.findByText('L’IA remporte 80 jetons (adversaire couché).')).toBeInTheDocument();
+    expect(await screen.findByText('L’IA remporte 80 jetons (tu as fold).')).toBeInTheDocument();
 
     const stats = screen.getByRole('region', { name: 'Statistiques' });
     expect(stats).toHaveTextContent('Mains jouées1');

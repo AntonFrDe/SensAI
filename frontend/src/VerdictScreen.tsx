@@ -4,7 +4,7 @@ import type { TrainerActionKey, TrainerReference, TrainerSituation, TrainerVerdi
 import Mascot from './Mascot';
 import Particules from './Particules';
 import { SFX } from './sfx';
-import { ACTION_LIBELLES, HYPOTHESE_FAITS, SOURCE_FAITS, VERDICT_TEXTES } from './trainerLabels';
+import { HYPOTHESE_FAITS, SOURCE_FAITS, VERDICT_TEXTES, nomAction } from './trainerLabels';
 
 export type VerdictScreenProps = {
   situation: TrainerSituation;
@@ -25,17 +25,13 @@ const STYLE: Record<TrainerVerdict, { couleur: string; texte: string; icone: typ
 
 const CADRE = /^(Hypothèse|Référence) : /;
 
-function libelle(situation: TrainerSituation, action: TrainerActionKey): string {
-  return situation.actions.find(choix => choix.action === action)?.libelle ?? ACTION_LIBELLES[action] ?? action;
-}
-
 export default function VerdictScreen({ situation, verdict, reference, action, gain, combo, onDebrief, onFiche }: VerdictScreenProps) {
   const texte = VERDICT_TEXTES[verdict];
   const style = STYLE[verdict];
   const Icone = style.icone;
   const faits = reference.faits.filter(fait => !CADRE.test(fait));
   const hypothese = reference.faits.find(fait => fait.startsWith('Hypothèse : '))?.replace(CADRE, '') ?? HYPOTHESE_FAITS[situation.theme];
-  const meilleures = (reference.bonnes.length > 0 ? reference.bonnes : reference.acceptables).map(cle => libelle(situation, cle));
+  const meilleures = (reference.bonnes.length > 0 ? reference.bonnes : reference.acceptables).map(cle => nomAction(situation, cle));
 
   useEffect(() => {
     if (verdict === 'bon') SFX.bon();
@@ -58,7 +54,7 @@ export default function VerdictScreen({ situation, verdict, reference, action, g
           <div className="jt-verdict-label" style={{ color: style.couleur }}>{texte.titre}</div>
           <div className="jt-verdict-line">{texte.phrase}</div>
           <div className="jt-soft-sm">
-            Tu as choisi <b className="jt-strong">{libelle(situation, action)}</b>, la référence dit{' '}
+            Tu as choisi <b className="jt-strong">{nomAction(situation, action)}</b>, la référence dit{' '}
             <b className="jt-strong">{meilleures.join(' ou ') || 'rien de précis'}</b>.
           </div>
         </div>

@@ -36,8 +36,8 @@ const quiz: TrainerSituation = {
 describe('SituationScreen', () => {
   it('marks the seats before the player as folded and the blinds with their amount', () => {
     render(<SituationScreen situation={ouverture} pseudo="sam" numero={1} combo={0} erreur="" occupe={false} onDecider={vi.fn()} onReessayer={vi.fn()} />);
-    expect(screen.getByText('UTG · couché')).toBeInTheDocument();
-    expect(screen.getByText('BTN · couché')).toBeInTheDocument();
+    expect(screen.getByText('UTG · fold')).toBeInTheDocument();
+    expect(screen.getByText('BTN · fold')).toBeInTheDocument();
     expect(screen.getByText('BB · 1 bb')).toBeInTheDocument();
     expect(screen.getByText('Pot 1,5 bb')).toBeInTheDocument();
   });

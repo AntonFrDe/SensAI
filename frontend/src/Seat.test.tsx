@@ -26,7 +26,7 @@ describe('Seat', () => {
   it('says when a player folded or is all-in', () => {
     const { rerender } = render(<Seat seat={{ ...seat, folded: true }} label="IA" avatar="IA" position="top" />);
     expect(screen.getByRole('region', { name: 'IA' })).toHaveClass('folded');
-    expect(screen.getByText('Couché')).toBeInTheDocument();
+    expect(screen.getByText('Fold')).toBeInTheDocument();
     rerender(<Seat seat={{ ...seat, stack: 0, allIn: true }} label="IA" avatar="IA" position="top" />);
     expect(screen.getByText('Tapis')).toBeInTheDocument();
   });

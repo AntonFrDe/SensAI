@@ -35,7 +35,7 @@ describe('handToText', () => {
     expect(plain(handToText(showdown)).split('\n')).toEqual([
       'Main n°2',
       'Tes cartes : A♠ K♠',
-      'Préflop : L’IA suit 10 jetons ; Tu relances à 1 000 jetons ; L’IA suit 960 jetons',
+      'Préflop : L’IA : Call 10 jetons ; Toi : Raise à 1 000 jetons ; L’IA : Call 960 jetons',
       'Flop [K♥ 7♣ 2♦] : pas d’action (tapis)',
       'Turn [K♥ 7♣ 2♦ 9♠] : pas d’action (tapis)',
       'River [K♥ 7♣ 2♦ 9♠ 3♥] : pas d’action (tapis)',
@@ -46,7 +46,7 @@ describe('handToText', () => {
 
   it('stops where a hand ended by a fold', () => {
     expect(plain(handToText(folded)).split('\n')).toEqual([
-      'Main n°1', 'Tes cartes : A♠ K♠', 'Préflop : Tu te couches', 'Résultat : tu perds 10 jetons (tapis : 990).',
+      'Main n°1', 'Tes cartes : A♠ K♠', 'Préflop : Toi : Fold', 'Résultat : tu perds 10 jetons (tapis : 990).',
     ]);
   });
 });

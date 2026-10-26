@@ -621,3 +621,14 @@ code { padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .3); font
 @media (hover: none) {
   .jt-kbd, .action kbd, .shortcut-help { display: none; }
 }
+@media (max-width: 600px) {
+  .jt-head-trainer { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto auto; gap: 12px 7px; align-items: center; }
+  .jt-head-trainer .jt-pills { display: contents; }
+  .jt-head-trainer .jt-brand { grid-column: 1 / 5; grid-row: 1; }
+  .jt-head-trainer .jt-avatar { grid-column: 5; grid-row: 1; }
+  .jt-head-trainer .jt-menu { grid-column: 6; grid-row: 1; }
+  .jt-head-trainer .jt-pill-lvl { grid-column: 4 / 7; grid-row: 2; }
+  .jt-head-trainer .jt-pill-lvl .jt-xpt { flex: 1; width: auto; }
+  .jt-head:not(.jt-head-trainer) .jt-pills { width: auto; flex-wrap: nowrap; margin-left: auto; }
+  .jt-wrap { padding: 14px 12px 22px; }
+}

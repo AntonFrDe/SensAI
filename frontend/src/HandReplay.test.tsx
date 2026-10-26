@@ -32,7 +32,7 @@ describe('HandReplay', () => {
     expect(screen.getAllByRole('img', { name: 'Carte non distribuée' })).toHaveLength(7);
 
     await userEvent.click(screen.getByRole('button', { name: 'Suivant' }));
-    expect(screen.getByText('L’IA suit 10 jetons')).toBeInTheDocument();
+    expect(screen.getByText('L’IA : Call 10 jetons')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Suivant' }));
     await userEvent.click(screen.getByRole('button', { name: 'Suivant' }));
     expect(screen.getByText('Flop', { selector: '.replay-street' })).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe('HandReplay', () => {
     fireEvent.keyDown(box, { key: 'End' });
     expect(screen.getByText('Étape 8 / 8')).toBeInTheDocument();
     fireEvent.keyDown(box, { key: 'ArrowLeft' });
-    expect(screen.getByText('L’IA suit 960 jetons')).toBeInTheDocument();
+    expect(screen.getByText('L’IA : Call 960 jetons')).toBeInTheDocument();
     fireEvent.keyDown(box, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledOnce();
   });
@@ -64,7 +64,7 @@ describe('HandLog', () => {
     render(<HandLog hands={[hand, { ...hand, number: 2, playerHand: null, net: -20, history: [{ street: 'pre_flop', player: 'Vous', action: 'fold' }] }]} />);
     const rows = screen.getAllByRole('listitem');
     expect(rows[0]).toHaveTextContent(/n°3A♠ K♠Paire\+1\s000/);
-    expect(rows[1]).toHaveTextContent('n°2A♠ K♠Couché-20');
+    expect(rows[1]).toHaveTextContent('n°2A♠ K♠Fold-20');
     await userEvent.click(screen.getByRole('button', { name: 'Revoir la main n°2' }));
     expect(screen.getByRole('region', { name: 'Revoir la main n°2' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Fermer' }));

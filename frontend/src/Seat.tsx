@@ -40,7 +40,7 @@ export default function Seat({ seat, label, avatar, active = false, lastAction, 
       <p className="chip-info"><Term term="stack">Stack</Term> : <ChipAmount amount={seat?.stack} /></p>
       {children}
       <p className="seat-status" aria-live="polite">
-        {seat?.folded ? 'Couché' : seat?.allIn ? 'Tapis' : active ? 'Doit jouer' : ''}
+        {seat?.folded ? 'Fold' : seat?.allIn ? 'Tapis' : active ? 'Doit jouer' : ''}
       </p>
       {seat !== undefined && seat.bet > 0 && <p className="bet-chip">Mise : <ChipAmount amount={seat.bet} /></p>}
     </section>

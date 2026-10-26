@@ -10,13 +10,13 @@ const entries: HistoryEntry[] = [
 ];
 
 describe('HandHistory', () => {
-  it('groups the actions by street in French', () => {
+  it('groups the actions by street with the poker words', () => {
     render(<HandHistory entries={entries} />);
     expect(screen.getByText('Historique de la main (4)')).toBeInTheDocument();
     const preflop = within(screen.getByRole('region', { name: 'Préflop' })).getAllByRole('listitem');
-    expect(preflop.map(item => item.textContent)).toEqual(['L’IA suit 10 jetons', 'Tu checkes']);
+    expect(preflop.map(item => item.textContent)).toEqual(['L’IA : Call 10 jetons', 'Toi : Check']);
     const flop = within(screen.getByRole('region', { name: 'Flop' })).getAllByRole('listitem');
-    expect(flop.map(item => item.textContent)).toEqual(['L’IA mise 40 jetons', 'Tu relances à 120 jetons']);
+    expect(flop.map(item => item.textContent)).toEqual(['L’IA : Bet 40 jetons', 'Toi : Raise à 120 jetons']);
   });
 
   it('opens a new group when the same street comes back after another one', () => {

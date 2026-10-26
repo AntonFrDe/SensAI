@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { IconArrowsShuffle, IconCalculator, IconFlag, IconHelp, IconPuzzle, IconSend } from '@tabler/icons-react';
 import { envoyerDebrief, type TrainerMessage, type TrainerReference, type TrainerSituation, type TrainerVerdict } from './api';
 import Mascot from './Mascot';
-import { ACTION_LIBELLES, VERDICT_TEXTES } from './trainerLabels';
+import { VERDICT_TEXTES, nomAction } from './trainerLabels';
 
 export type DebriefScreenProps = {
   sessionId: string;
@@ -32,7 +32,7 @@ const SUGGESTIONS = [
 
 function introduction(verdict: TrainerVerdict, situation: TrainerSituation, reference: TrainerReference): string {
   const meilleures = (reference.bonnes.length > 0 ? reference.bonnes : reference.acceptables)
-    .map(cle => situation.actions.find(choix => choix.action === cle)?.libelle ?? ACTION_LIBELLES[cle] ?? cle);
+    .map(cle => nomAction(situation, cle));
   return `${VERDICT_TEXTES[verdict].phrase} La référence préfère : ${meilleures.join(' ou ') || 'aucune action précise'}. Pose ta question, ou demande-moi pourquoi.`;
 }
 

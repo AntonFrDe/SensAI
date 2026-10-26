@@ -35,7 +35,7 @@ describe('VerdictScreen', () => {
       />,
     );
     expect(screen.getByText('Oups !')).toBeInTheDocument();
-    expect(screen.getByText(/la référence dit/)).toHaveTextContent('la référence dit suivre');
+    expect(screen.getByText(/la référence dit/)).toHaveTextContent('la référence dit Call');
     expect(screen.getByText('Outs : 9')).toBeInTheDocument();
     expect(screen.getAllByText('odds.py')).toHaveLength(2);
     expect(screen.getByText(/Hypothèse : tu vois le turn et la river/)).toBeInTheDocument();
