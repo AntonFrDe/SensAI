@@ -98,8 +98,14 @@ def test_meaning_search_skips_short_messages_and_survives_a_missing_ollama():
             assert ai.glossary_entries_like("salut") == []
             assert ai.glossary_entries_like("quand je tire quatre cartes à la couleur") == []
             assert [e.term for e in ai.glossary_entries_for("Que veut dire UTG ?")][0] == "UTG"
+            assert ai.embed_warned
         finally:
             ai.EMBED_URL = url
+
+
+def test_the_advice_prompt_comes_from_its_file():
+        assert ai.SYSTEM == (ai.Path(ai.__file__).parent / "prompts" / "conseil.txt").read_text(encoding="utf-8")
+        assert ai.SYSTEM.startswith("Tu es SensAI, un coach de poker.")
 
 
 if __name__ == "__main__":

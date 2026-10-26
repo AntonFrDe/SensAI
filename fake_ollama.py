@@ -47,8 +47,11 @@ class FakeOllama(BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         cls = FakeOllama
-        with cls.lock:
-            cls.requests.append(body)
+        if self.path == "/api/embed":
+            body = {**body, "model": "missing"}
+        else:
+            with cls.lock:
+                cls.requests.append(body)
         if body["model"] == "missing":
             data = json.dumps({"error": "model 'missing' not found"}).encode()
             self.send_response(404)

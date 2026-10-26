@@ -325,6 +325,7 @@ def main() -> int:
         cfg = load_config(args.config)
         if args.model:
             cfg = {**cfg, "model": args.model}
+        ai.EMBED_URL = f"{cfg['ollama_url']}/api/embed"
         profil = profils.charger(args.pseudo, cfg) if args.pseudo else None
         ensure_model(cfg)
     except (OSError, ValueError, KeyError) as e:
