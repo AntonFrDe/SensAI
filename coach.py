@@ -4,6 +4,7 @@ d'une réponse, sans rien afficher. Le CLI et le web la rendent chacun à leur f
 Le code a déjà calculé la bonne réponse (generation.reference) : le coach l'explique, il ne la recalcule pas.
 """
 import json
+import re
 from collections.abc import Iterator
 from contextlib import closing
 
@@ -128,11 +129,19 @@ def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, p
     """La config du débrief : le prompt du coach suivi du contexte de l'exercice, et l'outil poser_question."""
     prompt = PROMPT.read_text(encoding="utf-8").strip()
     return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict, profil)}",
-            "tools": [*cfg.get("tools", []), OUTIL_QUESTION]}
+            "tools": [*cfg.get("tools", []), OUTIL_QUESTION], "outs": outs_de(situation["reference"])}
 
 
-def lire_question(arguments: object) -> dict:
-    """{question, choix} d'un appel à poser_question ; ValueError s'il ne fait pas une question à choix."""
+def outs_de(reference: dict) -> int | None:
+    for fait in reference["faits"]:
+        if trouve := re.match(r"Outs : (\d+)", fait):
+            return int(trouve.group(1))
+    return None
+
+
+def lire_question(arguments: object, outs: int | None = None) -> dict:
+    """{question, choix} d'un appel à poser_question ; ValueError s'il ne fait pas une question à choix, ou si une
+    question sur les outs ne propose pas le nombre calculé par le code."""
     if not isinstance(arguments, dict):
         raise ValueError("arguments attendus : question et choix")
     question, choix = arguments.get("question"), arguments.get("choix")
@@ -140,6 +149,9 @@ def lire_question(arguments: object) -> dict:
         raise ValueError("question vide")
     if not (isinstance(choix, list) and 2 <= len(choix) <= 4 and all(isinstance(c, str) and c.strip() for c in choix)):
         raise ValueError("il faut de 2 à 4 choix, chacun un texte")
+    if outs is not None and "out" in question.lower() and not any(
+            re.search(rf"(?<!\d){outs}(?!\d)", c) for c in choix):
+        raise ValueError(f"aucun choix ne donne les {outs} outs de la référence : propose-les parmi les choix")
     return {"question": question.strip(), "choix": [c.strip() for c in choix]}
 
 
@@ -173,7 +185,7 @@ def repondre(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> Ite
             name, arguments = call["function"]["name"], call["function"].get("arguments", {})
             if name == QUESTION:
                 try:
-                    question = lire_question(arguments)
+                    question = lire_question(arguments, cfg.get("outs"))
                 except ValueError as e:
                     result = f"Erreur : {e}"
                 else:

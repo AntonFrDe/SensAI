@@ -29,8 +29,8 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
    que j'ai compris.
    - ✅ Le coach pose une question avec des choix (outil `poser_question`, « combien d'outs ? 13 / 10 / 8 / 5 »).
    - ✅ Ma réponse lui revient en toutes lettres (« Je réponds : 13 ») et il la corrige.
-   - ⚠️ La bonne valeur est dans la référence calculée par le code, que le coach reçoit ; rien ne vérifie encore
-     que les choix proposés la contiennent.
+   - ✅ Une question sur les outs doit proposer le nombre calculé par le code ; sinon elle revient au coach, qui
+     corrige ses choix. Les autres questions (cote, équité) ne sont pas encore vérifiées.
 
 ## T5 : sortie structurée
 
