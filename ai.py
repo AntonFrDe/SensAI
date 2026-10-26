@@ -28,9 +28,7 @@ OLLAMA = "http://localhost:11434/api/chat"
 TEMPERATURE = 0.0
 NUM_CTX = 8192  # tokens : contexte injecté + question + réponse ; Ollama prend 4 096 par défaut
 DATA = Path(__file__).parent / "data"
-SYSTEM = "Tu es SensAI, un coach de poker. Réponds en Français, court et précis. Dans le cadre d'une question par rapport " \
-           "a une partie (que faire a un moment donné), il faudra que tu normalize le resultat, avec - (Action à faire) \n - (Combien miser)\n - (Pourquoi) \n" \
-         "Si le contexte contient des calculs (équité, outs, cote du pot), appuie ton conseil dessus et cite-les tels quels.\n"
+SYSTEM = (Path(__file__).parent / "prompts" / "conseil.txt").read_text(encoding="utf-8")
 
 
 def hand_rankings_context() -> str:
@@ -74,6 +72,7 @@ EMBED_CACHE = DATA / "glossary_embeddings.json"  # recalculé si le modèle ou l
 SIMILAR_TOP = 4
 SIMILAR_MIN = 0.55  # en dessous, l'entrée n'a rien à voir avec la question
 SIMILAR_MIN_WORDS = 4  # « salut » ou « suite » ressemblent vaguement à tout : pas de recherche par le sens
+embed_warned = False
 
 
 def embed(texts: list[str]) -> list[list[float]]:
@@ -114,7 +113,10 @@ def glossary_entries_like(question: str) -> list[glossary.Entry]:
         vectors = glossary_vectors()
         [q] = embed([question])
     except (urllib.error.URLError, KeyError, ValueError) as e:
-        print(f"(recherche par le sens indisponible : {e} ; ollama pull {EMBED_MODEL})", file=sys.stderr)
+        global embed_warned
+        if not embed_warned:
+            print(f"(recherche par le sens indisponible : {e} ; ollama pull {EMBED_MODEL})", file=sys.stderr)
+            embed_warned = True
         return []
     by_id = {e.id: e for e in glossary.ENTRIES if e.source == "lexique"}
     scores = sorted(((sum(a * b for a, b in zip(q, v)), id_) for id_, v in vectors.items() if id_ in by_id),

@@ -539,6 +539,7 @@ def main() -> None:
     Handler.cfg = load_config()
     if args.model:
         Handler.cfg["model"] = args.model
+    ai.EMBED_URL = f"{Handler.cfg['ollama_url']}/api/embed"
     Handler.toolbox = Toolbox({} if args.no_tools else Handler.cfg.get("mcp_servers", {}))
     for warning in Handler.toolbox.warnings:  # a broken tool server must not stop the server
         print(f"Outils indisponibles, {warning}", file=sys.stderr)
