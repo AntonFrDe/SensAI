@@ -35,11 +35,21 @@ if ! node_ok; then
     mkdir -p .node
     curl -fsSL "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.xz" | tar -xJ -C .node --strip-components=1
 fi
-[ -d frontend/node_modules ] || (cd frontend && npm install)
+if ! (cd frontend && npm ls --depth=0 >/dev/null 2>&1); then
+    echo "Installation des dépendances du frontend..."
+    (cd frontend && npm install --package-lock=false)
+fi
 
-.venv/bin/python server.py &
-API_PID=$!
-trap 'kill $API_PID 2>/dev/null' EXIT
+if curl -sf http://127.0.0.1:8000/api/status >/dev/null; then
+    echo "API déjà lancée sur http://localhost:8000"
+elif (echo >/dev/tcp/127.0.0.1/8000) >/dev/null 2>&1; then
+    echo "Erreur : le port 8000 est déjà utilisé par un autre service." >&2
+    exit 1
+else
+    .venv/bin/python server.py &
+    API_PID=$!
+    trap 'kill $API_PID 2>/dev/null' EXIT
+fi
 
 (sleep 3 && xdg-open http://localhost:5173 >/dev/null 2>&1 || true) &
 cd frontend && npm run dev
