@@ -172,6 +172,19 @@ def test_a_question_on_outs_must_offer_the_computed_count():
     assert coach.outs_de({"faits": ["K9s : ouverture"]}) is None
 
 
+def test_a_question_on_odds_must_offer_the_computed_percentage():
+    faits = ["Outs : 9", "Chance de toucher à la prochaine carte : 19,6 %", "Chance de toucher d'ici la river : 35,0 %",
+             "Cote du pot : il faut 25,0 % d'équité (payer 5 pour un pot de 15)", "Hypothèse : sans gains implicites."]
+    pourcentages = coach.pourcentages_de({"faits": faits})
+    assert pourcentages == {"chance": [19.6, 35.0], "cote": [25.0]}
+    cote = {"question": "Quelle cote du pot ?", "choix": ["25 %", "33 %", "50 %"]}
+    assert coach.lire_question(cote, 9, pourcentages)["choix"] == ["25 %", "33 %", "50 %"]
+    assert raises(coach.lire_question, {**cote, "choix": ["10 %", "40 %"]}, 9, pourcentages)
+    assert coach.lire_question({"question": "Tes chances de toucher au turn ?", "choix": ["20 %", "45 %"]}, 9, pourcentages)
+    assert raises(coach.lire_question, {"question": "Ta probabilité de toucher ?", "choix": ["5 %", "60 %"]}, 9, pourcentages)
+    assert coach.lire_question({"question": "Ton équité ?", "choix": ["1 %", "99 %"]}, 9, pourcentages)
+
+
 def test_a_question_to_the_player_ends_the_turn():
     FakeOllama.reset()
     FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}}

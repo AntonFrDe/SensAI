@@ -213,8 +213,8 @@ def test_fiche_off_schema_is_reported_and_the_session_goes_on():
 
 def test_the_coach_question_shows_numbered_choices():
     p = chat("2\nf\npourquoi ?\n2\n/quit\n", mode=None,
-             tool_call={"name": "poser_question", "arguments": {"question": "Cote ?", "choix": ["9", "15"]}})
-    assert "Cote ?\n  1. 9\n  2. 15" in p.stdout
+             tool_call={"name": "poser_question", "arguments": {"question": "Quelle main ?", "choix": ["9", "15"]}})
+    assert "Quelle main ?\n  1. 9\n  2. 15" in p.stdout
     assert FakeOllama.requests[-1]["messages"][-1]["content"] == "Je réponds : 15"
 
 

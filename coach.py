@@ -136,7 +136,8 @@ def config(cfg: dict, situation: dict, niveau: str, action: str, verdict: str, p
     """La config du débrief : le prompt du coach suivi du contexte de l'exercice, et l'outil poser_question."""
     prompt = PROMPT.read_text(encoding="utf-8").strip()
     return {**cfg, "system_prompt": f"{prompt}\n\n{contexte(situation, niveau, action, verdict, profil)}",
-            "tools": [*cfg.get("tools", []), OUTIL_QUESTION], "outs": outs_de(situation["reference"])}
+            "tools": [*cfg.get("tools", []), OUTIL_QUESTION], "outs": outs_de(situation["reference"]),
+            "pourcentages": pourcentages_de(situation["reference"])}
 
 
 def outs_de(reference: dict) -> int | None:
@@ -146,9 +147,28 @@ def outs_de(reference: dict) -> int | None:
     return None
 
 
-def lire_question(arguments: object, outs: int | None = None) -> dict:
+REPERES = {"cote": ("Cote du pot", ("cote",)), "chance": ("Chance de toucher", ("chance", "toucher", "probabilit")),
+           "equite": ("Équité", ("équité", "equite"))}
+NOMBRE = re.compile(r"\d+(?:[,.]\d+)?")
+TOLERANCE = 1.0
+
+
+def pourcentages_de(reference: dict) -> dict[str, list[float]]:
+    trouves: dict[str, list[float]] = {}
+    for fait in reference["faits"]:
+        for cle, (debut, _) in REPERES.items():
+            if fait.startswith(debut) and (valeur := re.search(r"(\d+(?:,\d+)?) %", fait)):
+                trouves.setdefault(cle, []).append(float(valeur.group(1).replace(",", ".")))
+    return trouves
+
+
+def _nombres(texte: str) -> list[float]:
+    return [float(n.replace(",", ".")) for n in NOMBRE.findall(texte)]
+
+
+def lire_question(arguments: object, outs: int | None = None, pourcentages: dict[str, list[float]] | None = None) -> dict:
     """{question, choix} d'un appel à poser_question ; ValueError s'il ne fait pas une question à choix, ou si une
-    question sur les outs ne propose pas le nombre calculé par le code."""
+    question sur les outs, la cote, les chances ou l'équité ne propose pas la valeur calculée par le code."""
     if not isinstance(arguments, dict):
         raise ValueError("arguments attendus : question et choix")
     question, choix = arguments.get("question"), arguments.get("choix")
@@ -159,6 +179,12 @@ def lire_question(arguments: object, outs: int | None = None) -> dict:
     if outs is not None and "out" in question.lower() and not any(
             re.search(rf"(?<!\d){outs}(?!\d)", c) for c in choix):
         raise ValueError(f"aucun choix ne donne les {outs} outs de la référence : propose-les parmi les choix")
+    texte = question.lower()
+    for cle, valeurs in (pourcentages or {}).items():
+        if any(mot in texte for mot in REPERES[cle][1]) and not any(
+                abs(n - v) <= TOLERANCE for c in choix for n in _nombres(c) for v in valeurs):
+            attendu = " ou ".join(f"{v:g} %".replace(".", ",") for v in valeurs)
+            raise ValueError(f"aucun choix ne donne la valeur de la référence ({attendu}) : propose-la parmi les choix")
     return {"question": question.strip(), "choix": [c.strip() for c in choix]}
 
 
@@ -192,7 +218,7 @@ def repondre(history: list[dict], text: str, cfg: dict, toolbox: Toolbox) -> Ite
             name, arguments = call["function"]["name"], call["function"].get("arguments", {})
             if name == QUESTION:
                 try:
-                    question = lire_question(arguments, cfg.get("outs"))
+                    question = lire_question(arguments, cfg.get("outs"), cfg.get("pourcentages"))
                 except ValueError as e:
                     result = f"Erreur : {e}"
                 else:
