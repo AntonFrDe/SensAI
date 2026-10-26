@@ -64,6 +64,7 @@ button:disabled { opacity: .5; cursor: default; }
 .seat-box.active { border-color: var(--yel); background: rgba(255, 200, 61, .14); box-shadow: 0 0 22px rgba(255, 200, 61, .35); }
 .seat-box.folded { opacity: .55; }
 .seat-head { display: flex; align-items: center; gap: 10px; }
+.seat-head strong { white-space: nowrap; }
 .avatar { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: var(--yel); color: #3D2600; border: 3px solid #FFE7A3; box-shadow: 0 5px 0 var(--yelD); font-weight: 800; font-size: 13px; }
 .dealer-button { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #fff; color: var(--card-ink); font-weight: 800; font-size: .8rem; }
 .role-badge { padding: 2px 9px; border-radius: 999px; background: var(--sky); color: #05324A; font-size: .75rem; font-weight: 700; }
@@ -474,7 +475,7 @@ code { padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .3); font
 .jt-day-today{outline:3px solid #fff;outline-offset:2px}
 .jt-bdg{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12px;font-weight:600;transition:transform .2s}
 .jt-bdg-ic{width:58px;height:58px;border-radius:20px;display:grid;place-items:center;font-size:28px;box-shadow:0 5px 0 rgba(0,0,0,.3)}
-.jt-badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:24px}
+.jt-badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:24px}
 .jt-rays{position:absolute;inset:-46px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.22) 0 8deg,transparent 8deg 16deg);-webkit-mask:radial-gradient(circle,#000 22%,transparent 68%);mask:radial-gradient(circle,#000 22%,transparent 68%);pointer-events:none}
 .jt-fire{background:linear-gradient(90deg,#FF9F3D,#FF4F8B,#FFC83D,#FF9F3D);background-size:300% 100%;color:#fff}
 .jt-flame{display:inline-block}
@@ -599,4 +600,24 @@ code { padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .3); font
   .table-center { gap: 6px; }
   .board { gap: 14px; }
   .board .cards { gap: 4px; }
+  .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .choices:has(> label.choice) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .choice { justify-content: center; padding: 8px 10px; }
+  button.choice { flex-direction: column; gap: 0; border-radius: 18px; }
+  .jt-verdict-head { gap: 12px; }
+  .jt-verdict-head > .jt-masc, .jt-verdict-head .jt-flt { display: none; }
+  .jt-badge-wrap, .jt-badge { width: 64px; height: 64px; }
+  .jt-badge { border-radius: 22px; }
+  .jt-badge svg { width: 36px; height: 36px; }
+  .jt-verdict-label { font-size: 34px; }
+  .jt-actions-row > .jt-btn { flex: 1 1 100%; justify-content: center; }
+  .jt-theme-row { grid-template-columns: minmax(0, 1fr) 44px; row-gap: 6px; }
+  .jt-theme-name { grid-column: 1 / -1; }
+  .bet-presets { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
+  .preset { padding: 7px 4px; }
+  .banque-form label, .banque-form button { flex: 1 1 100%; }
+  .banque-form select { width: 100%; min-width: 0; }
+}
+@media (hover: none) {
+  .jt-kbd, .action kbd, .shortcut-help { display: none; }
 }
