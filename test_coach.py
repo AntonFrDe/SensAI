@@ -153,6 +153,14 @@ def test_lire_question_wants_a_question_and_two_to_four_choices():
     assert raises(coach.lire_question, "Outs ?")
 
 
+def test_a_question_on_outs_must_offer_the_computed_count():
+    assert coach.lire_question({"question": "Combien d'outs ?", "choix": ["15", "9"]}, 9)["choix"] == ["15", "9"]
+    assert coach.lire_question({"question": "Quelle main ?", "choix": ["paire", "brelan"]}, 9)
+    assert raises(coach.lire_question, {"question": "Combien d'outs ?", "choix": ["19", "15"]}, 9)
+    assert coach.outs_de({"faits": ["Outs : 9 (9 pour couleur)", "Cote du pot : 25 %"]}) == 9
+    assert coach.outs_de({"faits": ["K9s : ouverture"]}) is None
+
+
 def test_a_question_to_the_player_ends_the_turn():
     FakeOllama.reset()
     FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}}
@@ -170,6 +178,17 @@ def test_a_broken_question_goes_back_to_the_model():
     events = list(coach.repondre([], "pourquoi ?", {**CFG, "tools": [coach.OUTIL_QUESTION]}, FakeToolbox()))
     assert not any(kind == "question" for kind, _ in events)
     assert FakeOllama.requests[1]["messages"][-1]["content"].startswith("Erreur : il faut de 2 à 4 choix")
+
+
+
+def test_a_question_without_the_computed_outs_goes_back_to_the_model():
+    FakeOllama.reset()
+    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Combien d'outs ?", "choix": ["4", "8"]}}
+    cfg = {**CFG, "tools": [coach.OUTIL_QUESTION], "outs": 9}
+    events = list(coach.repondre([], "pourquoi ?", cfg, FakeToolbox()))
+    assert not any(kind == "question" for kind, _ in events)
+    assert "les 9 outs de la référence" in FakeOllama.requests[1]["messages"][-1]["content"]
+    assert "outs" not in FakeOllama.requests[0]
 
 
 if __name__ == "__main__":

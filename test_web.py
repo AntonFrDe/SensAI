@@ -447,7 +447,7 @@ def test_trainer_debrief_streams_and_keeps_its_history():
 
 def test_trainer_debrief_sends_the_coach_question():
     FakeOllama.reset()
-    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Outs ?", "choix": ["9", "15"]}}
+    FakeOllama.tool_call = {"name": "poser_question", "arguments": {"question": "Cote ?", "choix": ["9", "15"]}}
     sid, _ = new_session()
     for path, body in (("niveau", {"reponse": "2"}), ("situations", {}), ("decision", {"action": "fold"})):
         session_post(f"/api/sessions/{sid}/{path}", body)
@@ -456,7 +456,7 @@ def test_trainer_debrief_sends_the_coach_question():
         session_post(f"/api/sessions/{sid}/messages", {"texte": "2"})
     finally:
         FakeOllama.tool_call = None
-    assert {"question": {"question": "Outs ?", "choix": ["9", "15"]}} in events
+    assert {"question": {"question": "Cote ?", "choix": ["9", "15"]}} in events
     assert FakeOllama.requests[-1]["messages"][-1]["content"] == "Je réponds : 15"
 
 
