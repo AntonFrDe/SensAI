@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  BADGES, PROGRESSION_INITIALE, avancementDuNiveau, chargerProgression, chatouiller,
+  BADGES, PROGRESSION_INITIALE, avancementDuNiveau, chargerProgression,
   enregistrerProgression, jourDe, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
 } from './progress';
 
@@ -77,20 +77,6 @@ describe('noterExercice', () => {
   it('gives the streak badge at seven days in a row', () => {
     const six = { ...PROGRESSION_INITIALE, serie: 6, dernierJour: lundi };
     expect(noter(six, 'erreur', 'ouverture', 'MP', mardi).badges).toEqual([BADGES.serie]);
-  });
-});
-
-describe('chatouiller', () => {
-  it('unlocks the secret badge at the sixth tickle only', () => {
-    let progression = PROGRESSION_INITIALE;
-    for (let i = 0; i < 5; i++) {
-      const resultat = chatouiller(progression);
-      expect(resultat.badges).toEqual([]);
-      progression = resultat.progression;
-    }
-    const sixieme = chatouiller(progression);
-    expect(sixieme.badges).toEqual([BADGES.chatouilleur]);
-    expect(chatouiller(sixieme.progression).badges).toEqual([]);
   });
 });
 

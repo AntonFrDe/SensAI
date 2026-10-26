@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { IconBolt, IconTarget } from '@tabler/icons-react';
 import type { TrainerActionKey, TrainerSituation } from './api';
 import CarteTable from './CarteTable';
-import { useJeton, type Palette } from './JetonContext';
-import Mascot, { type Mood } from './Mascot';
+import Mascot, { type Mood, type Palette } from './Mascot';
 import { RACCOURCIS, THEME_LABELS } from './trainerLabels';
 
 export type SituationScreenProps = {
@@ -75,7 +74,6 @@ function majuscule(texte: string): string {
 }
 
 export default function SituationScreen({ situation, pseudo, numero, combo, erreur, occupe, onDecider, onReessayer }: SituationScreenProps) {
-  const { pokeLine } = useJeton();
   const [survol, setSurvol] = useState<TrainerActionKey | null>(null);
 
   useEffect(() => {
@@ -101,7 +99,7 @@ export default function SituationScreen({ situation, pseudo, numero, combo, erre
   const hi = ORDRE.indexOf(situation.position);
   const quiz = situation.theme === 'qui_gagne';
   const humeur = survol ? SURVOL[survol]?.humeur ?? 'idle' : 'idle';
-  const bulle = survol ? SURVOL[survol]?.phrase ?? '' : pokeLine || `À toi de jouer, ${pseudo} !`;
+  const bulle = survol ? SURVOL[survol]?.phrase ?? '' : `À toi de jouer, ${pseudo} !`;
   const cartesAdversaire = situation.adversaire ?? [];
 
   return (

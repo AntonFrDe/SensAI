@@ -64,7 +64,7 @@ export default function LevelScreen({ pseudo, session, erreur, onPseudo, onChois
     return (
       <div className="jt-enter">
         <div className="jt-row">
-          <Mascot mood="idle" size={90} pokable={false} />
+          <Mascot mood="idle" size={90} />
           <div className="jt-say jt-say-big">Salut ! Moi c’est Jeton. Comment tu t’appelles ?</div>
         </div>
         <form className="jt-pseudo" onSubmit={envoyerPseudo}>
@@ -80,7 +80,7 @@ export default function LevelScreen({ pseudo, session, erreur, onPseudo, onChois
     return (
       <div className="jt-enter">
         <div className="jt-row">
-          <Mascot mood="think" size={90} pokable={false} />
+          <Mascot mood="think" size={90} />
           <div className="jt-say jt-say-big">{erreur || 'Je prépare ta session…'}</div>
         </div>
       </div>
@@ -139,7 +139,7 @@ export default function LevelScreen({ pseudo, session, erreur, onPseudo, onChois
       <p className="jt-err">{erreurLibre || erreur}</p>
       {classement && (
         <div className="jt-glass jt-bub jt-free-out">
-          <Mascot mood="wow" size={52} pokable={false} />
+          <Mascot mood="wow" size={52} />
           <div>
             <div className="jt-tile-title">Tu es plutôt « {libelles.get(classement.niveau)?.split(' (')[0]} »</div>
             <div className="jt-soft-xs">{classement.raison ?? 'd’après ce que tu racontes.'}</div>

@@ -123,7 +123,7 @@ export default function DebriefScreen({ sessionId, situation, verdict, reference
           ) : (
             <div key={bulle.id} className="jt-bub-row">
               <span className="jt-mw">
-                <Mascot mood={bulle.question ? 'wow' : bulle.enCours && !bulle.texte ? 'think' : 'idle'} size={42} pokable={false} />
+                <Mascot mood={bulle.question ? 'wow' : bulle.enCours && !bulle.texte ? 'think' : 'idle'} size={42} />
               </span>
               <div className="jt-bub jt-co">
                 {bulle.outils.map((nom, index) => (

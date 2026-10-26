@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { useJeton, type Palette } from './JetonContext';
-import { mouvementReduit } from './motion';
-import { SFX } from './sfx';
+
+export type Palette = 'pink' | 'mint' | 'sky' | 'yel' | 'lav';
 
 export type Mood = 'idle' | 'happy' | 'sad' | 'think' | 'wow' | 'sleep';
 
@@ -9,7 +8,6 @@ export type MascotProps = {
   mood: Mood;
   size: number;
   opponent?: Palette;
-  pokable?: boolean;
 };
 
 const PALETTES: Record<Palette, [string, string, string]> = {
@@ -37,15 +35,13 @@ function bouche(mood: Mood): ReactElement {
   }
 }
 
-export default function Mascot({ mood, size, opponent, pokable = !opponent }: MascotProps) {
-  const { onPoke } = useJeton();
+export default function Mascot({ mood, size, opponent }: MascotProps) {
   const palette = opponent ?? 'pink';
   const couleurs = PALETTES[palette];
   const [retard] = useState(() => Math.random() * 3);
-  const [flash, setFlash] = useState<{ mood: Mood; id: number } | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const pupilles = useRef<SVGGElement>(null);
-  const affiche = flash?.mood ?? mood;
+  const affiche = mood;
   const triste = affiche === 'sad';
 
   useEffect(() => {
@@ -69,24 +65,7 @@ export default function Mascot({ mood, size, opponent, pokable = !opponent }: Ma
     };
   }, []);
 
-  useEffect(() => {
-    if (!flash) return undefined;
-    const minuterie = window.setTimeout(() => setFlash(null), 800);
-    return () => window.clearTimeout(minuterie);
-  }, [flash]);
 
-  function poke() {
-    SFX.poke();
-    onPoke();
-    setFlash(precedent => ({ mood: 'happy', id: (precedent?.id ?? 0) + 1 }));
-    if (!mouvementReduit()) {
-      svg.current?.animate?.([
-        { transform: 'rotate(0) scale(1)' },
-        { transform: 'rotate(-20deg) scale(1.2,.8)', offset: 0.25 },
-        { transform: 'rotate(360deg) scale(1)' },
-      ], { duration: 650, easing: 'cubic-bezier(.3,1.5,.5,1)' });
-    }
-  }
 
   const dessin = (
     <svg
@@ -127,10 +106,5 @@ export default function Mascot({ mood, size, opponent, pokable = !opponent }: Ma
     </svg>
   );
 
-  if (!pokable) return dessin;
-  return (
-    <button type="button" className="jt-mbtn" onClick={poke} aria-label="Jeton, la mascotte">
-      {dessin}
-    </button>
-  );
+  return dessin;
 }

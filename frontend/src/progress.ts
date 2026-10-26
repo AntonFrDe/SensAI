@@ -10,7 +10,6 @@ export type Progress = {
   objectifJour: string | null;
   objectif: number;
   badges: string[];
-  chatouilles: number;
   son: boolean;
 };
 
@@ -18,14 +17,12 @@ export const BADGES = {
   roiDuBouton: 'Roi du bouton',
   chasseurDeTirages: 'Chasseur de tirages',
   serie: 'Série de 7 jours',
-  chatouilleur: 'Chatouilleur',
 } as const;
 
 export const XP_PAR_NIVEAU = 500;
 export const OBJECTIF_JOUR = 5;
 const XP_PAR_VERDICT: Record<Verdict, number> = { bon: 20, acceptable: 10, erreur: 5 };
 const SERIE_BADGE = 7;
-const CHATOUILLES_BADGE = 6;
 const STORAGE_KEY = 'sensai-trainer-progress';
 const PSEUDO_KEY = 'sensai-trainer-pseudo';
 export const PSEUDO_VALIDE = /^[a-z0-9_-]{1,32}$/;
@@ -40,7 +37,6 @@ export const PROGRESSION_INITIALE: Progress = {
   objectifJour: null,
   objectif: 0,
   badges: [],
-  chatouilles: 0,
   son: true,
 };
 
@@ -103,13 +99,6 @@ export function noterExercice(progression: Progress, { verdict, theme, position 
     nouveauNiveau: niveauDe(suivante.xp) > niveauDe(progression.xp),
     badges: gagnees,
   };
-}
-
-export function chatouiller(progression: Progress): { progression: Progress; badges: string[] } {
-  const chatouilles = progression.chatouilles + 1;
-  const gagnes = chatouilles >= CHATOUILLES_BADGE && !progression.badges.includes(BADGES.chatouilleur)
-    ? [BADGES.chatouilleur] : [];
-  return { progression: { ...progression, chatouilles, badges: [...progression.badges, ...gagnes] }, badges: gagnes };
 }
 
 export function chargerProgression(): Progress {

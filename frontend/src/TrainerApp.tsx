@@ -14,7 +14,6 @@ import BadgeToast from './BadgeToast';
 import DebriefScreen from './DebriefScreen';
 import LevelScreen from './LevelScreen';
 import LevelUpOverlay from './LevelUpOverlay';
-import { JetonContext } from './JetonContext';
 import JetonShell from './JetonShell';
 import Particules from './Particules';
 import SituationScreen from './SituationScreen';
@@ -22,7 +21,7 @@ import SummaryScreen from './SummaryScreen';
 import TrainerHeader from './TrainerHeader';
 import VerdictScreen from './VerdictScreen';
 import {
-  BADGES, OBJECTIF_JOUR, chatouiller, chargerProgression, enregistrerProgression, enregistrerPseudo,
+  BADGES, OBJECTIF_JOUR, chargerProgression, enregistrerProgression, enregistrerPseudo,
   jourDe, lirePseudo, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
 } from './progress';
 import type { View } from './navigation';
@@ -36,14 +35,6 @@ type Rafale = { id: number; x: string; y: string; nombre: number; distance: numb
 type FicheEtat = { fiche: TrainerFiche | null; chargement: boolean; erreur: string };
 
 const ETAPES = ['Niveau', 'Situation', 'Correction', 'Débrief', 'Fiche'];
-const LIGNES = [
-  'Hihi, ça chatouille !',
-  'Encore une fois ?',
-  'Je suis un jeton, pas un bouton !',
-  'Ok ok, je suis bien réveillé.',
-  'Continue et tu auras une surprise…',
-  'Badge secret débloqué !',
-];
 const FICHE_VIDE: FicheEtat = { fiche: null, chargement: false, erreur: '' };
 
 function messageDe(cause: unknown, repli: string): string {
@@ -77,7 +68,6 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   const [toast, setToast] = useState<string | null>(null);
   const [niveauAtteint, setNiveauAtteint] = useState<number | null>(null);
   const [rafales, setRafales] = useState<Rafale[]>([]);
-  const [pokeLine, setPokeLine] = useState('');
 
   useEffect(() => {
     if (pseudo) void creer(pseudo);
@@ -225,15 +215,6 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
     ajouterRafale({ x: `${event.clientX - boite.left}px`, y: `${event.clientY - boite.top}px`, nombre: 10, distance: 46, duree: 500, grand: false });
   }
 
-  function caresser() {
-    const resultat = chatouiller(progression);
-    setProgression(resultat.progression);
-    setPokeLine(LIGNES[Math.min(resultat.progression.chatouilles, LIGNES.length) - 1]);
-    if (resultat.badges.length > 0) {
-      setFile(suite => [...suite, ...resultat.badges]);
-      ajouterRafale({ x: '50%', y: '40%', nombre: 60, distance: 200, duree: 1500, grand: true });
-    }
-  }
 
   const aujourdhui = jourDe();
   const serie = serieEnCours(progression, aujourdhui);
@@ -311,7 +292,6 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   }
 
   return (
-    <JetonContext.Provider value={{ pokeLine, onPoke: caresser }}>
       <JetonShell shellRef={racine} onClickCapture={rafaleAuClic} label="Entraîneur Jeton">
         <div className="jt-wrap">
           <TrainerHeader
@@ -351,6 +331,5 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
           </span>
         ))}
       </JetonShell>
-    </JetonContext.Provider>
   );
 }
