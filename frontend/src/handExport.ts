@@ -22,20 +22,20 @@ function streetLine(hand: PlayedHand, street: GamePhase): string | null {
 }
 
 export function handToText(hand: PlayedHand): string {
-  const lines = [`Main n°${hand.number}`, `Vos cartes : ${cardsText(hand.playerCards)}`];
+  const lines = [`Main n°${hand.number}`, `Tes cartes : ${cardsText(hand.playerCards)}`];
   for (const street of ['pre_flop', 'flop', 'turn', 'river'] as GamePhase[]) {
     const line = streetLine(hand, street);
     if (line) lines.push(line);
   }
   if (hand.opponentCards.length > 0) {
     const theirs = hand.opponentHand ? ` (${handLabels[hand.opponentHand.rank]})` : '';
-    const yours = hand.playerHand ? ` ; vous : ${handLabels[hand.playerHand.rank]}` : '';
+    const yours = hand.playerHand ? ` ; toi : ${handLabels[hand.playerHand.rank]}` : '';
     const byFold = hand.awards.some(award => award.reason === 'fold');
     const intro = byFold ? 'Cartes de l’IA (dévoilées pour l’entraînement) :' : 'Abattage : l’IA montre';
     lines.push(`${intro} ${cardsText(hand.opponentCards)}${theirs}${yours}`);
   }
-  const result = hand.net > 0 ? `vous gagnez ${formatter.format(hand.net)} jetons`
-    : hand.net < 0 ? `vous perdez ${formatter.format(-hand.net)} jetons` : 'ni gain ni perte';
+  const result = hand.net > 0 ? `tu gagnes ${formatter.format(hand.net)} jetons`
+    : hand.net < 0 ? `tu perds ${formatter.format(-hand.net)} jetons` : 'ni gain ni perte';
   lines.push(`Résultat : ${result} (tapis : ${formatter.format(hand.stackAfter)}).`);
   return lines.join('\n');
 }

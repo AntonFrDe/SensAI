@@ -124,7 +124,7 @@ describe('App', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Main suivante' }));
     expect(calls.at(-1)).toBe('/api/next-hand');
-    expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();
+    expect(await screen.findByText(/Tour : à toi de jouer/)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Retour à l’entraîneur' }));
     await openMode('Mes parties');
@@ -151,7 +151,7 @@ describe('App', () => {
     render(<App />);
     await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    expect(await screen.findByText('Vous remportez 200 jetons avec : couleur.')).toBeInTheDocument();
+    expect(await screen.findByText('Tu remportes 200 jetons avec : couleur.')).toBeInTheDocument();
   });
 
   it('resumes the game saved before a reload', async () => {
@@ -162,7 +162,7 @@ describe('App', () => {
     render(<App />);
     await openMode(setup);
     await userEvent.click(await screen.findByRole('button', { name: 'Reprendre la partie' }));
-    expect(await screen.findByText(/à vous de jouer/)).toBeInTheDocument();
+    expect(await screen.findByText(/Tour : à toi de jouer/)).toBeInTheDocument();
     expect(bodies[0]).toEqual({ gameId: 'g9' });
 
     await userEvent.click(screen.getByRole('button', { name: 'Retour à l’entraîneur' }));
@@ -185,13 +185,13 @@ describe('App', () => {
     const { unmount } = render(<App />);
     await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    expect(await screen.findByRole('dialog', { name: 'Vos cartes et le board' })).toBeInTheDocument();
+    expect(await screen.findByRole('dialog', { name: 'Tes cartes et le board' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Passer la visite' }));
     unmount();
     render(<App />);
     await openMode(setup);
     await userEvent.click(screen.getByRole('button', { name: 'Jouer' }));
-    await screen.findByText(/à vous de jouer/);
+    await screen.findByText(/Tour : à toi de jouer/);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Visite guidée' }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();

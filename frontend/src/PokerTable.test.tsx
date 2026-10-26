@@ -7,9 +7,9 @@ describe('PokerTable', () => {
     render(<PokerTable playerCards={[{ rank: 'A', suit: 'spades' }, { rank: 'K', suit: 'spades' }]}
       pot={60} playerStack={970} opponentStack={970} currentPlayer="player" phase="pre_flop" currentBet={20} />);
     expect(screen.getByText('Pot', { selector: 'button' }).closest('p')).toHaveTextContent('Pot : 60 jetons');
-    expect(screen.getByRole('region', { name: 'Vous' })).toHaveTextContent('Stack : 970 jetons');
-    expect(screen.getByRole('group', { name: 'Vos cartes privées' })).toHaveTextContent('A♠K♠');
-    expect(screen.getByText(/^Tour/)).toHaveTextContent('à vous de jouer');
+    expect(screen.getByRole('region', { name: 'Toi' })).toHaveTextContent('Stack : 970 jetons');
+    expect(screen.getByRole('group', { name: 'Tes cartes privées' })).toHaveTextContent('A♠K♠');
+    expect(screen.getByText(/^Tour/)).toHaveTextContent('à toi de jouer');
   });
 
   it('hides the opponent cards until they are revealed', () => {
@@ -41,13 +41,13 @@ describe('PokerTable', () => {
     const opponent = screen.getByRole('region', { name: 'Adversaire IA' });
     expect(opponent).toHaveAttribute('aria-current', 'true');
     expect(opponent).toHaveTextContent('Mise : 40 jetons');
-    expect(screen.getByRole('region', { name: 'Vous' })).toHaveTextContent('D');
+    expect(screen.getByRole('region', { name: 'Toi' })).toHaveTextContent('D');
     expect(screen.getByText(/^Blindes/)).toHaveTextContent('Blindes : 10 / 20');
   });
 
   it('marks nobody as active once the hand is over', () => {
     render(<PokerTable phase="showdown" currentPlayer="player" playerStack={1000} opponentStack={1000} />);
-    expect(screen.getByRole('region', { name: 'Vous' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('region', { name: 'Toi' })).not.toHaveAttribute('aria-current');
   });
 
   it('highlights your best five cards and names your hand', () => {
@@ -57,7 +57,7 @@ describe('PokerTable', () => {
         { rank: 'Q', suit: 'hearts' }, { rank: 'Q', suit: 'spades' }, { rank: '9', suit: 'diamonds' },
         { rank: '5', suit: 'clubs' }, { rank: '2', suit: 'clubs' },
       ] }, opponent: null }} />);
-    expect(screen.getByLabelText('Votre main : Paire')).toBeInTheDocument();
+    expect(screen.getByLabelText('Ta main : Paire')).toBeInTheDocument();
     expect(screen.getAllByRole('img', { name: /dans la meilleure main/ })).toHaveLength(5);
   });
 

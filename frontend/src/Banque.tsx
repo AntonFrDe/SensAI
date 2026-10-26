@@ -33,7 +33,7 @@ function SituationCard({ situation }: { situation: Situation }) {
         <Source situation={situation} />
       </div>
       <div className="mini-table">
-        <div className="cards" role="group" aria-label="Vos cartes privées">
+        <div className="cards" role="group" aria-label="Tes cartes privées">
           {situation.cartes.map(code => <PlayingCard key={code} card={toCard(code)} />)}
         </div>
         {situation.board.length > 0 && <CommunityCards cards={situation.board.map(toCard)} />}

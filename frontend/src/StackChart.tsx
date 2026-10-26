@@ -78,7 +78,7 @@ export default function StackChart({ points, title }: StackChartProps) {
       <details className="chart-table">
         <summary>Voir les valeurs</summary>
         <table>
-          <thead><tr><th scope="col">Moment</th><th scope="col">Votre tapis</th></tr></thead>
+          <thead><tr><th scope="col">Moment</th><th scope="col">Ton tapis</th></tr></thead>
           <tbody>{points.map(point => <tr key={point.hand}><td>{handLabel(point.hand)}</td><td>{formatter.format(point.stack)}</td></tr>)}</tbody>
         </table>
       </details>

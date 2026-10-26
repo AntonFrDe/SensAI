@@ -48,7 +48,7 @@ function describeAward({ amount, winners, reason }: Award, hands?: GameState['ha
   const hand = reason === 'showdown' ? hands?.[winners[0] === 'Vous' ? 'player' : 'opponent'] : null;
   const withHand = hand ? ` avec : ${handLabels[hand.rank].toLowerCase()}` : '';
   if (winners.length > 1) return `Égalité : pot de ${amount} jetons partagé${withHand}.`;
-  const who = winners[0] === 'Vous' ? 'Vous remportez' : 'L’IA remporte';
+  const who = winners[0] === 'Vous' ? 'Tu remportes' : 'L’IA remporte';
   return `${who} ${amount} jetons${reason === 'fold' ? ' (adversaire couché)' : withHand}.`;
 }
 

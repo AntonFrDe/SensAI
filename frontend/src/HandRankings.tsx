@@ -17,7 +17,7 @@ export default function HandRankings() {
   return (
     <section className="rankings" aria-label="Classement des mains">
       <h2>Classement des mains</h2>
-      <p>De la plus forte à la plus faible. Votre main est la meilleure combinaison de 5 cartes parmi vos 2 cartes et les 5 du board.</p>
+      <p>De la plus forte à la plus faible. Ta main est la meilleure combinaison de 5 cartes parmi tes 2 cartes et les 5 du board.</p>
       {error && <p role="alert">{error}</p>}
       <ol className="rankings-list">
         {rankings.map(ranking => (

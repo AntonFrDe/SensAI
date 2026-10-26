@@ -11,8 +11,8 @@ export type HandReplayProps = { hand: PlayedHand; onClose: () => void };
 const formatter = new Intl.NumberFormat('fr-FR');
 
 function resultText(hand: PlayedHand): string {
-  if (hand.net > 0) return `Vous gagnez ${formatter.format(hand.net)} jetons.`;
-  if (hand.net < 0) return `Vous perdez ${formatter.format(-hand.net)} jetons.`;
+  if (hand.net > 0) return `Tu gagnes ${formatter.format(hand.net)} jetons.`;
+  if (hand.net < 0) return `Tu perds ${formatter.format(-hand.net)} jetons.`;
   return 'Main sans gain ni perte.';
 }
 
@@ -48,7 +48,7 @@ export default function HandReplay({ hand, onClose }: HandReplayProps) {
             : <><PlayingCard /><PlayingCard /></>}
         </div>
         <CommunityCards cards={step.board} />
-        <div className="cards" role="group" aria-label="Vos cartes privées">
+        <div className="cards" role="group" aria-label="Tes cartes privées">
           {hand.playerCards.map(card => <PlayingCard key={card.rank + card.suit} card={card} />)}
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function HandReplay({ hand, onClose }: HandReplayProps) {
         {step.entry ? describeEntry(step.entry) : step.showdown ? resultText(hand) : 'Les cartes sont distribuées.'}
       </p>
       {step.showdown && <div className="replay-hands">
-        {hand.playerHand && <span className="replay-owner">Vous <HandBadge hand={hand.playerHand} owner="Votre main" /></span>}
+        {hand.playerHand && <span className="replay-owner">Toi <HandBadge hand={hand.playerHand} owner="Ta main" /></span>}
         {hand.opponentHand && <span className="replay-owner">IA <HandBadge hand={hand.opponentHand} owner="Main de l’IA" /></span>}
       </div>}
       <div className="replay-controls" role="group" aria-label="Navigation dans la main">

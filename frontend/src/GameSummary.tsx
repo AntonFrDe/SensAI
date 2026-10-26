@@ -22,14 +22,14 @@ export default function GameSummary({ hands, playerWon }: GameSummaryProps) {
   const { played, won, biggestPot, best } = summarize(hands);
   return (
     <section className={`game-summary ${playerWon ? 'victory' : 'defeat'}`} aria-label="Bilan de la partie">
-      <h3>{playerWon ? 'Victoire : l’IA n’a plus de jetons.' : 'Défaite : vous n’avez plus de jetons.'}</h3>
+      <h3>{playerWon ? 'Victoire : l’IA n’a plus de jetons.' : 'Défaite : tu n’as plus de jetons.'}</h3>
       <dl className="summary-figures">
         <div><dt>Mains jouées</dt><dd>{played}</dd></div>
         <div><dt>Mains gagnées</dt><dd>{won}</dd></div>
         <div><dt>Plus gros pot gagné</dt><dd>{biggestPot ? `${formatter.format(biggestPot)} jetons` : '—'}</dd></div>
         <div><dt>Meilleure main gagnante</dt><dd>{best ? handLabels[best] : '—'}</dd></div>
       </dl>
-      <StackChart points={stackHistory(hands)} title="Votre tapis main après main" />
+      <StackChart points={stackHistory(hands)} title="Ton tapis main après main" />
     </section>
   );
 }

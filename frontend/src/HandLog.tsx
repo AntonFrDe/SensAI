@@ -47,7 +47,7 @@ export default function HandLog({ hands }: HandLogProps) {
           </li>
         ))}
       </ol>}
-      {hands.length > 0 && <StackChart points={stackHistory(hands)} title="Évolution de votre tapis" />}
+      {hands.length > 0 && <StackChart points={stackHistory(hands)} title="Évolution de ton tapis" />}
       {selected && <HandReplay key={selected.number} hand={selected} onClose={() => setOpen(null)} />}
     </section>
   );

@@ -17,7 +17,7 @@ describe('Banque', () => {
     render(<Banque />);
     const card = await screen.findByRole('article', { name: 'Situation : Ouverture avant le flop, Débutant' });
     expect(within(card).getByText('LLM après 2 essais')).toBeInTheDocument();
-    expect(within(card).getByRole('group', { name: 'Vos cartes privées' })).toHaveTextContent('K♠9♠');
+    expect(within(card).getByRole('group', { name: 'Tes cartes privées' })).toHaveTextContent('K♠9♠');
     expect(within(card).getByText(/Relancer : bon/)).toBeInTheDocument();
     expect(within(card).getByText(/Suivre : acceptable/)).toBeInTheDocument();
     expect(within(card).getByText(/Se coucher : erreur/)).toBeInTheDocument();

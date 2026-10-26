@@ -4,7 +4,7 @@ import { streamCoach, type CoachMessage } from './api';
 export type CoachPanelProps = { gameId: string; available: boolean };
 
 const suggestions = ['Pourquoi ce choix ?', 'Et si je relance ?', 'Quelle est ma cote du pot ?'];
-const speakers = { user: 'Vous', assistant: 'SensAI' };
+const speakers = { user: 'Toi', assistant: 'SensAI' };
 
 function appendToLast(messages: CoachMessage[], text: string): CoachMessage[] {
   const last = messages[messages.length - 1];
@@ -62,7 +62,7 @@ export default function CoachPanel({ gameId, available }: CoachPanelProps) {
     <aside className="coach" aria-label="Coach SensAI">
       <h3>Coach SensAI</h3>
       {messages.length === 0 && !loading && <p>
-        {available ? 'Un doute ? Demandez un conseil sur cette décision.' : 'Le coach répond quand c’est à vous de jouer.'}
+        {available ? 'Un doute ? Demande un conseil sur cette décision.' : 'Le coach répond quand c’est à toi de jouer.'}
       </p>}
       {messages.length > 0 && <ol ref={list} className="coach-messages" aria-live="polite" aria-busy={loading}>
         {messages.map((message, index) => (
@@ -85,7 +85,7 @@ export default function CoachPanel({ gameId, available }: CoachPanelProps) {
           ))}
         </div>
         <form className="coach-form" onSubmit={submit}>
-          <label>Votre question
+          <label>Ta question
             <input value={draft} maxLength={500} onChange={event => setDraft(event.target.value)} placeholder="Et si j’avais eu…" />
           </label>
           <button type="submit" disabled={!draft.trim()}>Envoyer</button>

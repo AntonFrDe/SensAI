@@ -6,7 +6,7 @@ export type HandHistoryProps = { entries: HistoryEntry[] };
 
 const verbs = {
   ai: { fold: 'se couche', check: 'checke', call: 'suit', bet: 'mise', raise: 'relance à' },
-  you: { fold: 'vous couchez', check: 'checkez', call: 'suivez', bet: 'misez', raise: 'relancez à' },
+  you: { fold: 'te couches', check: 'checkes', call: 'suis', bet: 'mises', raise: 'relances à' },
 };
 
 const formatter = new Intl.NumberFormat('fr-FR');
@@ -19,7 +19,7 @@ export function shortAction(entry: HistoryEntry): string {
 }
 
 export function describeEntry(entry: HistoryEntry): string {
-  const sentence = entry.player === 'Vous' ? `Vous ${verbs.you[entry.action]}` : `L’IA ${verbs.ai[entry.action]}`;
+  const sentence = entry.player === 'Vous' ? `Tu ${verbs.you[entry.action]}` : `L’IA ${verbs.ai[entry.action]}`;
   return entry.amount === undefined ? sentence : `${sentence} ${formatter.format(entry.amount)} jetons`;
 }
 
