@@ -97,7 +97,7 @@ describe('trainer api', () => {
       { type: 'thinking' },
       { type: 'outil', nom: 'calc' },
       { type: 'token', texte: 'Bien' },
-      { type: 'question', question: 'Combien ?', choix: ['1', '2'] },
+      { type: 'question', question: 'Combien ?', choix: ['1', '2'], bonne: null },
       { type: 'done' },
     ]);
   });

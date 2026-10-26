@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  BADGES, PROGRESSION_INITIALE, avancementDuNiveau, chargerProgression,
+  BADGES, PROGRESSION_INITIALE, avancementDuNiveau, chargerProgression, gagnerXp,
   enregistrerProgression, jourDe, niveauDe, noterExercice, objectifDuJour, serieEnCours, type Progress,
 } from './progress';
 
@@ -81,6 +81,11 @@ describe('noterExercice', () => {
 });
 
 describe('niveaux', () => {
+  it('adds the quiz XP and tells when it reaches a new level', () => {
+    expect(gagnerXp({ ...PROGRESSION_INITIALE, xp: 480 }, 10)).toEqual({ progression: { ...PROGRESSION_INITIALE, xp: 490 }, nouveauNiveau: false });
+    expect(gagnerXp({ ...PROGRESSION_INITIALE, xp: 495 }, 10).nouveauNiveau).toBe(true);
+  });
+
   it('derives the level and the bar from the XP', () => {
     expect(niveauDe(0)).toBe(1);
     expect(niveauDe(499)).toBe(1);

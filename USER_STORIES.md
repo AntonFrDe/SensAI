@@ -28,6 +28,8 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
    que j'ai compris.
    - ✅ Le coach pose une question avec des choix (outil `poser_question`, « combien d'outs ? 13 / 10 / 8 / 5 »).
    - ✅ Ma réponse lui revient en toutes lettres (« Je réponds : 13 ») et il la corrige.
+   - ✅ Quand le code connaît la bonne réponse (outs, cote, chances, équité), l'écran la montre aussitôt :
+     « Exact ! +10 XP » ou « Presque ! C'était 9. ».
    - ✅ Une question sur les outs, la cote du pot, les chances de toucher ou l'équité doit proposer la valeur
      calculée par le code (à un point près pour les pourcentages) ; sinon elle revient au coach, qui corrige ses
      choix.

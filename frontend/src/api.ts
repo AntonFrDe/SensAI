@@ -227,7 +227,7 @@ export type DebriefEvent =
   | { type: 'thinking' }
   | { type: 'token'; texte: string }
   | { type: 'outil'; nom: string }
-  | { type: 'question'; question: string; choix: string[] }
+  | { type: 'question'; question: string; choix: string[]; bonne: number | null }
   | { type: 'done' }
   | { type: 'error'; message: string };
 
@@ -277,8 +277,9 @@ function lireEvenement(ligne: string): DebriefEvent | null {
     return { type: 'outil', nom: String((evenement.outil as { name?: unknown }).name ?? 'outil') };
   }
   if (evenement.question && typeof evenement.question === 'object') {
-    const { question, choix } = evenement.question as { question?: unknown; choix?: unknown };
-    return { type: 'question', question: String(question), choix: Array.isArray(choix) ? choix.map(String) : [] };
+    const { question, choix, bonne } = evenement.question as { question?: unknown; choix?: unknown; bonne?: unknown };
+    return { type: 'question', question: String(question), choix: Array.isArray(choix) ? choix.map(String) : [],
+      bonne: typeof bonne === 'number' ? bonne : null };
   }
   return null;
 }

@@ -16,6 +16,7 @@ from fake_ollama import FakeOllama, start
 
 server.Handler.log_message = lambda *args: None
 OLLAMA = f"http://127.0.0.1:{start(FakeOllama)}"
+ai.EMBED_URL = f"{OLLAMA}/api/embed"
 PORT = start(server.Handler)
 BANQUE = str(Path(tempfile.mkdtemp()) / "banque.jsonl")  # the tests never write the real bank
 
