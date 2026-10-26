@@ -43,4 +43,22 @@ describe('VerdictScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Discuter avec Jeton' }));
     expect(onDebrief).toHaveBeenCalledOnce();
   });
+
+  it('keeps the framing lines out of the fact cards and shows the reference hypothesis', () => {
+    render(
+      <VerdictScreen
+        situation={situation}
+        verdict="bon"
+        reference={{ bonnes: ['call'], acceptables: [], faits: ['Outs : 9', 'Référence : ranges 6-max.', 'Hypothèse : sans gains implicites.'] }}
+        action="call"
+        gain={20}
+        combo={1}
+        onDebrief={vi.fn()}
+        onFiche={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByText('odds.py')).toHaveLength(1);
+    expect(screen.queryByText('Référence : ranges 6-max.')).not.toBeInTheDocument();
+    expect(screen.getByText(/Hypothèse : sans gains implicites\./)).toBeInTheDocument();
+  });
 });

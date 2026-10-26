@@ -22,16 +22,16 @@ describe('niceTicks', () => {
 
 describe('StackChart', () => {
   it('describes the curve and lists the values in a table', () => {
-    render(<StackChart points={points} title="Évolution de votre tapis" />);
+    render(<StackChart points={points} title="Évolution de ton tapis" />);
     expect(screen.getByRole('img', { name: /de 1\s000 à 1\s400 jetons en 3 mains/ })).toBeInTheDocument();
     const rows = within(screen.getByRole('table')).getAllByRole('row');
     expect(rows.map(row => row.textContent?.replace(/\s/g, ' '))).toEqual([
-      'MomentVotre tapis', 'Départ1 000', 'Main n°11 120', 'Main n°2870', 'Main n°31 400',
+      'MomentTon tapis', 'Départ1 000', 'Main n°11 120', 'Main n°2870', 'Main n°31 400',
     ]);
   });
 
   it('shows a tooltip on focus and moves with the arrow keys', () => {
-    render(<StackChart points={points} title="Évolution de votre tapis" />);
+    render(<StackChart points={points} title="Évolution de ton tapis" />);
     const chart = screen.getByRole('img');
     fireEvent.focus(chart);
     expect(screen.getByRole('status')).toHaveTextContent(/1\s400 jetonsMain n°3/);
@@ -62,6 +62,6 @@ describe('GameSummary', () => {
     render(<GameSummary hands={hands} playerWon />);
     expect(screen.getByRole('heading')).toHaveTextContent('Victoire : l’IA n’a plus de jetons.');
     expect(screen.getByText('Couleur')).toBeInTheDocument();
-    expect(screen.getByText('Votre tapis main après main')).toBeInTheDocument();
+    expect(screen.getByText('Ton tapis main après main')).toBeInTheDocument();
   });
 });

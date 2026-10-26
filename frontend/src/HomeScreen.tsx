@@ -36,9 +36,9 @@ export default function HomeScreen({ options, busy, onPlay, savedGame, onResume,
   return (
     <section className="home" aria-label="Partie contre l’IA">
       <h2>Partie contre l’IA</h2>
-      <p>Affrontez une IA et apprenez à comprendre vos décisions.</p>
+      <p>Affronte une IA et apprends à comprendre tes décisions.</p>
       {savedGame && onResume && <div className="resume" role="group" aria-label="Partie en cours">
-        <p>Une partie est en cours : votre tapis est de {formatter.format(savedGame.state.seats.player.stack)} jetons,
+        <p>Une partie est en cours : ton tapis est de {formatter.format(savedGame.state.seats.player.stack)} jetons,
           celui de l’IA de {formatter.format(savedGame.state.seats.opponent.stack)}.</p>
         <button type="button" className="primary" disabled={busy} onClick={onResume}>Reprendre la partie</button>
       </div>}
@@ -68,7 +68,7 @@ export default function HomeScreen({ options, busy, onPlay, savedGame, onResume,
               onChange={event => setDepth(event.target.value)} />
           </label>
           <p className="hint" aria-live="polite">
-            {validDepth ? `Chaque joueur commence avec ${formatter.format(value * bigBlind)} jetons.` : `Choisissez entre ${minDepth} et ${maxDepth} grosses blindes.`}
+            {validDepth ? `Chaque joueur commence avec ${formatter.format(value * bigBlind)} jetons.` : `Choisis entre ${minDepth} et ${maxDepth} grosses blindes.`}
           </p>
         </fieldset>
         <label className="training-toggle">

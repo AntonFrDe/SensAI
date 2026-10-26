@@ -34,19 +34,19 @@ describe('handToText', () => {
   it('writes an all-in hand street by street with the showdown', () => {
     expect(plain(handToText(showdown)).split('\n')).toEqual([
       'Main n°2',
-      'Vos cartes : A♠ K♠',
-      'Préflop : L’IA suit 10 jetons ; Vous relancez à 1 000 jetons ; L’IA suit 960 jetons',
+      'Tes cartes : A♠ K♠',
+      'Préflop : L’IA suit 10 jetons ; Tu relances à 1 000 jetons ; L’IA suit 960 jetons',
       'Flop [K♥ 7♣ 2♦] : pas d’action (tapis)',
       'Turn [K♥ 7♣ 2♦ 9♠] : pas d’action (tapis)',
       'River [K♥ 7♣ 2♦ 9♠ 3♥] : pas d’action (tapis)',
-      'Abattage : l’IA montre Q♥ Q♣ (Paire) ; vous : Paire',
-      'Résultat : vous gagnez 1 000 jetons (tapis : 2 000).',
+      'Abattage : l’IA montre Q♥ Q♣ (Paire) ; toi : Paire',
+      'Résultat : tu gagnes 1 000 jetons (tapis : 2 000).',
     ]);
   });
 
   it('stops where a hand ended by a fold', () => {
     expect(plain(handToText(folded)).split('\n')).toEqual([
-      'Main n°1', 'Vos cartes : A♠ K♠', 'Préflop : Vous vous couchez', 'Résultat : vous perdez 10 jetons (tapis : 990).',
+      'Main n°1', 'Tes cartes : A♠ K♠', 'Préflop : Tu te couches', 'Résultat : tu perds 10 jetons (tapis : 990).',
     ]);
   });
 });

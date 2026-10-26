@@ -23,6 +23,8 @@ const STYLE: Record<TrainerVerdict, { couleur: string; texte: string; icone: typ
   erreur: { couleur: 'var(--red)', texte: '#fff', icone: IconMoodSad },
 };
 
+const CADRE = /^(Hypothèse|Référence) : /;
+
 function libelle(situation: TrainerSituation, action: TrainerActionKey): string {
   return situation.actions.find(choix => choix.action === action)?.libelle ?? ACTION_LIBELLES[action] ?? action;
 }
@@ -31,6 +33,8 @@ export default function VerdictScreen({ situation, verdict, reference, action, g
   const texte = VERDICT_TEXTES[verdict];
   const style = STYLE[verdict];
   const Icone = style.icone;
+  const faits = reference.faits.filter(fait => !CADRE.test(fait));
+  const hypothese = reference.faits.find(fait => fait.startsWith('Hypothèse : '))?.replace(CADRE, '') ?? HYPOTHESE_FAITS[situation.theme];
   const meilleures = (reference.bonnes.length > 0 ? reference.bonnes : reference.acceptables).map(cle => libelle(situation, cle));
 
   useEffect(() => {
@@ -77,7 +81,7 @@ export default function VerdictScreen({ situation, verdict, reference, action, g
         Ce que le calcul établit
       </div>
       <div className="jt-facts">
-        {reference.faits.map((fait, index) => (
+        {faits.map((fait, index) => (
           <div key={index} className="jt-fact jt-tilt">
             <span className="jt-fact-text">{fait}</span>
             <span className="jt-src">{SOURCE_FAITS[situation.theme]}</span>
@@ -85,7 +89,7 @@ export default function VerdictScreen({ situation, verdict, reference, action, g
         ))}
       </div>
       <div className="jt-hyp">
-        <IconInfoCircle size={14} aria-hidden="true" /> Hypothèse : {HYPOTHESE_FAITS[situation.theme]}
+        <IconInfoCircle size={14} aria-hidden="true" /> Hypothèse : {hypothese}
       </div>
       <div className="jt-actions-row">
         <button type="button" className="jt-btn jt-pink jt-shine" onClick={onDebrief}>

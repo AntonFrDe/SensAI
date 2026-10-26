@@ -8,7 +8,7 @@ const percent = new Intl.NumberFormat('fr-FR', { style: 'percent', maximumFracti
 const formatter = new Intl.NumberFormat('fr-FR');
 
 function verdict({ potOdds, equity }: OddsSummary): string {
-  if (potOdds === null) return 'Rien à payer : vous pouvez checker sans risque.';
+  if (potOdds === null) return 'Rien à payer : tu peux checker sans risque.';
   return equity.share >= potOdds
     ? 'Suivre est rentable à long terme contre une main au hasard.'
     : 'Suivre coûte plus que ce que la main rapporte en moyenne contre une main au hasard.';
@@ -44,7 +44,7 @@ export default function OddsPanel({ gameId, available }: OddsPanelProps) {
   return (
     <section className="odds" aria-label="Repères chiffrés">
       <h3>Repères</h3>
-      {!odds && <p>{available ? 'Cote du pot, équité et outs calculés par le code.' : 'Les repères se calculent à votre tour.'}</p>}
+      {!odds && <p>{available ? 'Cote du pot, équité et outs calculés par le code.' : 'Les repères se calculent à ton tour.'}</p>}
       {odds && <div className="odds-figures" aria-live="polite">
         <p>{odds.toCall > 0
           ? `À payer : ${formatter.format(odds.toCall)} jetons pour un pot de ${formatter.format(odds.pot)}.`

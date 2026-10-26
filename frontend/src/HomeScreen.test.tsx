@@ -32,7 +32,7 @@ describe('HomeScreen', () => {
     await userEvent.clear(depth);
     await userEvent.type(depth, '1000');
     expect(depth).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByText('Choisissez entre 20 et 500 grosses blindes.')).toBeInTheDocument();
+    expect(screen.getByText('Choisis entre 20 et 500 grosses blindes.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Jouer' })).toBeDisabled();
   });
 

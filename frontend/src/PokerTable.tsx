@@ -66,7 +66,7 @@ export default function PokerTable({
     <section className="poker-table" aria-label="Table de Texas Hold’em à deux joueurs">
       <div className="table-bar">
         <HandInfo phase={phase} currentBet={currentBet} />
-        <p className="chip-info" aria-live="polite">Tour : {phase === 'showdown' ? 'main terminée' : currentPlayer === 'player' ? 'à vous de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>
+        <p className="chip-info" aria-live="polite">Tour : {phase === 'showdown' ? 'main terminée' : currentPlayer === 'player' ? 'à toi de jouer' : currentPlayer === 'opponent' ? 'adversaire IA' : '—'}</p>
       </div>
       <div className="felt">
         <Seat seat={withoutBetAfterHand(seatOrStack(seats?.opponent, 'IA', opponentStack), phase)} label="Adversaire IA" avatar="IA" position="top"
@@ -83,13 +83,13 @@ export default function PokerTable({
           {blinds && <p className="blinds">Blindes : {blinds.small} / {blinds.big}</p>}
           <OpponentNote thinking={opponentThinking} note={opponentNote} />
         </div>
-        <Seat seat={withoutBetAfterHand(seatOrStack(seats?.player, 'Vous', playerStack), phase)} label="Vous" avatar="V" position="bottom"
+        <Seat seat={withoutBetAfterHand(seatOrStack(seats?.player, 'Vous', playerStack), phase)} label="Toi" avatar="T" position="bottom"
           active={playing && currentPlayer === 'player'} lastAction={lastActionOf(history, 'Vous', phase)}>
-          <div className="cards" role="group" aria-label="Vos cartes privées">
+          <div className="cards" role="group" aria-label="Tes cartes privées">
             <PlayingCard card={playerCards[0]} highlighted={isBest(playerCards[0])} />
             <PlayingCard card={playerCards[1]} highlighted={isBest(playerCards[1])} />
           </div>
-          <HandBadge hand={hands?.player} owner="Votre main" />
+          <HandBadge hand={hands?.player} owner="Ta main" />
         </Seat>
       </div>
       <ActionControls

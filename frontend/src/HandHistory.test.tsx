@@ -14,9 +14,9 @@ describe('HandHistory', () => {
     render(<HandHistory entries={entries} />);
     expect(screen.getByText('Historique de la main (4)')).toBeInTheDocument();
     const preflop = within(screen.getByRole('region', { name: 'Préflop' })).getAllByRole('listitem');
-    expect(preflop.map(item => item.textContent)).toEqual(['L’IA suit 10 jetons', 'Vous checkez']);
+    expect(preflop.map(item => item.textContent)).toEqual(['L’IA suit 10 jetons', 'Tu checkes']);
     const flop = within(screen.getByRole('region', { name: 'Flop' })).getAllByRole('listitem');
-    expect(flop.map(item => item.textContent)).toEqual(['L’IA mise 40 jetons', 'Vous relancez à 120 jetons']);
+    expect(flop.map(item => item.textContent)).toEqual(['L’IA mise 40 jetons', 'Tu relances à 120 jetons']);
   });
 
   it('opens a new group when the same street comes back after another one', () => {

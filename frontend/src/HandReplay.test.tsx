@@ -39,7 +39,7 @@ describe('HandReplay', () => {
     expect(screen.getByRole('img', { name: 'K de cœur' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Fin' }));
-    expect(screen.getByText(/^Vous gagnez 1\s000 jetons\.$/)).toBeInTheDocument();
+    expect(screen.getByText(/^Tu gagnes 1\s000 jetons\.$/)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Q de cœur' })).toBeInTheDocument();
     expect(screen.getByLabelText('Main de l’IA : Paire')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Suivant' })).toBeDisabled();

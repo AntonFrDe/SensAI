@@ -76,7 +76,7 @@ export default function SummaryScreen({ progression, gain, objectif, resultats, 
   });
   const statistiques = [
     { valeur: gain, libelle: 'XP gagnés', couleur: 'var(--yel)', suffixe: '' },
-    { valeur: precision, libelle: 'Précision', couleur: 'var(--mint)', suffixe: '%' },
+    { valeur: precision, libelle: 'Précision totale', couleur: 'var(--mint)', suffixe: '%' },
     { valeur: progression.combo, libelle: 'Combo', couleur: '#FF9F3D', suffixe: '' },
   ];
 

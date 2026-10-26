@@ -5,23 +5,23 @@ export type TourStep = { title: string; text: string; target: string };
 
 export const tourSteps: TourStep[] = [
   {
-    title: 'Vos cartes et le board',
-    text: 'Vos deux cartes privées sont en bas, les cartes communes au centre. Dès le flop, SensAI nomme votre main et met ses cinq cartes en évidence.',
+    title: 'Tes cartes et le board',
+    text: 'Tes deux cartes privées sont à ta place, encadrée quand c’est à toi de jouer ; les cartes communes sont au centre. Dès le flop, SensAI nomme ta main et met ses cinq cartes en évidence.',
     target: '.seat-box.bottom',
   },
   {
-    title: 'Vos actions',
-    text: 'Seules les actions permises sont actives. Les montants rapides (½ pot, pot, tapis) et les touches F, C, R et T vont plus vite.',
+    title: 'Tes actions',
+    text: 'Seules les actions permises sont actives. Les montants rapides (min, ½ ou ¾ pot, pot, tapis) et les touches F, C, R et T vont plus vite.',
     target: '.actions',
   },
   {
     title: 'Le coach et les repères',
-    text: 'Demandez conseil au coach et posez des questions de suite. « Repères » donne la cote du pot, l’équité et les outs, calculées par le code.',
+    text: 'Demande conseil au coach et pose des questions de suite. « Repères » donne la cote du pot, l’équité et les outs, calculées par le code.',
     target: '.side-panel',
   },
   {
     title: 'Après chaque main',
-    text: 'Revoyez une main étape par étape, suivez la courbe de votre tapis et ajoutez un bilan à vos notes de jeu.',
+    text: 'Revois une main étape par étape, suis la courbe de ton tapis et ajoute un bilan à tes notes de jeu.',
     target: '.hand-log',
   },
 ];

@@ -33,7 +33,7 @@ describe('CoachPanel', () => {
       messages: [{ role: 'assistant', content: 'Suivez.' }, { role: 'user', content: 'Et si je relance ?' }],
     });
     expect(screen.getAllByRole('listitem').map(item => item.textContent)).toEqual([
-      'SensAISuivez.', 'VousEt si je relance ?', 'SensAIUne relance isole votre adversaire.',
+      'SensAISuivez.', 'ToiEt si je relance ?', 'SensAIUne relance isole votre adversaire.',
     ]);
   });
 
@@ -43,7 +43,7 @@ describe('CoachPanel', () => {
       .mockResolvedValueOnce(ndjson({ token: 'Avec AK, suivez.' }));
     render(<CoachPanel gameId="g1" available />);
     await userEvent.click(screen.getByRole('button', { name: 'Demander conseil' }));
-    await userEvent.type(await screen.findByRole('textbox', { name: 'Votre question' }), 'Et avec AK ?');
+    await userEvent.type(await screen.findByRole('textbox', { name: 'Ta question' }), 'Et avec AK ?');
     await userEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
     expect(await screen.findByText('Avec AK, suivez.')).toBeInTheDocument();
     expect(bodyOf(fetchMock.mock.calls[1])).toMatchObject({ messages: [{}, { role: 'user', content: 'Et avec AK ?' }] });
@@ -76,7 +76,7 @@ describe('CoachPanel', () => {
 
   it('waits for your turn', () => {
     render(<CoachPanel gameId="g1" available={false} />);
-    expect(screen.getByText('Le coach répond quand c’est à vous de jouer.')).toBeInTheDocument();
+    expect(screen.getByText('Le coach répond quand c’est à toi de jouer.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Demander conseil' })).toBeDisabled();
   });
 });

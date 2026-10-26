@@ -15,7 +15,7 @@ async function startGame(page: Page) {
   await page.goto('/');
   await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Jouer' }).click();
-  await expect(page.getByText('Tour : à vous de jouer')).toBeVisible();
+  await expect(page.getByText('Tour : à toi de jouer')).toBeVisible();
 }
 
 test('plays a hand against the opponent and keeps it in the history', async ({ page }) => {
@@ -23,7 +23,7 @@ test('plays a hand against the opponent and keeps it in the history', async ({ p
   await expect(page.getByText('L’IA suit.')).toBeVisible();
   await page.getByRole('button', { name: 'Check' }).click();
   await expect(page.getByText('Phase : Flop')).toBeVisible();
-  await expect(page.getByLabel(/^Votre main :/)).toBeVisible();
+  await expect(page.getByLabel(/^Ta main :/)).toBeVisible();
 
   await expect(page.getByRole('button', { name: 'Fold' })).toBeEnabled();
   await page.getByRole('button', { name: 'Fold' }).click();
@@ -69,11 +69,11 @@ test('computes the odds of the current decision', async ({ page }) => {
 
 test('resumes the game after a reload', async ({ page }) => {
   await startGame(page);
-  const cards = await page.getByRole('group', { name: 'Vos cartes privées' }).first().textContent() ?? '';
+  const cards = await page.getByRole('group', { name: 'Tes cartes privées' }).first().textContent() ?? '';
   await page.reload();
   await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Reprendre la partie' }).click();
-  await expect(page.getByRole('group', { name: 'Vos cartes privées' }).first()).toHaveText(cards);
+  await expect(page.getByRole('group', { name: 'Tes cartes privées' }).first()).toHaveText(cards);
 });
 
 test('finds a term in the glossary and shows the hand rankings', async ({ page }) => {
@@ -93,7 +93,7 @@ test('shows the guided tour on the first game', async ({ page }) => {
   await openMode(page, 'Partie contre l’IA');
   await page.getByRole('button', { name: 'Jouer' }).click();
   const tour = page.getByRole('dialog');
-  await expect(tour).toContainText('Vos cartes et le board');
+  await expect(tour).toContainText('Tes cartes et le board');
   await expect(page.locator('.tour-target')).toHaveCount(1);
   for (let step = 0; step < 3; step++) await tour.getByRole('button', { name: 'Suivant' }).click();
   await tour.getByRole('button', { name: 'Terminer' }).click();

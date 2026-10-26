@@ -57,9 +57,9 @@ export default function ServerStatus() {
     <section className="server-status" aria-label="État des modèles" aria-busy={checking}>
       <h3>État de l’IA locale</h3>
       {checking && !status && <p>Vérification d’Ollama…</p>}
-      {error && <p className="status-error" role="alert">{error} Lancez <code>python3 server.py</code>.</p>}
+      {error && <p className="status-error" role="alert">{error} Lance <code>python3 server.py</code>.</p>}
       {status && !status.ollama && <p className="status-error" role="alert">
-        Ollama ne répond pas : la partie reste jouable, mais {consequences.opponent} et {consequences.coach}. Lancez <code>ollama serve</code>.
+        Ollama ne répond pas : la partie reste jouable, mais {consequences.opponent} et {consequences.coach}. Lance <code>ollama serve</code>.
       </p>}
       {status?.ollama && <ul className="model-lines">
         <ModelLine role="coach" model={status.models.coach} />

@@ -33,7 +33,7 @@ describe('OddsPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Afficher mes repères' }));
     expect(await screen.findByText(/Suivre coûte plus/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Recalculer' }));
-    expect(await screen.findByText('Rien à payer : vous pouvez checker sans risque.')).toBeInTheDocument();
+    expect(await screen.findByText('Rien à payer : tu peux checker sans risque.')).toBeInTheDocument();
     expect(screen.getByText('Pot de 120 jetons, rien à payer.')).toBeInTheDocument();
   });
 
