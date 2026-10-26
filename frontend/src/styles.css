@@ -13,6 +13,9 @@ button:disabled { opacity: .5; cursor: default; }
 [data-theme='light'] .jt-lvlup { background: rgba(244, 240, 255, .92); }
 [data-theme='light'] .jt-lvlup-title { color: var(--yelD); }
 [data-theme='light'] .jt-lvl { color: #A86C00; }
+[data-theme='light'] .jt-stat-val { filter: brightness(.72) saturate(1.4); }
+[data-theme='light'] .link-button { color: #0B6FA8; }
+[data-theme='light'] .guided-tour .link-button { color: var(--sky); }
 [data-theme='light'] :is(.odds-verdict, .stats-scope button[aria-pressed='true'], .verdicts .acceptable, .choice:has(input:checked), .choice[aria-pressed='true']) { color: #A86C00; }
 .jt-page { display: grid; gap: 20px; min-width: 0; }
 .jt-head + .jt-page { margin-top: 24px; }
@@ -342,7 +345,7 @@ code { padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .3); font
 .jt-btn:active{transform:translateY(4px) scale(.98);box-shadow:0 1px 0 var(--sh)}
 .jt-btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:0 2px 0 var(--sh)}
 .jt-btn:focus-visible,.jt-tile:focus-visible,.jt-app input:focus-visible{outline:3px solid var(--yel);outline-offset:3px}
-.jt-pink{--c:var(--pink);--sh:var(--pinkD)}
+.jt-pink{--c:var(--pink);--sh:var(--pinkD);color:#fff}
 .jt-sky{--c:var(--sky);--sh:var(--skyD);color:#05324A}
 .jt-mint{--c:var(--mint);--sh:var(--mintD);color:#063A25}
 .jt-yel{--c:var(--yel);--sh:var(--yelD);color:#3D2600}
