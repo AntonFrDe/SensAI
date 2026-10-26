@@ -137,7 +137,7 @@ describe('TrainerApp', () => {
     expect(screen.getByRole('button', { name: /Raise/ })).toBeEnabled();
   });
 
-  it('waits for the fiche being written before drawing the next situation', async () => {
+  it('draws the next situation while the fiche is still being written', async () => {
     let finirFiche: (reponse: Response) => void = () => undefined;
     const fetchMock = routerFetch({
       'POST /api/sessions/s1/fiche': () => new Promise<Response>(resolve => { finirFiche = resolve; }),
@@ -150,14 +150,14 @@ describe('TrainerApp', () => {
     expect(await screen.findByText('Jeton écrit ta fiche…')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /Continuer/ }));
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(situations()).toBe(1);
+    await waitFor(() => expect(situations()).toBe(2));
+    expect(await screen.findByRole('button', { name: /Raise/ })).toBeEnabled();
 
     await act(async () => {
       finirFiche(Response.json({ fiche: { a_retenir: 'Ancienne fiche.', theme_a_revoir: 'aucun' } }));
     });
-    await waitFor(() => expect(situations()).toBe(2));
-    expect(await screen.findByRole('button', { name: /Raise/ })).toBeEnabled();
+    await userEvent.click(screen.getByRole('button', { name: /Raise/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Voir ma fiche' }));
     expect(screen.queryByText('Ancienne fiche.')).not.toBeInTheDocument();
   });
 
