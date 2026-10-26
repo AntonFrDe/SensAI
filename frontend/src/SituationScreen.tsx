@@ -176,7 +176,7 @@ export default function SituationScreen({ situation, pseudo, numero, combo, erre
               onPointerEnter={() => setSurvol(action)}
               onPointerLeave={() => setSurvol(null)}
             >
-              {majuscule(nomAction(situation, action))}
+              {majuscule(nomAction(situation, action))}{action === 'call' && situation.a_payer > 0 ? ` ${formater(situation.a_payer)} bb` : ''}
               {RACCOURCIS[action] && <span className="jt-kbd">{RACCOURCIS[action]}</span>}
             </button>
           ))}
