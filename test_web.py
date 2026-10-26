@@ -416,6 +416,24 @@ def test_trainer_session_from_the_level_to_the_verdict():
     assert status == 200 and graded["verdict"] in ("bon", "acceptable", "erreur") and graded["reference"]["faits"]
 
 
+def test_the_next_situation_does_not_wait_for_the_fiche():
+    FakeOllama.reset()
+    status, [created] = session_post("/api/sessions", {}, model="slow1")
+    sid = created["sessionId"]
+    session_post(f"/api/sessions/{sid}/niveau", {"reponse": "1"}, model="slow1")
+    _, [dealt] = session_post(f"/api/sessions/{sid}/situations", model="slow1")
+    action = dealt["situation"]["actions"][0]["action"]
+    assert session_post(f"/api/sessions/{sid}/decision", {"action": action}, model="slow1")[0] == 200
+    fiche = threading.Thread(target=session_post, args=(f"/api/sessions/{sid}/fiche",), kwargs={"model": "slow1"})
+    fiche.start()
+    debut = time.monotonic()
+    while FakeOllama.active == 0 and time.monotonic() - debut < 5:
+        time.sleep(0.01)
+    status, [dealt] = session_post(f"/api/sessions/{sid}/situations", model="slow1")
+    assert status == 201 and dealt["numero"] == 2 and FakeOllama.active == 1
+    fiche.join()
+
+
 def test_trainer_steps_are_refused_out_of_order_or_unknown():
     sid, _ = new_session()
     assert session_post(f"/api/sessions/{sid}/situations")[0] == 400   # no level yet

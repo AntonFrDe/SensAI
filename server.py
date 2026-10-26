@@ -29,6 +29,7 @@ from urllib.parse import parse_qs, urlsplit
 from uuid import uuid4
 
 import ai
+import coach
 import generation
 import glossary
 import poker_ai
@@ -305,6 +306,8 @@ class Handler(BaseHTTPRequestHandler):
     def _session_route(self, session_id: str | None, step: str | None, body: dict) -> tuple[int, dict]:
         if step is None:
             return self._new_session(body)
+        if step == "fiche":
+            return self._fiche(session_id)
         session = self._claim(session_id)
         try:
             if step == "niveau":
@@ -315,9 +318,6 @@ class Handler(BaseHTTPRequestHandler):
             if step == "decision":
                 verdict = session.decider(body.get("action"))
                 return 200, {"verdict": verdict, "reference": session.situation["reference"]}
-            if step == "fiche":
-                with self.slots:  # a model call: one RAM slot
-                    return 200, {"fiche": session.ecrire_fiche()}
             last = session.reprendre()
             return 200, {"situation": trainer.vue_situation(last["situation"]), "action": last["action"],
                          "verdict": last["verdict"], "reference": last["situation"]["reference"],
@@ -325,6 +325,17 @@ class Handler(BaseHTTPRequestHandler):
                                      if m["role"] in ROLES and m["content"]]}
         finally:
             self._release(session_id)
+
+    def _fiche(self, session_id: str) -> tuple[int, dict]:
+        session = self._claim(session_id)
+        try:
+            travail = session.preparer_fiche()
+        finally:
+            self._release(session_id)
+        with self.slots:
+            fiche = coach.fiche(**travail, cfg=session.cfg)
+        session.garder_fiche(travail, fiche)
+        return 200, {"fiche": fiche}
 
     def _new_session(self, body: dict) -> tuple[int, dict]:
         pseudo = body.get("pseudo")

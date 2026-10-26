@@ -48,7 +48,6 @@ function ajouterResultat(resultats: TrainerResultats, theme: TrainerTheme, verdi
 
 export default function TrainerApp({ onNavigate }: TrainerAppProps) {
   const racine = useRef<HTMLDivElement>(null);
-  const ficheEnCours = useRef<Promise<unknown> | null>(null);
   const exercice = useRef(0);
   const [pseudo, setPseudo] = useState(lirePseudo);
   const [session, setSession] = useState<TrainerSession | null>(null);
@@ -146,7 +145,6 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
     setChargementSituation(true);
     setErreurSituation('');
     try {
-      await ficheEnCours.current?.catch(() => undefined);
       const suivante = await nouvelleSituationApi(session.sessionId);
       setSituation(suivante);
       setNumero(precedent => precedent + 1);
@@ -199,17 +197,13 @@ export default function TrainerApp({ onNavigate }: TrainerAppProps) {
     if (!session) return;
     setFiche({ fiche: null, chargement: true, erreur: '' });
     const numero = exercice.current;
-    const promesse = ecrireFiche(session.sessionId);
-    ficheEnCours.current = promesse;
     try {
-      const ecrite = await promesse;
+      const ecrite = await ecrireFiche(session.sessionId);
       if (numero === exercice.current) setFiche({ fiche: ecrite, chargement: false, erreur: '' });
     } catch {
       if (numero === exercice.current) {
         setFiche({ fiche: null, chargement: false, erreur: 'Jeton n’a pas réussi à écrire ta fiche. Réessaie dans un instant.' });
       }
-    } finally {
-      if (ficheEnCours.current === promesse) ficheEnCours.current = null;
     }
   }
 
