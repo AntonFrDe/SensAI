@@ -54,9 +54,9 @@ export default function SummaryScreen({ progression, gain, objectif, resultats, 
     return { lettre: LETTRES_JOUR[date.getDay()], fait: 6 - index < serie };
   });
   const statistiques = [
-    { valeur: gain, libelle: 'XP gagnés', couleur: 'var(--yel)', suffixe: '' },
-    { valeur: precision, libelle: 'Précision totale', couleur: 'var(--mint)', suffixe: '%' },
-    { valeur: progression.combo, libelle: 'Combo', couleur: '#FF9F3D', suffixe: '' },
+    { valeur: gain, libelle: 'XP gagnés', couleur: 'var(--yelText)', suffixe: '' },
+    { valeur: precision, libelle: 'Précision totale', couleur: 'var(--mintText)', suffixe: '%' },
+    { valeur: progression.combo, libelle: 'Combo', couleur: 'var(--orangeText)', suffixe: '' },
   ];
 
   return (

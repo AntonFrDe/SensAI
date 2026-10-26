@@ -17,10 +17,10 @@ export type VerdictScreenProps = {
   onFiche: () => void;
 };
 
-const STYLE: Record<TrainerVerdict, { couleur: string; texte: string; icone: typeof IconThumbUp }> = {
-  bon: { couleur: 'var(--mint)', texte: '#063A25', icone: IconThumbUp },
-  acceptable: { couleur: 'var(--yel)', texte: '#3D2600', icone: IconScale },
-  erreur: { couleur: 'var(--red)', texte: '#fff', icone: IconMoodSad },
+const STYLE: Record<TrainerVerdict, { couleur: string; texte: string; titre: string; icone: typeof IconThumbUp }> = {
+  bon: { couleur: 'var(--mint)', texte: '#063A25', titre: 'var(--mintText)', icone: IconThumbUp },
+  acceptable: { couleur: 'var(--yel)', texte: '#3D2600', titre: 'var(--yelText)', icone: IconScale },
+  erreur: { couleur: 'var(--red)', texte: '#fff', titre: 'var(--redText)', icone: IconMoodSad },
 };
 
 const CADRE = /^(Hypothèse|Référence) : /;
@@ -51,7 +51,7 @@ export default function VerdictScreen({ situation, verdict, reference, action, g
           {verdict === 'bon' && <Particules nombre={90} distance={260} duree={1500} grand />}
         </span>
         <div className="jt-verdict-text">
-          <div className="jt-verdict-label" style={{ color: style.couleur }}>{texte.titre}</div>
+          <div className="jt-verdict-label" style={{ color: style.titre }}>{texte.titre}</div>
           <div className="jt-verdict-line">{texte.phrase}</div>
           <div className="jt-soft-sm">
             Tu as choisi <b className="jt-strong">{nomAction(situation, action)}</b>, la référence dit{' '}
