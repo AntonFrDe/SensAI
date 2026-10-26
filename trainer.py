@@ -3,6 +3,7 @@
 Aucune entrée-sortie ici : main.py (terminal) et, plus tard, server.py (web) ne font que l'afficher.
 """
 import random
+import threading
 from collections.abc import Iterator
 from contextlib import closing
 from datetime import date
@@ -59,6 +60,7 @@ class Session:
         self.question: dict | None = None   # la question à choix (X4) qui attend la réponse du joueur
         self.vues: set[str] = set()   # situations déjà jouées, pour ne pas les redonner
         self.numero = 0
+        self.verrou = threading.RLock()
 
     def choisir_niveau(self, choix: str) -> str:
         """Le niveau d'après son numéro (« 1 ») ou son nom (« debutant ») ; ValueError sinon."""
@@ -112,9 +114,10 @@ class Session:
         if action not in self.situation["actions"]:
             raise ValueError(f"action impossible ici : {action!r}")
         self.action, self.verdict = action, noter(self.situation["reference"], action)
-        if self.profil:
-            self.profil = profils.noter(self.profil, self.situation["theme"], self.verdict)
-            self._garder(dernier_debrief=self._debrief_en_cours())
+        with self.verrou:
+            if self.profil:
+                self.profil = profils.noter(self.profil, self.situation["theme"], self.verdict)
+                self._garder(dernier_debrief=self._debrief_en_cours())
         return self.verdict
 
     def discuter(self, texte: str) -> Iterator[tuple[str, object]]:
@@ -153,9 +156,10 @@ class Session:
 
     def _garder(self, **champs) -> None:
         """Met à jour le profil et l'enregistre, si la session en a un."""
-        if self.profil:
-            self.profil = {**self.profil, **champs}
-            profils.enregistrer(self.profil, self.cfg)
+        with self.verrou:
+            if self.profil:
+                self.profil = {**self.profil, **champs}
+                profils.enregistrer(self.profil, self.cfg)
 
     def reponse(self, texte: str) -> str:
         """Le message à envoyer au coach : le choix en toutes lettres si le joueur répond à sa question par un
@@ -168,15 +172,24 @@ class Session:
     def ecrire_fiche(self) -> dict:
         """La fiche de fin d'exercice (T5), gardée dans le profil ; ValueError avant la décision ou si le modèle
         ne rend pas une fiche valide."""
+        travail = self.preparer_fiche()
+        fiche = coach.fiche(**travail, cfg=self.cfg)
+        self.garder_fiche(travail, fiche)
+        return fiche
+
+    def preparer_fiche(self) -> dict:
         if self.action is None:
             raise ValueError("décide d'abord : la fiche vient après la décision")
-        fiche = coach.fiche(self.situation, self.niveau, self.action, self.verdict, self.debrief, self.cfg)
-        if self.profil:
-            self.profil = profils.ajouter_fiche(self.profil, {**fiche, "theme": self.situation["theme"],
-                                                              "verdict": self.verdict,
-                                                              "date": date.today().isoformat()})
-            self._garder()
-        return fiche
+        return {"situation": self.situation, "niveau": self.niveau, "action": self.action, "verdict": self.verdict,
+                "debrief": self.debrief}
+
+    def garder_fiche(self, travail: dict, fiche: dict) -> None:
+        with self.verrou:
+            if self.profil:
+                self.profil = profils.ajouter_fiche(self.profil, {**fiche, "theme": travail["situation"]["theme"],
+                                                                  "verdict": travail["verdict"],
+                                                                  "date": date.today().isoformat()})
+                self._garder()
 
     def oublier(self) -> None:
         """Oublie le débrief en cours, pas la situation."""
