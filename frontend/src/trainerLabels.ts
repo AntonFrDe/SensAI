@@ -1,4 +1,5 @@
-import type { TrainerNiveau, TrainerTheme, TrainerVerdict } from './api';
+import type { TrainerNiveau, TrainerSituation, TrainerTheme, TrainerVerdict } from './api';
+import { ACTION_NAMES, isPokerAction } from './pokerTerms';
 
 export const THEME_LABELS: Record<TrainerTheme, string> = {
   ouverture: 'Ouvrir ou se coucher',
@@ -34,12 +35,14 @@ export const VERDICT_TEXTES: Record<TrainerVerdict, { titre: string; phrase: str
 };
 
 export const ACTION_LIBELLES: Record<string, string> = {
-  fold: 'se coucher',
-  call: 'suivre',
-  raise: 'relancer',
   moi: 'tu gagnes',
   adversaire: 'ton adversaire gagne',
   egalite: 'égalité, pot partagé',
 };
 
 export const RACCOURCIS: Record<string, string> = { fold: 'F', call: 'C', raise: 'R' };
+
+export function nomAction(situation: TrainerSituation, cle: string): string {
+  if (isPokerAction(cle)) return ACTION_NAMES[cle];
+  return situation.actions.find(choix => choix.action === cle)?.libelle ?? ACTION_LIBELLES[cle] ?? cle;
+}

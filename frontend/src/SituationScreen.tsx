@@ -3,7 +3,7 @@ import { IconBolt, IconTarget } from '@tabler/icons-react';
 import type { TrainerActionKey, TrainerSituation } from './api';
 import CarteTable from './CarteTable';
 import Mascot, { type Mood, type Palette } from './Mascot';
-import { RACCOURCIS, THEME_LABELS } from './trainerLabels';
+import { RACCOURCIS, THEME_LABELS, nomAction } from './trainerLabels';
 
 export type SituationScreenProps = {
   situation: TrainerSituation | null;
@@ -55,7 +55,7 @@ function sieges(situation: TrainerSituation): Siege[] {
     }
     const ordre = ORDRE.indexOf(position);
     if (ordre < hi) {
-      sieges.push({ k, position, etat: 'couche', tag: `${position} · couché` });
+      sieges.push({ k, position, etat: 'couche', tag: `${position} · fold` });
     } else if (BLINDES[position]) {
       sieges.push({ k, position, etat: 'blinde', tag: `${position} · ${BLINDES[position]}` });
     } else {
@@ -166,7 +166,7 @@ export default function SituationScreen({ situation, pseudo, numero, combo, erre
         <div className="jt-texte">{situation.texte}</div>
         <p className="jt-question">{situation.question}</p>
         <div className="jt-actions" style={{ ['--n' as string]: situation.actions.length }}>
-          {situation.actions.map(({ action, libelle }) => (
+          {situation.actions.map(({ action }) => (
             <button
               key={action}
               type="button"
@@ -176,7 +176,7 @@ export default function SituationScreen({ situation, pseudo, numero, combo, erre
               onPointerEnter={() => setSurvol(action)}
               onPointerLeave={() => setSurvol(null)}
             >
-              {majuscule(libelle)}
+              {majuscule(nomAction(situation, action))}
               {RACCOURCIS[action] && <span className="jt-kbd">{RACCOURCIS[action]}</span>}
             </button>
           ))}

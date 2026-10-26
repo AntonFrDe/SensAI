@@ -77,16 +77,16 @@ describe('TrainerApp', () => {
     await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
     expect(await screen.findByText(/Table 6 joueurs, 100 blindes/)).toBeInTheDocument();
     expect(screen.getByText('Pot 1,5 bb')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Se coucher/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /Fold/ })).toBeEnabled();
 
-    await userEvent.click(screen.getByRole('button', { name: /Relancer/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Raise/ }));
     expect(await screen.findByText('Bon coup !')).toBeInTheDocument();
     expect(screen.getByText(/la référence dit/)).toBeInTheDocument();
     expect(screen.getByText('Ta main bat la plupart de celles des blindes.')).toBeInTheDocument();
     expect(screen.getByText(/Hypothèse : ranges d’ouverture/)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /Discuter avec Jeton/ }));
-    expect(await screen.findByText(/La référence préfère : relancer/)).toBeInTheDocument();
+    expect(await screen.findByText(/La référence préfère : Raise/)).toBeInTheDocument();
     await userEvent.type(screen.getByRole('textbox', { name: 'Ton message à Jeton' }), 'Pourquoi ?');
     await userEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
     expect(await screen.findByText('Pourquoi ?')).toBeInTheDocument();
@@ -132,16 +132,16 @@ describe('TrainerApp', () => {
     });
     render(<TrainerApp onNavigate={vi.fn()} />);
     await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
-    await userEvent.click(await screen.findByRole('button', { name: /Relancer/ }));
+    await userEvent.click(await screen.findByRole('button', { name: /Raise/ }));
     expect(await screen.findByText('action impossible ici')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Relancer/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /Raise/ })).toBeEnabled();
   });
 
   it('plays the decision with the keyboard shortcut of the action', async () => {
     const fetchMock = routerFetch();
     render(<TrainerApp onNavigate={vi.fn()} />);
     await userEvent.click(await screen.findByRole('button', { name: /Je découvre/ }));
-    await screen.findByRole('button', { name: /Relancer/ });
+    await screen.findByRole('button', { name: /Raise/ });
     await act(async () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r' }));
     });
