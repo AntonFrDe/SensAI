@@ -42,6 +42,14 @@ describe('SituationScreen', () => {
     expect(screen.getByText('Pot 1,5 bb')).toBeInTheDocument();
   });
 
+  it('shows the amount to pay on the Call button only', () => {
+    const tirage: TrainerSituation = { ...ouverture, id: 't1', theme: 'tirage', board: ['Kh', '9h', '2c'], pot: 6, a_payer: 2.5,
+      actions: [{ action: 'fold', libelle: 'se coucher' }, { action: 'call', libelle: 'suivre' }, { action: 'raise', libelle: 'relancer' }] };
+    render(<SituationScreen situation={tirage} pseudo="sam" numero={1} combo={0} erreur="" occupe={false} onDecider={vi.fn()} onReessayer={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /^Call 2,5 bb/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Raise/ })).not.toHaveTextContent('bb');
+  });
+
   it('plays the action of the letter pressed', async () => {
     const onDecider = vi.fn();
     render(<SituationScreen situation={ouverture} pseudo="sam" numero={1} combo={0} erreur="" occupe={false} onDecider={onDecider} onReessayer={vi.fn()} />);
