@@ -1,7 +1,7 @@
 # User stories de SensAI
 
 Deux user stories par feature retenue (`docs/REFONTE.md`, section 4), au format du sujet : *En tant que…, je
-veux…, afin de…*, puis des critères observables. État au 2026-10-22 : ✅ fait et testé, ⚠️ en partie, ⬜ à faire.
+veux…, afin de…*, puis des critères observables. État au 2026-10-26 : ✅ fait et testé, ⚠️ en partie, ⬜ à faire.
 Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) sont dans `docs/FRONTEND.md`.
 
 ## B1 : chat CLI, le parcours d'exercices
@@ -21,8 +21,7 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
 
 1. En tant que nouveau joueur, je veux indiquer mon niveau en un choix, afin de recevoir des situations à ma
    portée.
-   - ⚠️ La question arrive avec 3 choix : numéros en CLI ✅ ; la liste est servie par l'API, les boutons React
-     sont à faire.
+   - ✅ La question arrive avec 3 choix : numéros en CLI, boutons dans l'écran React du niveau (`LevelScreen.tsx`).
    - ✅ Un numéro hors des choix est redemandé.
    - ✅ Le choix est enregistré dans le profil.
 2. En tant que joueur en débrief, je veux répondre aux questions de contrôle du coach en un clic, afin de vérifier
@@ -63,8 +62,8 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
 
 1. En tant que joueur curieux, je veux demander « et si j'avais eu As-Roi ? », afin d'explorer la situation.
    - ✅ Le coach appelle `hand_odds` ou `preflop_open` et l'appel est affiché.
-   - ⚠️ Les chiffres de la réponse viennent de l'outil ; qu'il les recopie fidèlement dépend du modèle (mesuré par
-     EV1, à faire).
+   - ⚠️ Les chiffres de la réponse viennent de l'outil ; qu'il les recopie fidèlement dépend du modèle. EV1 le
+     mesure sur les débriefs : 21 faits sur 24 retrouvés par le code au dernier essai.
    - ✅ Une carte invalide donne une explication, pas un plantage.
 2. En tant que joueur qui tient un carnet, je veux que le coach y note ce que j'ai appris, afin de le relire plus
    tard.
@@ -76,8 +75,8 @@ Les user stories de l'interface de jeu (table, coach, cotes, suivi des parties) 
 
 1. En tant que joueur qui préfère la souris, je veux faire le même parcours dans le navigateur, afin de voir la
    table et les cartes.
-   - ⚠️ Niveau, situation, décision et débrief s'enchaînent par l'API (`/api/sessions…`) ✅ ; les écrans React
-     sont à faire.
+   - ✅ Niveau, situation, décision et débrief s'enchaînent dans les écrans React (`TrainerApp.tsx`, `LevelScreen.tsx`,
+     `DebriefScreen.tsx`), sur l'API `/api/sessions…`.
    - ✅ Le débrief arrive au fil de l'eau (NDJSON).
    - ✅ Seules les actions possibles sont proposées (`actions` de la situation) ; une autre est refusée (400).
 2. En tant qu'équipe de développement, je veux que le web et le CLI partagent le même cœur, afin qu'un correctif

@@ -8,6 +8,12 @@ Assistant IA local, tournant sur Ollama. Projet Epitech Tech3. Piste actuelle : 
    `ollama pull qwen3:4b-instruct-2507-q4_K_M`
 2. Python 3.10 ou plus :
    `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`
+3. Facultatif, pour la recherche du glossaire par le sens : `ollama pull bge-m3`.
+
+Ou tout en une commande, sous Linux : `./start.sh`. Le script installe ce qui manque (Ollama, les modèles de
+`config.json`, `.venv`, Node 22 dans `.node/` si le Node installé est plus ancien que 20.19, les dépendances du
+frontend), démarre Ollama, lance `server.py` sur le port 8000 puis Vite, et ouvre http://localhost:5173. Il
+s'arrête si le port 8000 est pris par un autre service, et réutilise une API SensAI déjà lancée.
 
 ## Interface web
 
@@ -150,7 +156,10 @@ python3 ai.py "Quelle est la meilleure main au poker ?"
 
 `ai.py` injecte le classement des combinaisons (`data/hand_rankings.json`) avant chaque question, et les
 entrées du glossaire dont le terme apparaît dans la question (le glossaire entier, ~15 000 tokens, dépassait le
-contexte d'Ollama). Sans lui,
+contexte d'Ollama). Pour une question d'au moins 4 mots, il ajoute aussi jusqu'à 4 entrées du lexique proches
+par le sens, même sans le mot exact (embeddings `bge-m3` d'Ollama, similarité d'au moins 0,55, vecteurs du
+glossaire en cache dans `data/glossary_embeddings.json`).
+Sans `bge-m3`, un avertissement s'affiche une fois et seule la recherche par mots reste. Sans le classement,
 `qwen3:4b-instruct` répondait « As, Roi, Dame, Roi, 10 » 5 fois sur 5 ; avec, « quinte flush royale » 5 fois
 sur 5. Chaque combinaison est donnée avec une force de 10 à 1 plutôt qu'un rang de 1 à 10 : avec des rangs,
 le modèle lit « 5 > 4 » et conclut qu'une couleur bat un full.
@@ -198,13 +207,13 @@ python3 ai.py "J'ai Ah Kh, flop Qh 7h 2c, pot de 100, je dois payer 50. Je suis 
 ## Jeu d'évaluation
 
 ```
-python3 evaluate.py                          # les 33 questions, modèle par défaut
+python3 evaluate.py                          # les 87 questions, modèle par défaut
 python3 evaluate.py --modele llama3.2:3b     # comparer un autre modèle
 python3 evaluate.py --questions q01 q28      # quelques questions seulement
 python3 evaluate.py --temperature 0.7        # comparer avec le réglage par défaut d'Ollama
 ```
 
-`evaluation/questions.jsonl` contient 33 questions de poker (combinaisons, règles, vocabulaire, ranges préflop,
+`evaluation/questions.jsonl` contient 87 questions de poker (combinaisons, règles, vocabulaire, ranges préflop,
 équité, outs, cote du pot) avec une réponse de référence vérifiée (`equity.py`, `odds.py`, `preflop.py`).
 Pour chacune, le modèle local répond comme dans `ai.py`, puis reçoit la référence et sa propre réponse : il
 découpe la référence en faits et dit pour chacun s'il est présent, absent ou contredit, en JSON (sortie contrainte
@@ -268,9 +277,10 @@ relance à chaque modification.
 
 | Fichier | Rôle |
 |---|---|
+| `start.sh` | Installe ce qui manque et lance Ollama, l'API et le frontend en une commande |
 | `poker_engine/` | Moteur de poker : cartes, paquet, joueurs, partie, actions, évaluation des mains |
 | `llm.py` | Client Ollama (HTTP, streaming) |
-| `ai.py` | Question en ligne de commande, avec le classement des combinaisons injecté |
+| `ai.py`, `prompts/conseil.txt` | Question en ligne de commande, avec le classement des combinaisons et le glossaire injectés |
 | `equity.py` | Chances de gagner d'une main selon le board, note avant le flop |
 | `evaluate.py`, `evaluation/` | Jeu d'évaluation : questions de référence, résultats remplis par le script |
 | `evaluate_coach.py` | Évaluation du coach (EV1) : le débrief contredit-il la référence ? Juge d'une autre famille |
