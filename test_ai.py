@@ -88,8 +88,26 @@ def test_preflop_context_gives_the_opening_range_and_the_equity():
 def test_two_preflop_hands_get_their_head_to_head_equity():
         prompt = ai.build_prompt("Paire de Rois contre paire de Dames : quelles chances ?")
 
-        assert "KK contre QQ : KK 81,9 %, QQ 18,1 %" in prompt
+        assert "Face-à-face KK contre QQ : KK 81,9 %, QQ 18,1 %" in prompt and "KK est favori" in prompt
+        assert "contre une main au hasard" not in prompt  # le chiffre que le modèle citait à tort
         assert prompt.index("KK contre QQ") < prompt.index("quelles chances")
+
+
+def test_a_hand_opened_nowhere_says_so_plainly():
+        context = ai.preflop_context("Faut-il ouvrir 72o depuis UTG ?")
+        assert "ne s'ouvre nulle part" in context and "seulement 4,1 % des mains de départ sont plus faibles" in context
+        assert "96,7 % des mains de départ sont plus faibles" in ai.preflop_context("Ouvrir AKs ?")
+
+
+def test_an_acronym_only_matches_in_capitals():
+        assert "ROI" not in [e.term for e in ai.glossary_entries_in("As-Roi assortis contre une paire de 8")]
+        assert "ROI" in [e.term for e in ai.glossary_entries_in("Quel est ton ROI ?")]
+        assert "UTG" in [e.term for e in ai.glossary_entries_in("Faut-il ouvrir depuis UTG ?")]
+
+
+def test_the_rules_are_always_in_the_context():
+        context = ai.find_context("peu importe")
+        assert "relance à 20 au minimum" in context and "le bouton est la petite blinde" in context
 
 
 def test_meaning_search_skips_short_messages_and_survives_a_missing_ollama():

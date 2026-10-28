@@ -19,6 +19,33 @@ describe('ServerStatus', () => {
     expect(screen.getByRole('button', { name: 'Commande copiée' })).toBeInTheDocument();
   });
 
+  it('switches the coach to another installed model', async () => {
+    const both = (coach: string) => Response.json({
+      ollama: true, available: ['llama3.2:3b', 'qwen3:4b'],
+      models: { coach: { name: coach, installed: true }, opponent: { name: 'qwen3:4b', installed: true } },
+    });
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(both('qwen3:4b')).mockResolvedValueOnce(both('llama3.2:3b'));
+    render(<ServerStatus />);
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: 'Modèle du coach' }), 'llama3.2:3b');
+    expect(await screen.findByText(/Coach :/)).toHaveTextContent('Coach : llama3.2:3b installé');
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/models');
+    expect(JSON.parse(String((fetchMock.mock.calls[1][1] as RequestInit).body))).toEqual({ role: 'coach', name: 'llama3.2:3b' });
+    expect(screen.getByRole('combobox', { name: 'Modèle de l’adversaire IA' })).toHaveValue('qwen3:4b');
+  });
+
+  it('says why a switch failed and keeps the current model', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(Response.json({
+        ollama: true, available: ['a', 'b'],
+        models: { coach: { name: 'a', installed: true }, opponent: { name: 'a', installed: true } },
+      }))
+      .mockResolvedValueOnce(Response.json({ error: "Model 'b' is not installed." }, { status: 400 }));
+    render(<ServerStatus />);
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: 'Modèle du coach' }), 'b');
+    expect(await screen.findByRole('alert')).toHaveTextContent("Model 'b' is not installed.");
+    expect(screen.getByRole('combobox', { name: 'Modèle du coach' })).toHaveValue('a');
+  });
+
   it('explains what still works when ollama is down', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({
       ollama: false, error: 'Cannot reach Ollama.',

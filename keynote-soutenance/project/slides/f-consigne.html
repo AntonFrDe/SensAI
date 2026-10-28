@@ -1,0 +1,31 @@
+<section id="f-consigne" data-transition="fade" style="background:#1A1042;color:#FBF9FF;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<p style="font-size:32px;font-weight:700;color:#FFC83D;letter-spacing:4px;text-transform:uppercase">Feature · Consigne et fiche de règles</p>
+<h2 style="font-size:72px;font-weight:900;line-height:1.08;letter-spacing:-1px;width:1550px">Répondre d’abord, reprendre le contexte, ne rien inventer</h2>
+<div style="display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;align-items:center;gap:32px">
+<p style="font-size:32px;font-weight:800;width:200px">Avant</p>
+<div style="flex:1;height:64px;background:#2A1A63;border-radius:999px;overflow:hidden">
+<div style="width:52%;height:64px;background:#FF5E62;border-radius:999px"></div>
+</div>
+<p style="font-size:44px;font-weight:900;width:300px;text-align:right">45/87</p>
+</div>
+<div style="display:flex;align-items:center;gap:32px">
+<p style="font-size:32px;font-weight:800;width:200px">Après</p>
+<div style="flex:1;height:64px;background:#2A1A63;border-radius:999px;overflow:hidden">
+<div style="width:66%;height:64px;background:linear-gradient(90deg, #2EE59D, #7CF2C4);border-radius:999px"></div>
+</div>
+<p style="font-size:44px;font-weight:900;width:300px;text-align:right;color:#2EE59D">57/87</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A1A63;padding:28px;border-radius:28px;box-shadow:0 8px 0 #0E0828">
+<p style="font-size:24px;font-weight:800;color:#FF5E62;text-transform:uppercase;letter-spacing:2px">Avant</p>
+<p style="font-size:28px;line-height:1.35">« Une 4-bet est une relance de 4 fois la mise : 40. »</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A1A63;padding:28px;border-radius:28px;box-shadow:0 8px 0 #0E0828">
+<p style="font-size:24px;font-weight:800;color:#2EE59D;text-transform:uppercase;letter-spacing:2px">Après</p>
+<p style="font-size:28px;line-height:1.35">« 20 : au moins le montant de la dernière mise. »</p>
+</div>
+</div>
+<aside>[NIKITA] Première amélioration côté IA : la consigne. L’ancien prompt imposait le format « Action, Combien miser, Pourquoi » à toutes les questions, même « l’As peut-il servir dans une quinte basse ? ». Le modèle répondait « Oui, 0 » et partait en vrille. Le nouveau prompt dit trois choses : réponds d’abord à la question, reprends telle quelle la ligne du contexte qui y répond, et n’invente aucun chiffre. On a ajouté une fiche de règles injectée à chaque question : ordre de parole, relance minimum, égalités. Résultat mesuré sur nos 87 questions, même modèle, température zéro : on passe de 45 à 57 bonnes réponses. Exemple : avant, le coach inventait qu’une 4-bet multiplie la mise par quatre. Après, il répond 20, la bonne réponse.</aside>
+</section>

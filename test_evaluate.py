@@ -3,6 +3,8 @@
     python3 test_evaluate.py
 """
 import json
+import tempfile
+from pathlib import Path
 
 import ai
 import evaluate
@@ -56,6 +58,28 @@ def test_report_has_one_checked_box_per_success():
     rows = [line for line in report.splitlines() if line.startswith("| ☑") or line.startswith("| ☐")]
     assert len(rows) == 3 and rows[0].startswith("| ☑ | q01")
     assert "**1/3 réussies**" in report and "interrompue : 3 questions sur 5" in report
+
+
+def test_resume_keeps_saved_results_of_the_same_model_only():
+    ai.chat, ai.MODEL, ai.TEMPERATURE = fake_chat, "faux-modele", 0.2
+    items = evaluate.load_questions()[:3]
+    with tempfile.TemporaryDirectory() as tmp:
+        evaluate.save([evaluate.evaluate(items[0])], total=3, folder=Path(tmp))
+
+        assert [r["id"] for r in evaluate.previous_results(items, Path(tmp))] == [items[0]["id"]]
+        ai.MODEL = "autre-modele"
+        assert evaluate.previous_results(items, Path(tmp)) == []
+
+
+def test_a_fixed_judge_grades_every_compared_model():
+    seen = []
+    ai.chat = lambda messages, **extra: seen.append(extra.get("model")) or (fake_chat(messages, **extra))
+    evaluate.JUDGE_MODEL = "juge-fixe"
+    try:
+        evaluate.evaluate(evaluate.load_questions()[0])
+    finally:
+        evaluate.JUDGE_MODEL = None
+    assert seen == [None, "juge-fixe"]  # le modèle évalué répond, le juge fixe corrige
 
 
 if __name__ == "__main__":

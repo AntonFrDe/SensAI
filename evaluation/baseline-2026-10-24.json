@@ -1,0 +1,1316 @@
+{
+ "modele": "qwen3:4b-instruct-2507-q4_K_M",
+ "temperature": 0.0,
+ "date": "2026-10-24T17:03:52",
+ "resultats": [
+  {
+   "id": "q01",
+   "theme": "combinaisons",
+   "question": "Quelle est la meilleure main au poker ?",
+   "reponse": "La quinte flush royale : As, Roi, Dame, Valet et 10 de la même couleur.",
+   "faits": [
+    "La meilleure main est la quinte flush royale"
+   ],
+   "reponse_modele": "- (Action à faire) : Ne rien faire (attendre le flop)  \n- (Combien miser) : 0  \n- (Pourquoi) : La meilleure main au poker est la **Quinte flush royale** (Royal flush), force 10/10. C’est la combinaison la plus forte, composée d’As, Roi, Dame, Valet, 10 de la même couleur. Elle est **exclusivement possible** dans les mains de départ ou après le flop, et **n’est jamais égalée**.  \n→ Aucun autre jeu ne peut la dépasser.  \n→ En pratique, elle est **très rare** (probabilité ~1/40 000), donc elle ne doit pas être mise en jeu sans confirmation.  \n→ Si elle est détectée, elle remporte le pot sans discussion.  \n\n**Force : 10/10** ✅",
+   "reussi": true,
+   "differences": [],
+   "secondes": 46.9
+  },
+  {
+   "id": "q02",
+   "theme": "combinaisons",
+   "question": "Est-ce qu'une couleur bat un full ?",
+   "reponse": "Non. Le full (un brelan et une paire) bat la couleur.",
+   "faits": [
+    "Non, la couleur ne bat pas le full",
+    "Le full bat la couleur"
+   ],
+   "reponse_modele": "- Oui  \n- 6/10 vs 7/10  \n- Une couleur (force 6/10) ne bat pas un full (force 7/10). Le full est plus fort.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 38.5
+  },
+  {
+   "id": "q03",
+   "theme": "combinaisons",
+   "question": "Qu'est-ce qui est le plus fort : une quinte ou un brelan ?",
+   "reponse": "La quinte bat le brelan.",
+   "faits": [
+    "La quinte bat le brelan"
+   ],
+   "reponse_modele": "- (Action à faire) : Comparer les forces des combinaisons  \n- (Combien miser) : 0 (pas besoin de miser)  \n- (Pourquoi) : Une quinte (Straight) a une force de 5/10, un brelan (Three of a kind) a une force de 4/10. Comme 5 > 4, la quinte est plus forte que le brelan.  \n\n→ **La quinte est plus forte que le brelan.**",
+   "reussi": true,
+   "differences": [],
+   "secondes": 18.9
+  },
+  {
+   "id": "q04",
+   "theme": "combinaisons",
+   "question": "Entre une double paire et un brelan, quelle main gagne ?",
+   "reponse": "Le brelan bat la double paire.",
+   "faits": [
+    "Le brelan bat la double paire"
+   ],
+   "reponse_modele": "- (Gagner) Brelan  \n- (Pourquoi) Le brelan (force 4/10) est supérieur à la double paire (force 3/10) selon le classement des combinaisons.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 9.0
+  },
+  {
+   "id": "q05",
+   "theme": "combinaisons",
+   "question": "L'as peut-il servir dans une quinte basse ?",
+   "reponse": "Oui : A-2-3-4-5 (la « roue ») est la plus petite quinte. Une quinte ne peut pas « tourner » : Dame-Roi-As-2-3 n'est pas une quinte.",
+   "faits": [
+    "Oui, l'as peut servir dans la quinte A-2-3-4-5",
+    "A-2-3-4-5 est la plus petite quinte"
+   ],
+   "reponse_modele": "- Oui  \n- 0  \n- Une quinte basse est une suite de cinq cartes consécutives, comme 5-4-3-2-A, mais **l'as ne peut pas servir dans une quinte basse** car il est le plus haut, et une quinte basse commence à partir du 5.  \n→ Une quinte basse est **5-4-3-2-A**, donc **l'as est inclus**, mais **il est le plus haut**, donc **il ne peut pas être utilisé dans une quinte basse** comme carte de base.  \n→ En réalité, **l'as peut servir dans une quinte basse**, car **5-4-3-2-A** est une quinte basse valide.  \n✅ **Conclusion : Oui, l'as peut servir dans une quinte basse** (ex : 5-4-3-2-A).  \n→ C’est une **quinte basse** (force 5/10), avec l’as comme carte haute.  \n→ Cela est **valide** selon les règles du poker.  \n\n**Réponse normalisée :**  \n- (Oui)  \n- (0)  \n- (L'as peut servir dans une quinte basse, comme dans 5-4-3-2-A, qui est une quinte basse valide.)",
+   "reussi": false,
+   "differences": [
+    "A-2-3-4-5 est la plus petite quinte : absent"
+   ],
+   "secondes": 40.0
+  },
+  {
+   "id": "q06",
+   "theme": "combinaisons",
+   "question": "Si deux joueurs ont exactement la même main, la couleur (pique, cœur...) les départage-t-elle ?",
+   "reponse": "Non. Au Texas Hold'em aucune couleur n'est plus forte qu'une autre : le pot est partagé à égalité.",
+   "faits": [
+    "Non, la couleur des cartes ne départage pas",
+    "Le pot est partagé"
+   ],
+   "reponse_modele": "- (Non)  \n- (0)  \n- (La couleur ne départage pas les mains identiques : si les cinq cartes sont exactement les mêmes, la combinaison est la même, quelle que soit la couleur. Le classement est basé sur la force de la combinaison, pas sur la couleur des cartes.)",
+   "reussi": false,
+   "differences": [
+    "Le pot est partagé : absent"
+   ],
+   "secondes": 16.5
+  },
+  {
+   "id": "q07",
+   "theme": "combinaisons",
+   "question": "Qu'est-ce que le kicker ?",
+   "reponse": "La carte d'accompagnement qui départage deux mains de même combinaison. Exemple : sur un board A-7-2, AK bat AQ grâce au kicker Roi.",
+   "faits": [
+    "Le kicker est la carte d'accompagnement",
+    "Il départage deux mains de même combinaison"
+   ],
+   "reponse_modele": "- (Définition du kicker)  \nLe kicker est la carte la plus forte en dehors de la meilleure combinaison, qui peut décider du vainqueur en cas d’égalité (ex : deux joueurs ont une paire de 9, le kicker est la carte supérieure de leurs mains).  \n\n→ C’est la carte qui, sans former une combinaison, donne une avance en cas d’égalité.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 16.5
+  },
+  {
+   "id": "q08",
+   "theme": "règles",
+   "question": "Combien de cartes reçoit chaque joueur au Texas Hold'em, et comment forme-t-on sa main ?",
+   "reponse": "2 cartes privées. Avec les 5 cartes communes, on garde la meilleure main de 5 cartes parmi les 7.",
+   "faits": [
+    "Chaque joueur reçoit 2 cartes",
+    "La main est la meilleure combinaison de 5 cartes parmi les 7 (2 privées et 5 communes)"
+   ],
+   "reponse_modele": "- 2 cartes privées  \n- Sa main est formée à partir de ses 2 cartes privées + les 5 cartes communes (flop, turn, river)  \n→ On choisit la meilleure combinaison possible avec ces 7 cartes.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 18.4
+  },
+  {
+   "id": "q09",
+   "theme": "règles",
+   "question": "Dans quel ordre sont dévoilées les cartes communes ?",
+   "reponse": "Le flop (3 cartes), puis le turn (1 carte), puis la river (1 carte). Il y a un tour d'enchères avant le flop et après chacune de ces étapes.",
+   "faits": [
+    "Flop de 3 cartes",
+    "Puis turn de 1 carte",
+    "Puis river de 1 carte"
+   ],
+   "reponse_modele": "- (Dévoiler les cartes communes dans l'ordre : Flop, Turn, River)  \n- (3 cartes au flop, 1 carte au turn, 1 carte au river)  \n- (C’est l’ordre standard dans le Hold’em : flop → turn → river)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 18.1
+  },
+  {
+   "id": "q10",
+   "theme": "règles",
+   "question": "Que sont les blindes ?",
+   "reponse": "Des mises obligatoires posées avant la distribution : la petite blinde par le joueur à gauche du bouton, la grosse blinde par le suivant (en général le double de la petite).",
+   "faits": [
+    "Les blindes sont des mises obligatoires posées avant la distribution",
+    "Il y a une petite blinde et une grosse blinde"
+   ],
+   "reponse_modele": "- (Les blindes sont des mises obligatoires posées avant le début de la partie par des joueurs, généralement au petit blind (SB) et au grand blind (BB).)  \n- (0)  \n- (Elles garantissent qu’il y a un pot dès le départ, et permettent de commencer les enchères.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 22.0
+  },
+  {
+   "id": "q11",
+   "theme": "règles",
+   "question": "Qui parle en premier avant le flop, et après le flop ?",
+   "reponse": "Avant le flop : le joueur à gauche de la grosse blinde (UTG). Après le flop : le premier joueur encore en jeu à gauche du bouton, en général la petite blinde.",
+   "faits": [
+    "Avant le flop, le joueur à gauche de la grosse blinde (UTG) parle en premier",
+    "Après le flop, le premier joueur en jeu à gauche du bouton (souvent la petite blinde) parle en premier"
+   ],
+   "reponse_modele": "- (Qui parle en premier avant le flop) : Les joueurs jouent en ordre de mise (blind), le petit blind et le big blind sont placés avant le flop.  \n- (Qui parle après le flop) : Les joueurs font leur action (check, bet, call, fold) sur le flop, puis sur le turn, puis sur le river.  \n\n→ Le premier à parler avant le flop est le joueur au petit blind.  \n→ Après le flop, c’est le joueur à la main qui joue (post-flop), avec des actions itératives.  \n\n*Note : Ce n’est pas une décision de jeu, mais une règle de procédure.*",
+   "reussi": false,
+   "differences": [
+    "Avant le flop, le joueur à gauche de la grosse blinde (UTG) parle en premier : absent",
+    "Après le flop, le premier joueur en jeu à gauche du bouton (souvent la petite blinde) parle en premier : absent"
+   ],
+   "secondes": 31.6
+  },
+  {
+   "id": "q12",
+   "theme": "règles",
+   "question": "En no-limit, quelle est la relance minimum quand un joueur a misé 10 ?",
+   "reponse": "La relance doit ajouter au moins le montant de la mise précédente : il faut relancer à 20 au minimum.",
+   "faits": [
+    "La relance minimum est à 20"
+   ],
+   "reponse_modele": "- 4-bet  \n- 40  \n- En no-limit, une 4-bet est une relance de 4 fois la mise précédente. 4 × 10 = 40.",
+   "reussi": false,
+   "differences": [
+    "La relance minimum est à 20 : absent"
+   ],
+   "secondes": 12.9
+  },
+  {
+   "id": "q13",
+   "theme": "règles",
+   "question": "Qu'est-ce qu'un side pot ?",
+   "reponse": "Un pot annexe créé quand un joueur fait tapis avec moins de jetons que les autres : il ne peut gagner que le pot principal, où chacun a mis au plus son tapis ; les mises au-delà forment un pot séparé, disputé par les autres joueurs.",
+   "faits": [
+    "Un side pot apparaît quand un joueur est à tapis avec moins de jetons que les autres",
+    "Ce joueur ne peut gagner que le pot principal"
+   ],
+   "reponse_modele": "- (Définition)  \nUn side pot est un pot annexe formé lorsque un joueur est à tapis (sans jetons) et que les autres joueurs continuent à miser. Ce pot ne peut être remporté que par les joueurs encore en jeu, et ne fait pas partie du pot initial.\n\n- (Pourquoi)  \nIl permet de continuer la partie même si un joueur a perdu tous ses jetons, en créant un nouveau pot où il ne peut que participer à l’annexe, sans droit au pot principal.\n\n- (Exemple)  \nSi le pot principal est de 100 €, et un joueur mise 50 €, alors un side pot de 50 € est formé pour les joueurs restants. Ce side pot est gagné uniquement s’il reste en jeu.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 41.5
+  },
+  {
+   "id": "q14",
+   "theme": "position",
+   "question": "Pourquoi le bouton est-il la meilleure position ?",
+   "reponse": "Après le flop, le bouton parle en dernier à chaque tour : il voit ce que font les autres avant de décider. On peut donc y jouer plus de mains qu'en début de parole.",
+   "faits": [
+    "Le bouton parle en dernier après le flop",
+    "Il agit en connaissant les actions des autres"
+   ],
+   "reponse_modele": "- (Le bouton est la meilleure position parce qu'il est le dernier à agir à chaque tour, ce qui lui permet de voir les actions de tous les autres joueurs avant de décider de son propre coup. Cela lui donne une avancée d'information cruciale pour évaluer les mains adverses et ajuster ses décisions, notamment en termes de mise ou de relâchement.)\n\n- (Cela augmente son équité en réduisant les risques de perdre des blindes ou de miser sans information, surtout en pré-flop où les blindes sont élevées.)\n\n- (Équité : 70% de gain en moyenne par rapport aux autres positions, selon des études de comportement en Hold’em.)",
+   "reussi": false,
+   "differences": [
+    "Le bouton parle en dernier après le flop : absent"
+   ],
+   "secondes": 39.1
+  },
+  {
+   "id": "q15",
+   "theme": "vocabulaire",
+   "question": "Que veut dire avoir les « nuts » ?",
+   "reponse": "Avoir la meilleure main possible à ce moment, compte tenu des cartes du board.",
+   "faits": [
+    "Les nuts sont la meilleure main possible",
+    "Cela dépend des cartes du board"
+   ],
+   "reponse_modele": "- (Avoir les « nuts ») = Avoir le meilleur jeu possible, la combinaison la plus forte au moment donné (ex : quinte flush royale, ou la meilleure quinte flush dans le pot).  \n- (Pourquoi) = Cela signifie que vous avez la meilleure main au tableau, donc vous êtes le plus fort face à tous les autres joueurs.  \n- (Équité) = Force 10/10 (Royal flush) = le plus haut classement.  \n- (Cote du pot) : Négligeable, car les nuts sont le maximum.  \n\n→ C’est le meilleur jeu possible, donc vous avez la main la plus forte.",
+   "reussi": false,
+   "differences": [
+    "Cela dépend des cartes du board : absent"
+   ],
+   "secondes": 28.6
+  },
+  {
+   "id": "q16",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un set ?",
+   "reponse": "Un brelan formé avec une paire en main et une carte de même valeur sur le board (différent des trips : une seule carte en main et une paire sur le board).",
+   "faits": [
+    "Un set est un brelan",
+    "Il est formé avec une paire en main et une carte du board"
+   ],
+   "reponse_modele": "- (Un set est un brelan)  \n- (Force 4/10)  \n- (C'est trois cartes de même valeur, par exemple 9♠ 9♥ 9♦)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 11.4
+  },
+  {
+   "id": "q17",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un tirage ventral (gutshot) ?",
+   "reponse": "Un tirage quinte auquel il manque une carte au milieu : une seule valeur le complète, soit 4 outs. Exemple : 9-8 sur 6-5-2, il faut un 7.",
+   "faits": [
+    "C'est un tirage quinte auquel il manque une carte au milieu",
+    "Il a 4 outs"
+   ],
+   "reponse_modele": "- (Qu'est-ce qu'un tirage ventral ?)  \nUn tirage ventral (gutshot) est un tirage de quinte où vous avez besoin d'une seule carte pour compléter une suite, et cette carte est située *au milieu* de la suite.  \nExemple : vous avez 8-9 sur le flop 7-10-2, vous avez besoin d’un 10 pour compléter une quinte (8-9-10), mais le 10 est déjà sur le flop → donc ce n’est pas un gutshot.  \nCorrect : vous avez 9-10, flop 8-7-2 → vous avez besoin d’un 11 (ou 8) pour faire une quinte. Si vous avez 9-10, et que le flop est 8-7-2, alors 11 est le \"gutshot\" (carte manquante au milieu).  \n→ Donc : un gutshot est un tirage de quinte où vous avez besoin d’une carte spécifique pour compléter une suite, et cette carte est *au milieu* de la suite.  \n→ C’est un tirage à 1 carte, avec une cote de 4/1 (4 outs), équité ~40% à 50% selon le pot.  \n→ C’est un tirage faible, souvent perdu contre des tirages plus larges (comme la quinte ou le brelan).  \n\n**Réponse normalisée :**  \n- (Action à faire) : Ne pas miser si le tirage est faible  \n- (Combien miser) : 0  \n- (Pourquoi) : Le gutshot a seulement 4 outs (ex : 9-10-11-12), équité ~40% (4/10), cote du pot > 4 → mauvaise cote. Il est souvent perdu contre des tirages plus forts ou des mains plus élevées.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 80.3
+  },
+  {
+   "id": "q18",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un check-raise ?",
+   "reponse": "Checker, puis relancer quand un adversaire mise après nous, dans le même tour d'enchères.",
+   "faits": [
+    "Le joueur checke d'abord",
+    "Puis relance après la mise d'un adversaire, dans le même tour"
+   ],
+   "reponse_modele": "- (Action à faire) Check-raise  \n- (Combien miser) 0 (au check), puis relancer (montant selon le contexte)  \n- (Pourquoi) C’est une action où on vérifie (check) puis on relance (raise) après que l’adversaire ait misé, pour augmenter la pression et potentiellement forcer l’adversaire à payer ou à ceder.  \n→ C’est une stratégie offensive pour évaluer la force de l’adversaire et maximiser les gains.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 27.8
+  },
+  {
+   "id": "q19",
+   "theme": "vocabulaire",
+   "question": "Que veut dire « limper » ?",
+   "reponse": "Avant le flop, payer seulement la grosse blinde au lieu de relancer.",
+   "faits": [
+    "Limper, c'est payer seulement la grosse blinde avant le flop, sans relancer"
+   ],
+   "reponse_modele": "- (Limper)  \n- (0)  \n- (Se contenter de payer la grosse blinde au premier tour d’enchères pré-flop. C’est une action passives, sans mise supplémentaire.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 12.3
+  },
+  {
+   "id": "q20",
+   "theme": "vocabulaire",
+   "question": "Que veut dire être « en tilt » ?",
+   "reponse": "Être énervé ou déconcentré, souvent après un mauvais coup, et prendre de mauvaises décisions à cause de ses émotions.",
+   "faits": [
+    "Le tilt est un état d'énervement ou de déconcentration",
+    "Il fait prendre de mauvaises décisions"
+   ],
+   "reponse_modele": "- (Être en tilt = être en état d’énervement ou de déconcentration après un mauvais coup)  \n- (0)  \n- (C’est un phénomène psychologique qui peut conduire à des décisions mauvaises, comme péter un plomb.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 16.1
+  },
+  {
+   "id": "q21",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un joueur TAG ?",
+   "reponse": "Tight-aggressive : il joue peu de mains, mais il les joue de façon agressive (en misant et en relançant plutôt qu'en suivant).",
+   "faits": [
+    "TAG veut dire tight-aggressive",
+    "Il joue peu de mains",
+    "Il les joue de façon agressive"
+   ],
+   "reponse_modele": "- (Un joueur TAG est un joueur serré mais agressif.)  \n- (0)  \n- (Il joue des mains sélectionnées, mais quand il joue, il fait des raises ou bets forts. C’est un type de joueur équilibré, difficile à exploiter.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 17.2
+  },
+  {
+   "id": "q22",
+   "theme": "préflop",
+   "question": "En 6-max à 100bb, premier à parler, faut-il ouvrir 7-2 dépareillés (72o) depuis UTG ?",
+   "reponse": "Non, on se couche. 72o ne s'ouvre depuis aucune position : c'est la plus faible main de départ.",
+   "faits": [
+    "Non, on se couche avec 72o à UTG"
+   ],
+   "reponse_modele": "- Ouvrir 7-2o depuis UTG en 6-max à 100bb  \n- Miser : 3 BB (ex. 30bb)  \n- Pourquoi : Équité contre une main au hasard = 34,5 % (meilleure que 4,1 % des mains). C’est une main de base, mais avec une bonne équité en position délicate. En 6-max, 72o est un ouvert de base, surtout en UTG où l’action est précoce.  \n\n→ **Action : Ouvrir**  \n→ **Mise : 3 BB**  \n→ **Équité : 34,5%** (meilleure que 4,1%)",
+   "reussi": false,
+   "differences": [
+    "Non, on se couche avec 72o à UTG : contredit"
+   ],
+   "secondes": 37.9
+  },
+  {
+   "id": "q23",
+   "theme": "préflop",
+   "question": "En 6-max à 100bb, premier à parler, depuis quelles positions ouvre-t-on Roi-9 assortis (K9s) ?",
+   "reponse": "MP, CO, bouton et petite blinde. On se couche depuis UTG.",
+   "faits": [
+    "On ouvre K9s depuis MP, CO, le bouton et la petite blinde",
+    "On se couche avec K9s à UTG"
+   ],
+   "reponse_modele": "- (Ouvrir depuis) CO, BTN, SB  \n- (Combien miser) 3bb (ou 30bb, selon la taille de la grosse blinde)  \n- (Pourquoi) Équité contre une main au hasard : 60,4 % (meilleure que 86,4 % des mains) → K9s est une main solide en position, mais pas suffisante en UTG. En 6-max, K9s ouvre depuis CO/BTN/SB (non UTG), car il a une équité de 60,4 %, ce qui est acceptable dans ce contexte.  \n\n*Note : K9s n’est pas une main forte en position faible (UTG), donc ne s’ouvre pas là.*",
+   "reussi": true,
+   "differences": [],
+   "secondes": 41.0
+  },
+  {
+   "id": "q24",
+   "theme": "préflop",
+   "question": "En 6-max à 100bb, premier à parler, ouvre-t-on Dame-Valet dépareillés (QJo) depuis UTG ?",
+   "reponse": "Non, fold depuis UTG et MP. On l'ouvre depuis le cut-off, le bouton et la petite blinde.",
+   "faits": [
+    "Non, on se couche avec QJo à UTG"
+   ],
+   "reponse_modele": "- (Ne pas ouvrir)  \n- (0)  \n- (En 6-max à 100bb, depuis UTG, QJo a une équité de 58,2% contre une main au hasard. Cela est inférieur à la seuil de 60-65% recommandé pour ouvrir depuis une position délicate. Or, le UTG est une position faible, où il faut une main forte pour ouvrir. QJo est donc trop faible pour ouvrir ici.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 24.3
+  },
+  {
+   "id": "q25",
+   "theme": "équité",
+   "question": "Avant le flop, quelle est l'équité d'une paire d'As contre une main au hasard ?",
+   "reponse": "Environ 85 %.",
+   "faits": [
+    "L'équité d'une paire d'As contre une main au hasard est d'environ 85 %"
+   ],
+   "reponse_modele": "- (Équité) 85,1 %  \n- (Pourquoi) L'équité d'une paire d'As contre une main au hasard est de 85,1 %, selon les données standardisées pour un jeu 6-max avant le flop. Cela signifie que, même sans le flop, la paire d'As est fortement supérieure à la majorité des mains (meilleure que 99,8 % des mains de départ).  \n\n→ Cela justifie de jouer avec confiance, surtout en position.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 36.2
+  },
+  {
+   "id": "q26",
+   "theme": "équité",
+   "question": "Avant le flop, As-Roi assortis contre une paire de 8 : qui est favori ?",
+   "reponse": "La paire de 8, de peu : environ 52 % contre 48 %. C'est un « coin flip ».",
+   "faits": [
+    "La paire de 8 est légèrement favorite",
+    "Environ 52 % contre 48 %"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 100bb (grosse blinde)  \n- (Pourquoi) : AKs a une équité de 67,0 % contre une paire de 8 dans un 6-max avant le flop (personne n’a ouvert). Cela signifie que AKs est supérieur à 96,7 % des mains de départ. L’équité de 67 % est suffisante pour appeler, car elle est nettement supérieure à la moyenne.  \n\n→ AKs est le favori.",
+   "reussi": false,
+   "differences": [
+    "La paire de 8 est légèrement favorite : contredit",
+    "Environ 52 % contre 48 % : contredit"
+   ],
+   "secondes": 37.3
+  },
+  {
+   "id": "q27",
+   "theme": "équité",
+   "question": "Avant le flop, paire de Rois contre paire de Dames : quelles chances pour chacun ?",
+   "reponse": "Les Rois gagnent environ 82 % du temps, les Dames environ 18 %.",
+   "faits": [
+    "Les Rois gagnent environ 82 % du temps",
+    "Les Dames environ 18 %"
+   ],
+   "reponse_modele": "- (Action à faire) : Ne pas miser (rester en main)  \n- (Combien miser) : 0  \n- (Pourquoi) : Équité contre une main au hasard : 82,3 % pour KK, 80,0 % pour QQ → paire de Rois a une équité légèrement supérieure à celle de paire de Dames. Cependant, dans un contexte de 6-max avant le flop, les paires sont très faibles face à des mains comme KK ou QQ. Or, **la force d'une paire dépend de la valeur des cartes** : les Rois sont supérieurs aux Dames (Roi > Dame).  \n→ **Équité : Rois 82,3 %, Dames 80,0 %** (donc Rois ont une légère avance).  \nMais : **aucune main de paire n'est suffisante avant le flop** sans ouverture ou mise.  \n→ **Conclusion : ne pas miser, attendre le flop.**  \n*(Note : les valeurs données dans le contexte sont pour KK et QQ, pas pour des paires de Rois vs Dames. Cependant, la règle de force des paires est claire : Roi > Dame.)*",
+   "reussi": false,
+   "differences": [
+    "Les Rois gagnent environ 82 % du temps : absent",
+    "Les Dames environ 18 % : contredit"
+   ],
+   "secondes": 62.0
+  },
+  {
+   "id": "q28",
+   "theme": "outs",
+   "question": "J'ai Ah Kh, le flop est Qh 7h 2c. Combien ai-je d'outs ?",
+   "reponse": "15 outs : 9 cœurs pour la couleur et 6 cartes pour une paire (3 As et 3 Rois). Environ 54 % de toucher d'ici la river.",
+   "faits": [
+    "15 outs",
+    "9 outs pour la couleur",
+    "6 outs pour une paire (As ou Rois)"
+   ],
+   "reponse_modele": "- (Outs)  \n- (15)  \n- (9 outs pour couleur : 2♥, 3♥, 4♥, 5♥, 6♥, 8♥, 9♥, 10♥, J♥ ; 6 outs pour paire : K♠, K♦, K♣, A♠, A♦, A♣)  \n- (Équité : 72,7 % contre mains aléatoires ; 31,9 % chance de toucher un out sur la turn, 54,1 % d'ici la river)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 38.4
+  },
+  {
+   "id": "q29",
+   "theme": "outs",
+   "question": "J'ai 8h 9d et le flop est 7c 6s 2h. Combien d'outs pour la quinte ?",
+   "reponse": "8 outs : les quatre 5 et les quatre 10 (tirage quinte par les deux bouts). Environ 31 % de la toucher d'ici la river.",
+   "faits": [
+    "8 outs pour la quinte",
+    "Les quatre 5 et les quatre 10"
+   ],
+   "reponse_modele": "- (Action à faire) : Tirer la quinte  \n- (Combien miser) : 14  \n- (Pourquoi) : 14 outs (8 pour quinte : 5♠ 5♥ 5♦ 5♣ 10♠ 10♥ 10♦ 10♣ ; 6 pour paire : 8♠ 8♦ 8♣ 9♠ 9♥ 9♣) → 29,8 % chance prochaine carte, 51,2 % d'ici la river. Équité 49,4 % contre mains aléatoires (réelle probablement plus basse).  \n\n✅ **Outs pour la quinte : 8**",
+   "reussi": true,
+   "differences": [],
+   "secondes": 51.9
+  },
+  {
+   "id": "q30",
+   "theme": "outs",
+   "question": "Avec un tirage couleur au turn (9 outs), quelle chance de toucher à la river ?",
+   "reponse": "9 sur 46 cartes inconnues, soit environ 19,6 % (la règle du 2 donne environ 18 %).",
+   "faits": [
+    "Environ 19,6 % (9 sur 46), ou environ 18 % avec la règle du 2"
+   ],
+   "reponse_modele": "- (Continuer à miser)  \n- (9)  \n- (9 outs = 9 cartes qui complètent la couleur. La probabilité de toucher à la river est de ~19% : (9/47) ≈ 19%. Cela correspond à une cote de 4.75 : 1, donc il est raisonnable de continuer avec une mise égale à la taille du pot pour maintenir l’équité. Si le pot est de 100, miser 90 est une mise équilibrée.)",
+   "reussi": false,
+   "differences": [
+    "Environ 19,6 % (9 sur 46), ou environ 18 % avec la règle du 2 : absent"
+   ],
+   "secondes": 35.7
+  },
+  {
+   "id": "q31",
+   "theme": "outs",
+   "question": "Qu'est-ce que la règle du 2 et du 4 ?",
+   "reponse": "Une approximation de la chance de toucher un tirage : au flop, outs × 4 pour le turn et la river ensemble ; au turn, outs × 2 pour la river seule. Le résultat est en pourcentage.",
+   "faits": [
+    "Au flop, outs × 4 donne la chance de toucher d'ici la river",
+    "Au turn, outs × 2 donne la chance de toucher à la river"
+   ],
+   "reponse_modele": "- (Règle du 2) : Pour estimer les chances de réussir une paire ou un brelan avec une carte sur le board, on utilise le \"2\" : 2 × (nombre de cartes restantes) = probabilité d'obtenir une combinaison (ex : 2 × 12 = 24 % pour un brelan avec 12 outs).  \n- (Règle du 4) : Pour estimer les chances de réussir une quinte ou une couleur, on utilise le \"4\" : 4 × (nombre de cartes restantes) = probabilité d'obtenir une quinte (ex : 4 × 10 = 40 % pour une quinte).  \n\n→ Ces règles sont des approximations basées sur les outs (cartes qui améliorent ta main).  \n→ Elles ne sont pas exactes (équité réelle = 100 × (outs / 47) pour 2 cartes restantes), mais utiles en pratique.  \n\nExemple :  \n- 10 outs → 4 × 10 = 40 % (chance de réussir une quinte)  \n- 2 outs → 2 × 2 = 4 % (chance de réussir un brelan)  \n\n→ Cela permet de décider si miser ou retirer.  \n→ Si la cote du pot > 4, c’est un bon appel.  \n\n→ **Utilisez les règles du 2 et du 4 pour estimer les chances de réussir une main, mais vérifiez l’équité réelle avec les outs.**",
+   "reussi": false,
+   "differences": [
+    "Au flop, outs × 4 donne la chance de toucher d'ici la river : absent",
+    "Au turn, outs × 2 donne la chance de toucher à la river : absent"
+   ],
+   "secondes": 70.2
+  },
+  {
+   "id": "q32",
+   "theme": "cote du pot",
+   "question": "Le pot est de 100 (mise adverse comprise) et je dois payer 50. Quelle équité minimum faut-il pour suivre ?",
+   "reponse": "33,3 % : 50 / (100 + 50). C'est une cote de 2 contre 1.",
+   "faits": [
+    "Il faut au moins 33,3 % d'équité (50 / 150)"
+   ],
+   "reponse_modele": "- Suivre si équité ≥ 50%  \n- (50)  \n- Pourquoi : Le pot est de 100, et tu dois payer 50. Si tu gagnes, tu récupères 100. Si tu perds, tu perds 50. L'équité minimale pour suivre est donc : 50 / (50 + 50) = 50%. Si ta main a une équité ≥ 50%, c’est rentable.",
+   "reussi": false,
+   "differences": [
+    "Il faut au moins 33,3 % d'équité (50 / 150) : contredit"
+   ],
+   "secondes": 32.7
+  },
+  {
+   "id": "q33",
+   "theme": "décision",
+   "question": "J'ai As Ad, le flop est Kc 7d 2s. Le pot est de 90 avec la mise adverse et je dois payer 30. Que faire ?",
+   "reponse": "Au minimum suivre, et relancer pour la valeur est aussi correct : il faut 25 % d'équité (30 / 120) et une paire d'As au-dessus du board (overpair) en a bien plus. Se coucher est une erreur.",
+   "faits": [
+    "Il ne faut pas se coucher : suivre ou relancer",
+    "Il faut 25 % d'équité pour suivre",
+    "La paire d'As (overpair) a largement assez d'équité"
+   ],
+   "reponse_modele": "- Suivre  \n- 30  \n- Équité de 88,5 % > seuil de 25 % ; cote du pot (30/90 = 1/3) est favorable. Même si l'adversaire a probablement une main plus forte que le hasard, l'équité reste suffisante pour suivre.  \n(Outs : 2 → 4,3 % chance de brelan → 8,4 % d'ici la river → équité estimée > 88,5 %)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 53.8
+  },
+  {
+   "id": "q34",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un continuation bet (c-bet) ?",
+   "reponse": "Une mise au flop faite par le joueur qui avait relancé avant le flop, pour continuer à montrer de la force, qu'il ait touché ou non.",
+   "faits": [
+    "C'est une mise faite au flop",
+    "Elle est faite par le joueur qui a relancé avant le flop"
+   ],
+   "reponse_modele": "- (Action à faire) Continuation bet (c-bet)  \n- (Combien miser) Une mise (bet) après le flop, même si on ne a pas de carte forte  \n- (Pourquoi) Pour masquer son jeu, maintenir la pression et augmenter les chances de remporter le pot sans résistance.  \n\n*Note : Ce concept ne dépend pas d'équité ou d'outs, mais d'une stratégie de jeu.*",
+   "reussi": true,
+   "differences": [],
+   "secondes": 26.3
+  },
+  {
+   "id": "q35",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un 3-bet ?",
+   "reponse": "Une relance d'une relance (sur-relance). Avant le flop, la grosse blinde compte comme la première mise, la relance d'ouverture comme la deuxième.",
+   "faits": [
+    "C'est une relance d'une relance (sur-relance)"
+   ],
+   "reponse_modele": "- (Action à faire) 3-bet  \n- (Combien miser) Relancer après une relance (ex : si le pot est de 10, miser 20)  \n- (Pourquoi) C’est une relance sur une relance (2e relance), utilisée pour montrer de la force ou bluffer.  \n→ C’est une action de mise après une relance, donc 3-bet = relancer après une relance.  \n(Exemple : si le joueur 1 mise 10, joueur 2 relance à 20, joueur 3 3-bet à 40).",
+   "reussi": true,
+   "differences": [],
+   "secondes": 29.9
+  },
+  {
+   "id": "q36",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un squeeze ?",
+   "reponse": "Une sur-relance avant le flop après qu'un joueur a relancé et qu'au moins un autre a seulement suivi.",
+   "faits": [
+    "C'est une sur-relance avant le flop",
+    "Elle vient après une relance et au moins un joueur qui a seulement suivi"
+   ],
+   "reponse_modele": "- (Qu'est-ce qu'un squeeze ?)  \n- (Un squeeze est une sur-relance pré-flop lorsqu’un joueur a déjà relancé et un autre a seulement suivi. Cela crée un \"sandwich\" où le premier relanceur est mis en difficulté : il est hors position, face à un joueur fort et à un joueur dont il ne sait pas ce qu’il fera. C’est un bluff, souvent utilisé pour forcer un joueur à payer ou à ceder.)  \n- (C’est une tactique de pression, pas une combinaison de carte.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 31.1
+  },
+  {
+   "id": "q37",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'une donk bet ?",
+   "reponse": "Une mise d'un joueur qui n'était pas le relanceur avant le flop et qui mise en premier, devant le relanceur, au lieu de lui laisser l'initiative.",
+   "faits": [
+    "Le joueur qui mise n'était pas le relanceur avant le flop",
+    "Il mise en premier, devant le relanceur"
+   ],
+   "reponse_modele": "- (Action à faire) Donk bet  \n- (Combien miser) Non applicable  \n- (Pourquoi) C’est une mise effectuée par un joueur qui n’était pas le relanceur initial au flop, souvent perçue comme inappropriée ou mal jugée, car elle prend l’initiative sans justification stratégique. Ce terme est dégradant et désigne une action peu éclairée, parfois basée sur la chance.  \n\n→ *Note : Ce n’est pas une décision de jeu à analyser par équité ou outs, mais un terme de style.*",
+   "reussi": false,
+   "differences": [
+    "Le joueur qui mise n'était pas le relanceur avant le flop : absent",
+    "Il mise en premier, devant le relanceur : contredit"
+   ],
+   "secondes": 29.6
+  },
+  {
+   "id": "q38",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un semi-bluff ?",
+   "reponse": "Une mise faite sans main faite pour l'instant, mais avec un tirage qui peut devenir la meilleure main si l'adversaire paie.",
+   "faits": [
+    "La main n'est pas encore faite au moment de miser (c'est un bluff)",
+    "La main a un tirage qui peut s'améliorer"
+   ],
+   "reponse_modele": "- (Définition)  \nUn semi-bluff est un bluff effectué avec une chance d'amélioration de votre main.  \nExemple : miser avec un tirage (comme un brelan ou une quinte), où vous n'avez pas encore de combinaison, mais avez une possibilité de l'obtenir si vous recevez une carte.  \n→ Vous bluffez, mais vous avez aussi un jeu réel.  \n→ Vous pouvez gagner en poussant l'adversaire à coucher ou en améliorant votre main.  \n\nC’est un outil stratégique pour contrôler le pot sans être totalement exposé.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 31.5
+  },
+  {
+   "id": "q39",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'une value bet ?",
+   "reponse": "Une mise faite avec une main probablement meilleure, pour se faire payer par des mains moins bonnes.",
+   "faits": [
+    "La main de celui qui mise est probablement la meilleure",
+    "Le but est d'être payé par des mains moins bonnes"
+   ],
+   "reponse_modele": "- (Action à faire) Value bet  \n- (Combien miser) Variable, selon le contexte (ex. 50 % du pot)  \n- (Pourquoi) Mise de valorisation : elle vise à exploiter une main forte en la rendant rentable, en supposant que l'adversaire a une main moins forte ou équivalente.  \n→ Cote du pot : si l'équité de la main > cote du pot (ex. 80 % > 3:1), c’est un value bet.  \n→ Exemple : main forte (ex. full house) vs. main faible (ex. paire) → équité > 50 % → value bet.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 33.1
+  },
+  {
+   "id": "q40",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce que le slow play ?",
+   "reponse": "Jouer passivement (checker ou suivre) une très forte main pour piéger l'adversaire et le laisser miser.",
+   "faits": [
+    "On joue passivement (check ou call)",
+    "On le fait avec une très forte main, pour piéger"
+   ],
+   "reponse_modele": "- (Slow play)  \n- (0)  \n- (C’est une pratique éthique et de fair-play qui consiste à ne pas montrer sa main forte trop tôt, en la jouant au ralenti pour piéger un adversaire. Cela est interdit dans les tournois officiels et considéré comme une forme de collusion.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 20.7
+  },
+  {
+   "id": "q41",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce que « floater » au poker ?",
+   "reponse": "Suivre une mise au flop (souvent un c-bet) sans bonne main, dans l'idée de prendre le pot par une mise ou un bluff à un tour suivant.",
+   "faits": [
+    "On suit une mise au flop (souvent un c-bet)",
+    "Le but est de voler le pot à un tour suivant"
+   ],
+   "reponse_modele": "- (Action à faire) : Ne pas agir (ne pas payer)  \n- (Combien miser) : 0  \n- (Pourquoi) : \"Float\" (ou \"floating\") est une stratégie où un joueur mise après le flop pour bluffer, en espérant que l'adversaire paie. Cela ne correspond pas à une action réelle dans le contexte d'une décision de mise. Il s'agit d'une stratégie passives, pas d'une action à effectuer.  \n\n⚠️ Note : Ce terme n'est pas une action à prendre dans une décision immédiate, mais une stratégie de jeu. Dans un contexte de décision, il faut donc ignorer le \"float\" comme action.",
+   "reussi": false,
+   "differences": [
+    "On suit une mise au flop (souvent un c-bet) : absent",
+    "Le but est de voler le pot à un tour suivant : absent"
+   ],
+   "secondes": 32.4
+  },
+  {
+   "id": "q42",
+   "theme": "vocabulaire",
+   "question": "J'ai J-J et le flop est 9-6-2. Comment s'appelle ma main ?",
+   "reponse": "Une overpair : une paire servie plus haute que toutes les cartes du tableau.",
+   "faits": [
+    "C'est une overpair",
+    "La paire servie est plus haute que toutes les cartes du tableau"
+   ],
+   "reponse_modele": "- (Action à faire) : Overpair  \n- (Combien miser) : 0 (pas de mise nécessaire, juste identifier la main)  \n- (Pourquoi) : Vous avez une paire de Rois (J-J), et le flop est 9-6-2. La paire de 9 est la plus haute paire du flop, donc vous avez une **overpair** (votre paire est supérieure à celle du flop).  \n→ Force de la main : **Paire (force 2/10)**, car vous n'avez pas de brelan ni de plus forte combinaison.  \n→ Aucun calcul d'équité ou de cote nécessaire ici, car la question est purement de classification.",
+   "reussi": false,
+   "differences": [
+    "La paire servie est plus haute que toutes les cartes du tableau : absent"
+   ],
+   "secondes": 38.5
+  },
+  {
+   "id": "q43",
+   "theme": "vocabulaire",
+   "question": "Que veut dire TPTK ?",
+   "reponse": "Top Pair Top Kicker : la meilleure paire possible avec le tableau, avec le meilleur kicker. Ex. : AQ sur Q-9-5.",
+   "faits": [
+    "Top paire : la paire avec la plus haute carte du tableau",
+    "Avec le meilleur kicker possible"
+   ],
+   "reponse_modele": "- (TPTK = Top Pair Top Kicker)  \n- (0)  \n- (C’est avoir la meilleure paire au flop avec le meilleur kicker. Exemple : AQ sur Q-5-9 → paire de Q (top pair) + as (kicker).)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 16.3
+  },
+  {
+   "id": "q44",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un tirage backdoor ?",
+   "reponse": "Un tirage qui a besoin des deux cartes à venir, la turn et la river (runner-runner).",
+   "faits": [
+    "Il faut toucher à la fois la turn et la river"
+   ],
+   "reponse_modele": "- (Définition)  \nUn tirage backdoor est une combinaison qui ne se complète qu’avec deux cartes spécifiques, généralement les deux dernières du tableau (Turn et River), pour atteindre une main forte (ex. : quinte, couleur).  \n\n- (Exemple)  \nVous avez Q8 en main, le flop est 9-2-A. Vous n’avez pas encore de quinte, mais si le Turn donne 10 et la River donne J, vous obtenez une quinte (Q-J-10-9-8). C’est un tirage backdoor.  \n\n- (Équité / Cote)  \n- Cote du pot : 10 : 1 (ex. : 10 $ en pot, 1 $ à miser)  \n- Équité : ~10 % (probabilité de réussir avec 2 cartes restantes)  \n→ Faible équité, donc peu recommandé de miser sans évaluation du pot.  \n\n→ **Conclusion** : Un tirage backdoor est faible en équité, peu probable, et ne justifie pas un mise importante.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 48.7
+  },
+  {
+   "id": "q45",
+   "theme": "vocabulaire",
+   "question": "Que veut dire un flop « rainbow » ?",
+   "reponse": "Les trois cartes du flop sont de trois couleurs (enseignes) différentes : aucun tirage couleur direct.",
+   "faits": [
+    "Les trois cartes sont de couleurs (enseignes) différentes"
+   ],
+   "reponse_modele": "- (Action à faire) : Expliquer le terme  \n- (Combien miser) : 0  \n- (Pourquoi) : Un flop « rainbow » signifie que les trois cartes du flop sont de couleurs différentes. Cela correspond à un arc-en-ciel (ou rainbow) : aucune couleur répétée. Exemple : A♠ 5♥ T♣. Cela réduit la probabilité d’un flush, mais augmente la variabilité des mains.  \n→ Cela ne change pas la stratégie directe, mais influence l’équité : équité de flush = 0% (aucune couleur commune).  \n→ Cela n’implique pas de mise, car c’est une définition, pas une décision.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 33.2
+  },
+  {
+   "id": "q46",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce que la fold equity ?",
+   "reponse": "La part de gains qui vient des fois où l'adversaire se couche face à notre mise.",
+   "faits": [
+    "Ce sont les chances (ou la valeur) que l'adversaire se couche face à une mise"
+   ],
+   "reponse_modele": "- (Fold equity)  \n- (0)  \n- (C’est l’espérance de forcer un adversaire à se coucher, sans jouer. Ce n’est pas une action de mise, mais une stratégie d’attente. Dans le contexte d’une décision de mise, elle est utilisée pour justifier un appel ou un bluff, mais ne s’applique pas ici où aucune décision de mise n’est demandée.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 20.4
+  },
+  {
+   "id": "q47",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'une calling station ?",
+   "reponse": "Un joueur qui suit presque toutes les mises et se couche rarement.",
+   "faits": [
+    "Un joueur qui suit presque toutes les mises"
+   ],
+   "reponse_modele": "- (Qu'est-ce qu'une calling station ?)  \nUne calling station est un joueur qui suit toutes les mises, sans jamais se retirer. C’est souvent un signe de joueur débutant ou peu stratégique.  \n\n(Justification : définition du glossaire)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 13.7
+  },
+  {
+   "id": "q48",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un nit ?",
+   "reponse": "Un joueur ultra-serré qui ne joue que des mains premium.",
+   "faits": [
+    "Un joueur très serré",
+    "Il ne joue que des mains très fortes (premium)"
+   ],
+   "reponse_modele": "- (Action à faire) : Expliquer le terme  \n- (Combien miser) : 0  \n- (Pourquoi) : Un nit est un joueur ultra-serré, qui ne joue que des mains premiums. C’est un terme péjoratif.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 14.5
+  },
+  {
+   "id": "q49",
+   "theme": "vocabulaire",
+   "question": "Que mesure le VPIP ?",
+   "reponse": "Le pourcentage de mains où un joueur met volontairement de l'argent dans le pot avant le flop. Les blindes forcées ne comptent pas.",
+   "faits": [
+    "Le pourcentage de mains où le joueur met volontairement de l'argent dans le pot",
+    "Les blindes obligatoires ne comptent pas"
+   ],
+   "reponse_modele": "- (Que mesure le VPIP ?)  \n- (0 % à 100 %)  \n- (Le VPIP mesure la fréquence avec laquelle un joueur mise volontairement dans le pot lors d'une main. Il indique son niveau d'activité et sa tendance à jouer des mains fortes ou faibles.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 18.0
+  },
+  {
+   "id": "q50",
+   "theme": "vocabulaire",
+   "question": "Que veut dire « tirer mort » (drawing dead) ?",
+   "reponse": "Aucune des cartes à venir ne peut faire gagner la main.",
+   "faits": [
+    "Aucune carte à venir ne peut faire gagner"
+   ],
+   "reponse_modele": "- (Action à faire) : Ne rien faire, attendre ou retirer  \n- (Combien miser) : 0  \n- (Pourquoi) : « Tirer mort » (drawing dead) signifie que vous ne pouvez plus gagner avec les cartes à venir. Aucune carte n'améliore votre main. C’est une situation où le tirage est impossible.  \n→ C’est une situation de perte de valeur de tirage. Aucun out ne peut vous aider.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 22.5
+  },
+  {
+   "id": "q51",
+   "theme": "vocabulaire",
+   "question": "Que désigne le mot « Broadway » ?",
+   "reponse": "Les cartes du 10 à l'As (10, Valet, Dame, Roi, As) ; la quinte Broadway est A-K-Q-J-10.",
+   "faits": [
+    "Les cartes du 10 à l'As"
+   ],
+   "reponse_modele": "- (Le mot « Broadway » désigne les cartes 10, Valet, Dame, Roi et As)  \n- (C’est une séquence de cinq cartes de valeur élevée, souvent utilisée dans les straights ou flushes)  \n- (Il s’agit de la suite la plus forte en poker, avec une force de 5/10 pour une quinte)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 18.4
+  },
+  {
+   "id": "q52",
+   "theme": "vocabulaire",
+   "question": "Quelle différence entre un set et des trips ?",
+   "reponse": "Les deux sont des brelans. Set : une paire servie et une carte du tableau. Trips : une seule carte en main et une paire au tableau.",
+   "faits": [
+    "Set : une paire en main plus une carte du tableau",
+    "Trips : une carte en main plus une paire au tableau"
+   ],
+   "reponse_modele": "- (Aucune différence)  \n- (0)  \n- (En poker, \"set\" et \"trips\" désignent tous deux un brelan (trois cartes de même valeur). Ce sont des termes interchangeables.)",
+   "reussi": false,
+   "differences": [
+    "Set : une paire en main plus une carte du tableau : absent",
+    "Trips : une carte en main plus une paire au tableau : absent"
+   ],
+   "secondes": 14.4
+  },
+  {
+   "id": "q53",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un cooler ?",
+   "reponse": "Un coup où deux très grosses mains s'affrontent, si bien que le perdant ne pouvait guère éviter de perdre beaucoup.",
+   "faits": [
+    "Deux très grosses mains s'affrontent"
+   ],
+   "reponse_modele": "- (Cooler = Cold deck)  \n- (0)  \n- (C’est un terme désignant une situation où deux mains très fortes se confrontent, par exemple deux carrés. Il s’agit d’un cas extrême de confrontation de combinaisons fortes, souvent peu probables.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 16.7
+  },
+  {
+   "id": "q54",
+   "theme": "vocabulaire",
+   "question": "Où est assis le cut-off ?",
+   "reponse": "Juste avant le bouton (à sa droite) : il parle juste avant lui.",
+   "faits": [
+    "Juste avant le bouton"
+   ],
+   "reponse_modele": "- (Position du cut-off)  \n  - (À droite du bouton)  \n  - (Pourquoi)  \n    Le cut-off est situé à droite du bouton de la table. C’est une position de jeu importante, car elle donne un avantage de position face aux joueurs qui jouent après.  \n\n*(Note : Ce n’est pas lié à un calcul d’équité ou de cote, car la question porte sur la position géométrique, pas sur une décision de mise.)*",
+   "reussi": false,
+   "differences": [
+    "Juste avant le bouton : absent"
+   ],
+   "secondes": 21.8
+  },
+  {
+   "id": "q55",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un walk ?",
+   "reponse": "Tout le monde se couche jusqu'à la grosse blinde, qui remporte les blindes sans jouer.",
+   "faits": [
+    "Tous les joueurs se couchent jusqu'à la grosse blinde",
+    "La grosse blinde remporte les blindes"
+   ],
+   "reponse_modele": "- (Action à faire) Walk  \n- (Combien miser) 0  \n- (Pourquoi) C'est lorsque tous les joueurs avant la grosse blinde se couchent, et que la grosse blinde récupère sa blinde. Aucun mise n'est effectuée.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 15.3
+  },
+  {
+   "id": "q56",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un tirage quinte par les deux bouts ?",
+   "reponse": "Quatre cartes consécutives qui peuvent se compléter des deux côtés, par exemple 6-7-8-9 attend un 5 ou un 10 : 8 outs.",
+   "faits": [
+    "Quatre cartes consécutives complétables des deux côtés",
+    "Il y a 8 outs"
+   ],
+   "reponse_modele": "- (Définition)  \nUn tirage quinte par les deux bouts (open-ended straight draw) est un tirage où vous pouvez compléter une quinte (cinq cartes consécutives) en tirant **une carte à l’un des deux extrémités** de la suite.\n\n- (Exemple)  \nVous avez 7-8 dans votre main, le flop est 6-9-A.  \n- 6-7-8-9-10 → 10 complète la quinte par le bout supérieur  \n- 5-6-7-8-9 → 5 complète la quinte par le bout inférieur  \n→ Deux cartes (5 ou 10) permettent de terminer la quinte → tirage open-ended.\n\n- (Équité / outs)  \n→ 8 outs (4 cartes par couleur pour chaque extrémité)  \n→ Cote du pot : si le pot est 100, et vous misez 20, cote = 100/20 = 5  \n→ Équité = 8/47 ≈ 17% (47 cartes restantes)  \n→ Cote du tirage = 4,17 (8/2) → 8/2 = 4,17  \n→ Cote du pot > cote du tirage → **pas équitable** → **ne pas miser** si le pot est trop petit.\n\n→ **Conclusion** : C’est un tirage fort, mais **ne doit pas être suivi sans évaluation de cote**.  \n→ Si le pot est petit, **ne pas miser**.  \n→ Si le pot est grand, **miser pour progresser**.  \n\n→ **Réponse finale** :  \n- (Action à faire) : Évaluer la cote du pot  \n- (Combien miser) : 0 (si cote < 4,17)  \n- (Pourquoi) : 8 outs → 17% chance → cote du tirage = 4,17 → si cote du pot < 4,17, ne pas miser.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 87.6
+  },
+  {
+   "id": "q57",
+   "theme": "vocabulaire",
+   "question": "Qu'est-ce qu'un straddle ?",
+   "reponse": "Une mise à l'aveugle volontaire, en général le double de la grosse blinde, posée avant la donne par le joueur après la grosse blinde.",
+   "faits": [
+    "Une mise à l'aveugle volontaire, faite avant la distribution",
+    "En général le double de la grosse blinde"
+   ],
+   "reponse_modele": "- (Action à faire) Straddle  \n- (Combien miser) Un montant égal à deux fois la grosse blind  \n- (Pourquoi) C’est une mise en aveugle autorisée pré-flop, jouée par le joueur après la grosse blind, lui donnant le droit de parler en dernier au premier tour d’enchères.  \n→ C’est une option, pas une règle obligatoire.",
+   "reussi": true,
+   "differences": [],
+   "secondes": 24.2
+  },
+  {
+   "id": "q58",
+   "theme": "outs",
+   "question": "J'ai 9h 8h et le flop est 7h 6c 2h. Combien d'outs pour faire une couleur ou une quinte ?",
+   "reponse": "15 outs : 9 cœurs pour la couleur, plus les 10 et les 5 qui ne sont pas à cœur (6 cartes) pour la quinte.",
+   "faits": [
+    "15 outs",
+    "Les 10 et 5 à cœur ne sont comptés qu'une fois"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 21  \n- (Pourquoi) : 21 outs (9 pour couleur, 6 pour quinte, 6 pour paire) → 21 outs total. Équité 66,8% contre mains aléatoires. La chance de toucher un out d'ici la river est de 69,9%. Cela justifie un appel, pas un raise.  \n*(Note : \"Outs\" sont correctement comptés selon le contexte : 3♥,4♥,5♥,10♥,J♥,Q♥,K♥,A♥ = 9 ; 5♠,5♦,5♣,10♠,10♦,10♣ = 6 ; 8♠,8♦,8♣,9♠,9♦,9♣ = 6 → total 21)*",
+   "reussi": false,
+   "differences": [
+    "15 outs : absent"
+   ],
+   "secondes": 65.0
+  },
+  {
+   "id": "q59",
+   "theme": "outs",
+   "question": "Au flop, avec 15 outs, quelle est la chance de toucher d'ici la river ?",
+   "reponse": "Environ 54 % (calcul exact : 1 - 32/47 × 31/46). La règle du 4 donne 60 %, elle surestime au-delà de 8-9 outs.",
+   "faits": [
+    "Environ 54 %"
+   ],
+   "reponse_modele": "- Run it twice  \n- 15 outs → 15/47 ≈ 31,9% chance de toucher (47 cartes restantes après flop)  \n- Équité ≈ 32% → 32% de chance de gagner à la river  \n- Cote du pot : si pot = 100, cote = 100/100 = 1 → 1 > 0.32 → **ne pas miser**  \n\n→ **- (Ne pas miser)**  \n→ **- (0)**  \n→ **- (32% de chance de toucher, cote du pot > équité → pas de mise)**",
+   "reussi": false,
+   "differences": [
+    "Environ 54 % : absent"
+   ],
+   "secondes": 41.6
+  },
+  {
+   "id": "q60",
+   "theme": "outs",
+   "question": "J'ai Jc Ts et le flop est 9d 8h 2c. Combien d'outs pour la quinte, et quelle chance de la toucher d'ici la river ?",
+   "reponse": "8 outs (les quatre 7 et les quatre Dames), environ 31,5 % d'ici la river.",
+   "faits": [
+    "8 outs",
+    "Les 7 et les Dames",
+    "Environ 31,5 % d'ici la river"
+   ],
+   "reponse_modele": "- (Action à faire) : Tirer (check ou call si l'adversaire mise)\n- (Combien miser) : 0 (si au check)\n- (Pourquoi) : 14 outs (8 pour quinte, 6 pour paire) → 51,2 % de chance de toucher une quinte d'ici la river (équité 55,3 % contre hasard).  \n→ Équité réelle est probablement inférieure face à une main réelle, mais le tirage est viable.  \n**Cote du pot : 51,2 % de réussite → 1,9x cote (équité > cote) → call raisonnable.**",
+   "reussi": false,
+   "differences": [
+    "8 outs : absent",
+    "Les 7 et les Dames : absent",
+    "Environ 31,5 % d'ici la river : contredit"
+   ],
+   "secondes": 51.9
+  },
+  {
+   "id": "q61",
+   "theme": "outs",
+   "question": "J'ai Jc Ts et le flop est 8d 7h 2c. Combien d'outs pour la quinte ?",
+   "reponse": "4 outs : seulement les 9 (tirage ventral). Environ 16,5 % d'ici la river.",
+   "faits": [
+    "4 outs",
+    "Seulement les 9 (tirage ventral)"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 10  \n- (Pourquoi) : 4 outs pour la quinte (9♠ 9♥ 9♦ 9♣) → 4 cartes qui complètent la quinte (9 de cœur, trèfle, pique, carreau).  \nÉquité : 46,3 % contre un hasard, mais réelle plus faible face à une main réelle.  \nTirage : 21,3 % de chance sur la turn, 38,4 % d’ici la river.  \n→ 4 outs (c’est le calcul exact donné).",
+   "reussi": true,
+   "differences": [],
+   "secondes": 36.8
+  },
+  {
+   "id": "q62",
+   "theme": "outs",
+   "question": "J'ai As Kd et le flop est 7h 5s 2c. Combien d'outs pour faire la top paire ?",
+   "reponse": "6 outs : les trois As et les trois Rois restants. Environ 24 % d'ici la river.",
+   "faits": [
+    "6 outs",
+    "Les trois As et les trois Rois restants"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 10 $  \n- (Pourquoi) : 6 outs pour la top paire (K♠ K♥ K♣ A♥ A♦ A♣). Équité 51,7 % contre mains aléatoires. La chance de toucher un out est de 24,1 % d'ici la river. L'équité est modérée, mais la main est en progression. Top pair possible avec un K sur la turn ou river.  \n\n*Note : 6 outs = 6 cartes qui complètent la paire de rois (K) sur le flop.*",
+   "reussi": false,
+   "differences": [
+    "Les trois As et les trois Rois restants : absent"
+   ],
+   "secondes": 38.0
+  },
+  {
+   "id": "q63",
+   "theme": "outs",
+   "question": "J'ai 6h 6c et le flop est Ks 9d 3c. Combien d'outs pour faire un brelan à la turn, et avec quelle chance ?",
+   "reponse": "2 outs (les deux 6 restants), soit 2/47 ≈ 4,3 % à la turn.",
+   "faits": [
+    "2 outs",
+    "Environ 4 % à la turn"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 2 (équité 60,2 %, 2 outs)  \n- (Pourquoi) : 2 outs pour brelan (6♠ 6♦), chance de toucher un out à la turn : 8,4 % (2/52 × 4 = 4,3 %, cumulé à la river 8,4 %). Équité 60,2 % contre mains aléatoires, mais réelle plus faible face à une main plus forte.",
+   "reussi": false,
+   "differences": [
+    "Environ 4 % à la turn : absent"
+   ],
+   "secondes": 33.2
+  },
+  {
+   "id": "q64",
+   "theme": "outs",
+   "question": "Au turn, avec un tirage quinte par les deux bouts (8 outs), quelle chance de toucher à la river ?",
+   "reponse": "8/46 ≈ 17,4 %.",
+   "faits": [
+    "Environ 17 %"
+   ],
+   "reponse_modele": "- (Continuer à miser)  \n- (8 outs)  \n- (Chance de toucher à la river : 8/47 ≈ 17 % → 17 % de chances de gagner, soit 17/85 = 0.2 → équité ~20 % ; c’est un tirage faible, mais avec 8 outs, la probabilité de toucher est de ~17 %, donc pas suffisant pour un call en équité. Si le pot est petit, c’est un call ; si le pot est grand, c’est un fold.)  \n\n→ **Conseil : Fold** (si le pot est équilibré ou que l’adversaire est fort).  \n→ **Si le pot est petit**, call avec 8 outs (17 % de réussite).  \n\n**Calcul :**  \n- 47 cartes restantes (52 - 5 cartes jouées)  \n- 8 outs → 8/47 ≈ 17 %  \n- Probabilité de toucher = 1 - (47-8)/47 = 1 - 39/47 ≈ 17 %  \n→ **Équité : ~17 %** → **Pas suffisant pour un call** sans équité.  \n\n✅ **Réponse normalisée :**  \n- (Folding)  \n- (0)  \n- (Équité de 17 %, trop faible pour un call)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 128.2
+  },
+  {
+   "id": "q65",
+   "theme": "outs",
+   "question": "J'ai 9c 8c, le board au turn est 7h 6h 5h Ah et mon adversaire montre Kh Qh. Combien d'outs ai-je ?",
+   "reponse": "Aucun : ma quinte perd contre sa couleur à cœur et aucune river ne me fait gagner. Je tire mort.",
+   "faits": [
+    "Ma quinte perd contre sa couleur",
+    "0 out : je tire mort"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 10  \n- (Pourquoi) : Vous avez un brelan (9,8,7) sur un board de couleur (7h 6h 5h Ah), mais votre adversaire a un full (Kh Qh) avec un brelan de 9-8-7 et une paire de 10. Vous avez 3 outs : les 9h, 8h, 7h (mais 7h est déjà sur le board).  \n→ Seuls les 9h et 8h sont en jeu, donc 2 outs.  \n→ Cependant, vous avez un brelan de 9-8-7, et le board est 7h 6h 5h Ah → vous avez 9c 8c, donc 9c et 8c.  \n→ Vous avez 9c 8c → vous avez 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8c, 7h → 9c, 8",
+   "reussi": false,
+   "differences": [
+    "Ma quinte perd contre sa couleur : absent",
+    "0 out : je tire mort : contredit"
+   ],
+   "secondes": 147.8
+  },
+  {
+   "id": "q66",
+   "theme": "cote du pot",
+   "question": "Le pot est de 60 et mon adversaire mise 30. Combien dois-je payer, et quelle équité minimum faut-il pour suivre ?",
+   "reponse": "Je paie 30 pour un pot final de 120 (60 + 30 + 30) : il faut 30/120 = 25 % d'équité.",
+   "faits": [
+    "Je dois payer 30",
+    "Il faut 25 % d'équité minimum"
+   ],
+   "reponse_modele": "- (Suivre)  \n- (30)  \n- (Équité minimum : 50% → cote du pot = 60 / (60 + 30) = 0.66 → vous devez avoir au moins 66% d'équité pour suivre. Si vous avez moins de 66%, ne suivez pas.)  \n\n**Justification** :  \n- Pot = 60, adversaire mise 30 → nouvelle taille du pot = 90.  \n- Cote du pot = 90 / 60 = 1.5 → vous devez avoir au moins 1 / (1.5) = 66.7% d'équité pour suivre.  \n- Si vous avez moins de 66.7%, c’est un appel à risque.  \n→ **Équité minimum requise : 66.7%**.  \n\n✅ Suivre seulement si équité ≥ 66.7%.",
+   "reussi": false,
+   "differences": [
+    "Il faut 25 % d'équité minimum : contredit"
+   ],
+   "secondes": 59.1
+  },
+  {
+   "id": "q67",
+   "theme": "cote du pot",
+   "question": "Face à une mise de la taille du pot, quelle équité minimum faut-il pour suivre ?",
+   "reponse": "33 % : on paie 1 pour gagner un pot final de 3.",
+   "faits": [
+    "Environ 33 % (un tiers)"
+   ],
+   "reponse_modele": "- Suivre si équité ≥ 50%  \n- (50%)  \n- Pourquoi : En cas de mise égale au pot (pot-sized bet), suivre nécessite une équité minimale de 50% car le risque de perdre le pot est égal à celui de gagner. Si ta main a moins de 50 % de chance de gagner, c’est une décision négative. Cela correspond à la règle de l’équité minimale pour un appel en position.  \n\n> *Note : Cela suppose une mise égale au pot (pot-sized bet) et un jeu à égalité (sans autre information).*",
+   "reussi": false,
+   "differences": [
+    "Environ 33 % (un tiers) : absent"
+   ],
+   "secondes": 22.5
+  },
+  {
+   "id": "q68",
+   "theme": "décision",
+   "question": "Au flop, mon adversaire fait tapis pour une mise égale au pot. Je n'ai qu'un tirage couleur (9 outs) et toutes les cartes seront dévoilées. Dois-je suivre ?",
+   "reponse": "Oui, de justesse : environ 35 % de toucher d'ici la river, pour 33 % d'équité requise.",
+   "faits": [
+    "Environ 35 % de chances d'ici la river",
+    "Il faut 33 % d'équité",
+    "Suivre est (légèrement) rentable"
+   ],
+   "reponse_modele": "- (Suivre)  \n- (Miser : égal au pot)  \n- (Pourquoi : Vous avez 9 outs pour une couleur. La cote du pot est de 1 : 1 (pot = mise). L’équité est de 9/47 ≈ 18,1%. La cote du tirage est de 47/9 ≈ 5,22. La cote du pot (1) est inférieure à la cote du tirage (5,22). Vous êtes donc en dessous de l’équité. Ne pas suivre. → **Ne pas suivre**.)  \n\n✅ **Correction :**  \n- (Ne pas suivre)  \n- (Miser : 0)  \n- (Pourquoi : 9 outs → 18,1% équité. Cote du pot 1 : 1 < cote du tirage 5,22 → le tirage est défavorable. Vous n’avez pas assez de chance pour suivre.)",
+   "reussi": false,
+   "differences": [
+    "Environ 35 % de chances d'ici la river : absent",
+    "Il faut 33 % d'équité : absent",
+    "Suivre est (légèrement) rentable : contredit"
+   ],
+   "secondes": 54.5
+  },
+  {
+   "id": "q69",
+   "theme": "décision",
+   "question": "Au turn, mon adversaire mise la taille du pot et il reste une carte. J'ai un tirage couleur (9 outs) et je ne compte pas sur des gains implicites. Dois-je suivre ?",
+   "reponse": "Non : environ 20 % de toucher à la river (9/46) alors qu'il faut 33 % : se coucher.",
+   "faits": [
+    "Environ 20 % de toucher à la river",
+    "Il faut 33 % d'équité",
+    "Il faut se coucher"
+   ],
+   "reponse_modele": "- Suivre  \n- Miser la taille du pot  \n- Équité : 9 outs → 9/47 ≈ 19,1% chance de gagner (cote du pot = 1)  \n→ Cote du pot = 1,0 → 19,1% < 35% (cote minimale pour suivre)  \n→ **Pas équitable**  \n\n**Conclusion : Ne pas suivre** (c’est un tirage, mais pas suffisant ici).  \n\n→ - Ne pas suivre  \n→ - 0  \n→ - Cote du pot (1) > équité (19,1%) → ne pas suivre",
+   "reussi": false,
+   "differences": [
+    "Il faut 33 % d'équité : contredit",
+    "Il faut se coucher : absent"
+   ],
+   "secondes": 37.4
+  },
+  {
+   "id": "q70",
+   "theme": "abattage",
+   "question": "Le tableau est Ah Kd 7c 7s 2h. Le joueur 1 a As Qd, le joueur 2 a Kc Ks. Qui gagne ?",
+   "reponse": "Le joueur 2 : full aux Rois par les 7. Le joueur 1 n'a que deux paires, As et 7.",
+   "faits": [
+    "Le joueur 2 gagne",
+    "Le joueur 2 a un full (Rois par les 7)",
+    "Le joueur 1 a deux paires (As et 7)"
+   ],
+   "reponse_modele": "- (Joueur 2 gagne)  \n- (Miser : 0)  \n- (Pourquoi : Le tableau Ah Kd 7c 7s 2h contient un Kd et un 7c/7s → le joueur 2 a Kc Ks → il fait un **carré de 7s** (7c, 7s, 7c, 7s ?) → non, il n’a que deux 7s, mais le tableau a deux 7s → donc **Full house** : 7s (brelan) + K (paire). Le joueur 2 a Kc Ks → il a une paire de K, et le tableau a un Kd → donc **paire de K**. Le joueur 1 a As Qd → As, Qd → As, Qd, Kd → **As, Q, K** → **Quinte** (As, K, Q, J, 10) → mais le tableau a Ah Kd 7c 7s 2h → donc As, K, 7, 7, 2 → pas de quinte. Le joueur 1 a As Qd → As, Qd → avec Ah Kd → As, K, Q → **As, K, Q** → **quinte** ? As, K, Q, J, 10 → pas de J ou 10 → donc **pas de quinte**. Le joueur 1 a As Qd → As, Qd → avec Ah Kd → As, K, Q → **pas de quinte**. Le joueur 1 a **As, Qd** → avec Ah Kd → As, K, Q → **pas de quinte**. Le joueur 2 a Kc Ks → avec Kd → **paire de K** → et 7c 7s → **brelan de 7** → donc **Full house (7s + K)** → force 7/10. Le joueur 1 a As Qd → As, Qd → avec Ah Kd → As, K, Q → **pas de brelan** → donc **paire de Q** (Qd) → et As → **pas de brelan** → donc **paire de Q** → force 2/10 → donc **le joueur 2 a un Full house → gagne**.  \n\n✅ **Conclusion** : Le joueur 2 a un **Full house (7s brelan + K paire)** → force 7/10 → gagne.  \n→ Le joueur 1 n’a pas de brelan → seulement une paire (Q) → donc perd.  \n\n**Réponse normalisée** :  \n- (Joueur 2 gagne)  \n- (Miser : 0)  \n- (Pourquoi : Full house (7s brelan + K paire) vs paire (Q) → Full house > paire → gagne)",
+   "reussi": false,
+   "differences": [
+    "Le joueur 2 a un full (Rois par les 7) : absent",
+    "Le joueur 1 a deux paires (As et 7) : contredit"
+   ],
+   "secondes": 102.7
+  },
+  {
+   "id": "q71",
+   "theme": "abattage",
+   "question": "Le tableau est Kh 9c 5d 3s 2h. Le joueur 1 a Kd Qc, le joueur 2 a Ks Jd. Qui gagne ?",
+   "reponse": "Le joueur 1 : les deux ont une paire de Rois, sa Dame bat le Valet au kicker.",
+   "faits": [
+    "Les deux ont une paire de Rois",
+    "Le joueur 1 gagne grâce à son kicker Dame"
+   ],
+   "reponse_modele": "- (Action à faire) : Analyser les mains par rapport au tableau  \n- (Combien miser) : 0 (pas de mise à faire ici)  \n- (Pourquoi) :  \n  Tableau : Kh 9c 5d 3s 2h  \n  Joueur 1 : Kd Qc → a Kd (K de diamant), donc Kd et Kh → **pair de K** + Qc → **overcard**  \n  Joueur 2 : Ks Jd → Ks (K de carreau), donc Ks et Kh → **pair de K** + Jd → **overcard**  \n  → Les deux joueurs ont un **pair de K** (force 2/10).  \n  → Aucune combinaison supérieure (pas de flush, pas de straight, pas de brelan).  \n  → Il n’y a pas de quinte flush, ni de carré.  \n  → La carte la plus forte est le K, donc les deux joueurs ont la même combinaison (pair de K).  \n  → **Égalité** → **Aucun gagnant**.  \n\n→ **Égalité** (ni joueur 1 ni joueur 2 ne gagne).  \n→ **Pas de mise nécessaire**.  \n\n✅ Résultat normalisé :  \n- (Action à faire) : Attendre le turn/river  \n- (Combien miser) : 0  \n- (Pourquoi) : Égalité de main (pair de K) → pas de gagnant.",
+   "reussi": false,
+   "differences": [
+    "Le joueur 1 gagne grâce à son kicker Dame : contredit"
+   ],
+   "secondes": 54.9
+  },
+  {
+   "id": "q72",
+   "theme": "abattage",
+   "question": "Le tableau est 5c 6d 7h 8s 9c. Le joueur 1 a Ac 2d, le joueur 2 a Kh 3s. Qui gagne ?",
+   "reponse": "Personne : la quinte du tableau (5 à 9) est la meilleure main des deux joueurs, le pot est partagé.",
+   "faits": [
+    "Le pot est partagé",
+    "Les deux jouent la quinte du tableau (5 à 9)"
+   ],
+   "reponse_modele": "- (Action à faire) : Analyser les combinaisons  \n- (Combien miser) : 0 (pas de mise à faire, question de victoire)  \n- (Pourquoi) :  \n  - Tableau : 5c 6d 7h 8s 9c → Quinte (5-6-7-8-9) de couleurs différentes.  \n  - Joueur 1 : Ac 2d → A et 2. A est une overcard (supérieure à 9), mais pas de paire.  \n    → Il forme une **paire (A)**, mais pas de quinte.  \n  - Joueur 2 : Kh 3s → K et 3. K > 9, donc K est overcard.  \n    → Il forme une **paire (K)**.  \n  - **Comparaison** :  \n    - Paire K > Paire A → **Joueur 2 gagne**.  \n  - **Équité** :  \n    - Paire K (force 2/10) > Paire A (force 2/10) → même force, mais K > A → **K gagne**.  \n  → **Joueur 2 gagne**.  \n\n✅ **Réponse finale** : Joueur 2 gagne.",
+   "reussi": false,
+   "differences": [
+    "Le pot est partagé : absent",
+    "Les deux jouent la quinte du tableau (5 à 9) : absent"
+   ],
+   "secondes": 48.1
+  },
+  {
+   "id": "q73",
+   "theme": "abattage",
+   "question": "Le tableau est 6c 7d 8h 9s 2c. Le joueur 1 a Ts 3d, le joueur 2 a 5s 4d. Qui gagne ?",
+   "reponse": "Le joueur 1 : quinte au 10 (6 à 10) contre quinte au 9 (5 à 9).",
+   "faits": [
+    "Le joueur 1 gagne",
+    "Quinte au 10 contre quinte au 9"
+   ],
+   "reponse_modele": "- (Action à faire) : Aucune action n'est nécessaire — on évalue la victoire selon les combinaisons.\n\n- (Combien miser) : 0 (pas de mise à faire)\n\n- (Pourquoi) :  \nLe tableau est 6c 7d 8h 9s 2c → **pas de quinte flush**, **pas de carré**, **pas de full**, **pas de couleur** (pas 5 cartes de même couleur).  \n- Joueur 1 : Ts 3d → **pas de paire** (Ts et 3d → valeurs différentes, pas de doublon).  \n- Joueur 2 : 5s 4d → **pas de paire** (5s et 4d → valeurs différentes).  \n→ Aucun joueur n’a de paire.  \n→ Le meilleur \"high card\" est le **9s** (sur le tableau), puis **8h**, puis **7d**, etc.  \n→ Les deux joueurs ont des cartes hautes, mais **aucune combinaison**.  \n→ **Carte haute** : le plus fort est le **9s** (sur le tableau), donc les deux joueurs ont la même carte haute (9s).  \n→ **Égalité** : pas de gagnant.\n\n✅ **Résultat : Égalité (ni gagnant, ni perdant)**.  \n→ Aucune mise n’est nécessaire.  \n\n**Note** : Le tableau ne contient pas 5 cartes de même couleur → pas de couleur.  \n→ Aucune combinaison forte → **carte haute** → égalité.",
+   "reussi": false,
+   "differences": [
+    "Le joueur 1 gagne : absent",
+    "Quinte au 10 contre quinte au 9 : absent"
+   ],
+   "secondes": 55.7
+  },
+  {
+   "id": "q74",
+   "theme": "abattage",
+   "question": "Le tableau est Kh 8h 4h 2c 9s. Le joueur 1 a Ah 3h, le joueur 2 a Qh Jh. Qui gagne ?",
+   "reponse": "Le joueur 1 : couleur à l'As contre couleur au Roi.",
+   "faits": [
+    "Le joueur 1 gagne",
+    "Sa couleur est à l'As (la plus haute)"
+   ],
+   "reponse_modele": "- (Analyse des cartes)  \nTableau : Kh 8h 4h 2c 9s  \nJoueur 1 : Ah 3h → cartes : As, 3 de cœur  \nJoueur 2 : Qh Jh → cartes : Roi, Valet de cœur  \n\n- (Évaluation des combinaisons)  \nTableau : 9h, 8h, 4h, 2c, 9s → les cartes de cœur sont : Kh, 8h, 4h, 9h → c’est une **quinte flush** (9h, 8h, 7h, 6h, 5h) ? Non, 7h et 6h manquent.  \nOn a : Kh, 8h, 4h, 9h → pas de suite.  \nOn a : 9h, 8h, 4h → pas de suite.  \nOn a : 9h, 8h, 4h, 2c, 9s → pas de suite.  \n→ **Pas de quinte flush**.  \n→ **Pas de carré**, **pas de brelan**, **pas de paire** ?  \nVérifions les paires :  \n- Joueur 1 : Ah, 3h → **pas de paire**  \n- Joueur 2 : Qh, Jh → **paire de cœur** (Qh et Jh) → **paire**  \n→ Le tableau a **pas de paire** (pas de 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K) en paire.  \n→ Le joueur 1 : Ah, 3h → **As** et **3** → **As** est sur le tableau (Kh), donc **As** est sur le tableau → **As** est une carte haute.  \n→ Le joueur 1 a **Ah**, qui est sur le tableau → donc **Ah** est sur le tableau → **pas de paire** pour lui.  \n→ Le joueur 2 a Qh et Jh → **Qh** et **Jh** → **Qh** et **Jh** sont sur le tableau → donc **Qh** et **Jh** sont sur le tableau → **paire de cœur** → **paire**.  \n\n→ Le joueur 2 a une **paire** (Qh, Jh) → **force 3/10**  \n→ Le joueur 1 a **Ah** et **3h** → **Ah** est sur le tableau → donc **Ah** est une carte haute → **pas de paire** → **carte haute** → **force 1/10**  \n\n→ **Le joueur 2 a une paire**, le joueur 1 n’a aucune paire → **le joueur 2 gagne**.\n\n- (Conclusion)  \n→ Le joueur 2 gagne car il a une paire (Qh, Jh) sur le tableau, le joueur 1 n’a aucune paire.\n\n**Réponse :**  \n- (Gagnant) Joueur 2  \n- (Pourquoi) Il a une paire (Qh, Jh) sur le tableau, le joueur 1 n’a aucune paire.  \n→ Force : paire (3/10) > carte haute (1/10) → victoire du joueur 2.",
+   "reussi": false,
+   "differences": [
+    "Le joueur 1 gagne : absent",
+    "Sa couleur est à l'As (la plus haute) : absent"
+   ],
+   "secondes": 114.2
+  },
+  {
+   "id": "q75",
+   "theme": "abattage",
+   "question": "Le tableau est Ah 9d 9c 4s 4h. Le joueur 1 a Ad Kc, le joueur 2 a As Qc. Qui gagne ?",
+   "reponse": "Le joueur 1 : les deux ont deux paires As et 9, son Roi bat la Dame en cinquième carte.",
+   "faits": [
+    "Les deux ont deux paires As et 9",
+    "Le joueur 1 gagne grâce au kicker Roi"
+   ],
+   "reponse_modele": "- (Action à faire) : Le joueur 1 gagne  \n- (Combien miser) : 0 (pas de mise à faire, la question est de savoir qui gagne)  \n- (Pourquoi) :  \n  - Tableau : Ah 9d 9c 4s 4h  \n  - Joueur 1 : Ad Kc → a un brelan de 9s (9d, 9c, 9s ?) → non, il n’a pas de 9. Il a Ad, Kc → donc Ad, Kc, et le tableau a Ah, 9d, 9c, 4s, 4h → il n’a pas de 9.  \n  - Il a Ad, Kc → donc il a une paire de 9 ? Non.  \n  - Il a Ad, Kc → avec le tableau, il a : Ad, Kc, Ah → donc une paire d'As (Ah, Ad), et une paire de 9 ? Non, il n’a pas de 9.  \n  - Il a Ad, Kc → avec le tableau : Ah, 9d, 9c, 4s, 4h → il a Ah, Ad → donc une paire d'As.  \n  - Joueur 2 : As Qc → avec le tableau : Ah, 9d, 9c, 4s, 4h → il a As, Ah → donc une paire d'As.  \n  - Les deux ont une paire d'As.  \n  - Comparaison des paires : As > Ad > Kc > Qc → donc les deux ont As.  \n  - Il faut regarder la carte suivante :  \n    - Joueur 1 : Ad → donc Ad, Kc → avec le tableau, il a As, Ad, Kc → donc il a une paire d'As et une carte de K.  \n    - Joueur 2 : As, Qc → avec le tableau, il a As, Ah, Qc → donc il a une paire d'As et une carte de Q.  \n  - Comparaison des cartes de la paire :  \n    - As = As → égal  \n    - Deuxièmes cartes : Ad (10) vs Qc (10) → Ad = 10, Qc = 10 → égal  \n    - Troisième carte : Kc (10) vs Qc (10) → Kc > Qc → donc Kc > Qc  \n  - Donc :  \n    - Joueur 1 a une paire d'As + un K → donc une paire d'As + un K  \n    - Joueur 2 a une paire d'As + un Q  \n  - Paire d'As = égal  \n  - La carte suivante : K > Q → donc le joueur 1 a une meilleure combinaison.  \n  - Donc : **Joueur 1 gagne**  \n\n✅ **Conclusion** :  \n- (Action à faire) : Le joueur 1 gagne  \n- (Combien miser) : 0  \n- (Pourquoi) : Il a une paire d'As et un K, contre une paire d'As et un Q → K > Q → donc il gagne.  \n\n**Force des mains** :  \n- Joueur 1 : Paire d'As + K → force 2/10 (paire) → mais avec une carte de K, donc il a une paire d'As et une carte de K → donc il a une paire d'As, et une carte de K → donc il a une paire d'",
+   "reussi": false,
+   "differences": [
+    "Les deux ont deux paires As et 9 : absent"
+   ],
+   "secondes": 121.6
+  },
+  {
+   "id": "q76",
+   "theme": "équité",
+   "question": "Avant le flop, As-Roi dépareillés contre As-Dame dépareillés : qui est favori, et à combien ?",
+   "reponse": "AK, environ 74 % : AQ est dominé (même As, kicker inférieur).",
+   "faits": [
+    "AK est favori",
+    "Environ 74 % pour AK",
+    "AQ est dominé (même As, kicker plus faible)"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 100bb  \n- (Pourquoi) : Équité de AKo vs AQo = 65,9% (vs 64,1%) → AKo a 65,9% de chance de gagner contre AQo.  \n→ AKo (As-Roi) est légèrement favori (65,9% vs 64,1%).  \n→ Cote du pot : 100bb (pot initial) → équité > cote → appel justifié.  \n\n**Équité : 65,9% (AKo) > 64,1% (AQo)** ✅",
+   "reussi": false,
+   "differences": [
+    "Environ 74 % pour AK : absent",
+    "AQ est dominé (même As, kicker plus faible) : contredit"
+   ],
+   "secondes": 41.7
+  },
+  {
+   "id": "q77",
+   "theme": "équité",
+   "question": "Avant le flop, paire de 2 contre As-Roi dépareillés : qui est favori ?",
+   "reponse": "La paire de 2, de peu : environ 53 % contre 47 %. C'est un coin flip.",
+   "faits": [
+    "La paire de 2 est légèrement favorite",
+    "Environ 53 % contre 47 %"
+   ],
+   "reponse_modele": "- (Action à faire) : Coucher (se coucher)  \n- (Combien miser) : 0 bb  \n- (Pourquoi) : Équité de 22 contre AKo est de 52,4 % → **moins de 50 %**.  \n→ Paire de 2 est **inférieure** à As-Roi dépareillés (équité 65,9 %).  \n→ **As-Roi dépareillés** est favori (équité > 50 %).  \n→ En 6-max, avant flop, **ne pas ouvrir** avec une paire faible face à une main forte comme AKo.  \n\n**Équité : 22 = 52,4 %, AKo = 47,6 % → AKo est meilleur.**",
+   "reussi": false,
+   "differences": [
+    "La paire de 2 est légèrement favorite : absent",
+    "Environ 53 % contre 47 % : contredit"
+   ],
+   "secondes": 36.7
+  },
+  {
+   "id": "q78",
+   "theme": "équité",
+   "question": "Avant le flop, paire d'As contre paire de Rois : quelles chances pour chacun ?",
+   "reponse": "Environ 82 % pour les As, 18 % pour les Rois.",
+   "faits": [
+    "Environ 82 % pour les As",
+    "Environ 18 % pour les Rois"
+   ],
+   "reponse_modele": "- (Action à faire) : Ne pas miser (rester en position, attendre le flop)  \n- (Combien miser) : 0  \n- (Pourquoi) : Équité contre une main au hasard : AA 85,1 %, KK 82,3 % → AA est légèrement supérieur. Mais contre une paire de Rois, l'équité de l'As est de 85,1 % vs 82,3 % → AA a une avance de 2,8 % (±0,5 %). Cependant, en absence de position ou de flop, il n’y a pas de justification pour miser.  \n→ **Conseil : ne pas miser, attendre le flop.**",
+   "reussi": true,
+   "differences": [],
+   "secondes": 32.5
+  },
+  {
+   "id": "q79",
+   "theme": "équité",
+   "question": "Avant le flop, As-Roi assortis contre paire de Dames : qui est favori ?",
+   "reponse": "La paire de Dames, environ 54 % contre 46 %.",
+   "faits": [
+    "La paire de Dames est favorite",
+    "Environ 54 % contre 46 %"
+   ],
+   "reponse_modele": "- (Action à faire) : Appeler  \n- (Combien miser) : 100bb (le montant de la grosse blinde, ou le montant actuel du pot)  \n- (Pourquoi) : Équité de AKs contre une paire de dames (2e paire) : **67,0%** (vs 80,0% pour QQ). Ici, AKs a **67%** d’équité contre une paire de dames, donc **AKs est favori**.  \n→ Cependant, **une paire de dames** est **moins forte** que **AKs** (qui est une paire haute), donc **AKs a une équité supérieure** (67% > 50%).  \n→ **AKs est favori** (67% vs 33% pour la paire de dames).  \n\n✅ **Conclusion** : AKs est favori (67% équité).  \n→ **Appeler** pour ne pas perdre le pot.",
+   "reussi": false,
+   "differences": [
+    "La paire de Dames est favorite : contredit",
+    "Environ 54 % contre 46 % : contredit"
+   ],
+   "secondes": 44.7
+  },
+  {
+   "id": "q80",
+   "theme": "probabilités",
+   "question": "Combien de combinaisons existe-t-il pour une paire servie précise (par ex. AA) et pour une main non appariée (par ex. AK) ?",
+   "reponse": "6 combinaisons pour une paire servie ; 16 pour une main non appariée, dont 4 assorties et 12 dépareillées.",
+   "faits": [
+    "6 combinaisons pour une paire servie",
+    "16 pour une main non appariée (4 assorties, 12 dépareillées)"
+   ],
+   "reponse_modele": "- (Nombre total de combinaisons pour une paire précise comme AA) : 4  \n- (Nombre total de combinaisons pour une main non appariée comme AK) : 4 × 4 = 16  \n- (Pourquoi) :  \n  - Pour une paire précise (AA) : il y a 4 as dans le deck → 4 choix pour le premier as, 3 pour le second → mais AA est symétrique → 4 × 3 / 2 = 6 ? ❌  \n  **Correction** : En poker, le nombre de combinaisons pour une paire précise (AA) est :  \n  C(4,2) = 6 → **6 combinaisons**  \n  Mais dans le contexte de \"paire servie précise\", on parle de **main spécifique** (AA), donc **1 combinaison** (AA) → **1**  \n  → **Réponse corrigée** :  \n  - (AA) : 1 combinaison  \n  - (AK) : 4 choix pour l'As, 4 pour le Roi → 4 × 4 = 16  \n  → **Réponse finale** :  \n- (Action à faire) : Aucune (question de comptage)  \n- (Combien miser) : 0  \n- (Pourquoi) : La question est de comptage, pas de décision.  \n  - AA : 1 combinaison (As-As)  \n  - AK : 4 × 4 = 16 combinaisons (4 As × 4 Roi)  \n  → **Réponse normalisée** :  \n- (Nombre de combinaisons pour AA) : 1  \n- (Nombre de combinaisons pour AK) : 16",
+   "reussi": false,
+   "differences": [
+    "6 combinaisons pour une paire servie : absent"
+   ],
+   "secondes": 59.8
+  },
+  {
+   "id": "q81",
+   "theme": "probabilités",
+   "question": "Quelle est la probabilité de recevoir une paire d'As ?",
+   "reponse": "6 combinaisons sur 1326, soit 1 sur 221 (environ 0,45 %).",
+   "faits": [
+    "1 sur 221 (environ 0,45 %)"
+   ],
+   "reponse_modele": "- (Probabilité de recevoir une paire d'As)  \n- (0,0765 ou 7,65 %)  \n- (Dans un jeu de 52 cartes, il y a 4 As. Le nombre de combinaisons de 2 As est C(4,2) = 6. Le nombre total de mains possibles est C(52,2) = 1326. Donc la probabilité est 6/1326 ≈ 0,0765.)",
+   "reussi": false,
+   "differences": [
+    "1 sur 221 (environ 0,45 %) : absent"
+   ],
+   "secondes": 25.2
+  },
+  {
+   "id": "q82",
+   "theme": "probabilités",
+   "question": "Avec une paire servie, quelle chance de toucher un brelan (ou mieux) au flop ?",
+   "reponse": "Environ 12 % (11,8 %), soit à peu près 1 fois sur 8,5.",
+   "faits": [
+    "Environ 12 %"
+   ],
+   "reponse_modele": "- (Suivre avec une paire)  \n- (0)  \n- (Avec une paire, la probabilité de toucher un brelan au flop est de ~12 %, soit 12/47 (5 cartes restantes). Pour un brelan, il faut 2 cartes de la même valeur. La cote est de 47 cartes restantes, 2 cartes de la valeur de la paire → 2/47 ≈ 4,2 %. La probabilité de faire un brelan (ou mieux) est donc faible. La cote du pot est généralement >1, donc il vaut mieux ne pas miser. C’est un piège de \"set mining\".)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 28.6
+  },
+  {
+   "id": "q83",
+   "theme": "probabilités",
+   "question": "Avec deux cartes assorties, quelle chance d'avoir une couleur dès le flop ?",
+   "reponse": "Moins de 1 % (environ 0,84 %).",
+   "faits": [
+    "Moins de 1 % (environ 0,8 %)"
+   ],
+   "reponse_modele": "- (Continuer à jouer)  \n- (0)  \n- (Avec deux cartes de même couleur, la probabilité d’obtenir une couleur (flush) au flop est de 11,8% (équité). Cela signifie que 11,8% des flops donnent une couleur avec vos deux cartes. Or, la cote du pot est généralement supérieure à 10 : 1, donc il est souvent préférable de ne pas miser. La cote du pot (10 : 1) > équité (11,8%) → ne pas miser.)",
+   "reussi": false,
+   "differences": [
+    "Moins de 1 % (environ 0,8 %) : absent"
+   ],
+   "secondes": 25.4
+  },
+  {
+   "id": "q84",
+   "theme": "préflop",
+   "question": "En 6-max à 100bb, premier à parler, ouvre-t-on Roi-Valet dépareillés (KJo) depuis UTG ?",
+   "reponse": "Non, on se couche UTG. On l'ouvre à partir du MP (MP, CO, bouton, petite blinde).",
+   "faits": [
+    "Non, on se couche (fold) UTG",
+    "On l'ouvre à partir du MP"
+   ],
+   "reponse_modele": "- (Non)  \n- (0)  \n- (En 6-max à 100bb, depuis UTG, ouvrir KJo est très risqué. L'équité contre une main au hasard est de 60,9 %, ce qui est inférieur à la cote du pot (environ 2,5 : 1). KJo est une main faible, dépareillée, avec peu d'outs. L'équité est insuffisante pour justifier un appel ou une ouverture depuis UTG, surtout en position faible. Le ROI serait négatif. C’est donc une erreur stratégique.)",
+   "reussi": false,
+   "differences": [
+    "On l'ouvre à partir du MP : absent"
+   ],
+   "secondes": 30.5
+  },
+  {
+   "id": "q85",
+   "theme": "préflop",
+   "question": "En 6-max à 100bb, premier à parler, depuis quelles positions ouvre-t-on As-9 dépareillés (A9o) ?",
+   "reponse": "Au bouton et à la petite blinde. On se couche UTG et MP ; au cut-off c'est mixte (parfois relance, parfois fold).",
+   "faits": [
+    "On l'ouvre au bouton et à la petite blinde",
+    "On se couche UTG et MP",
+    "Au cut-off c'est mixte"
+   ],
+   "reponse_modele": "- (Ouvrir depuis BTN ou SB)  \n- (10bb)  \n- (Équité 60,7% contre une main au hasard : suffisante en position forte, mais faible en UTG/MP. A9o est une main faible, donc ouvrir seulement en position avancée, pas en UTG ou MP.)",
+   "reussi": true,
+   "differences": [],
+   "secondes": 18.8
+  },
+  {
+   "id": "q86",
+   "theme": "règles",
+   "question": "En heads-up, qui parle en premier avant le flop, et après le flop ?",
+   "reponse": "Avant le flop, le bouton (qui est la petite blinde) parle en premier. Après le flop, la grosse blinde parle en premier et le bouton en dernier.",
+   "faits": [
+    "Avant le flop, le bouton (petite blinde) parle en premier",
+    "Après le flop, la grosse blinde parle en premier"
+   ],
+   "reponse_modele": "- (Qui parle en premier avant le flop) : Le joueur à gauche du petit blind (c’est-à-dire le joueur à gauche du joueur qui a misé le petit blind).  \n- (Combien miser) : Aucun.  \n- (Pourquoi) : Avant le flop, les joueurs se font connaître par leur mise (small blind, big blind), puis le joueur à gauche du petit blind commence à parler (c’est le \"first to act\"). C’est une règle de base du poker. Après le flop, c’est toujours le joueur à gauche du joueur qui a parlé qui parle en premier (le \"first to act\" suit le flop).  \n\n➡️ **Réponse normalisée** :  \n- (Action à faire) : Le joueur à gauche du petit blind parle en premier avant le flop.  \n- (Combien miser) : 0  \n- (Pourquoi) : Règle de base du poker : le joueur à gauche du petit blind commence à parler avant le flop, puis après le flop, c’est toujours le joueur à gauche du dernier à avoir parlé qui parle en premier.",
+   "reussi": false,
+   "differences": [
+    "Avant le flop, le bouton (petite blinde) parle en premier : absent",
+    "Après le flop, la grosse blinde parle en premier : contredit"
+   ],
+   "secondes": 39.0
+  },
+  {
+   "id": "q87",
+   "theme": "règles",
+   "question": "En no-limit, blindes 10/20 : un joueur relance à 60. Quelle est la sur-relance minimum ?",
+   "reponse": "100 : la relance précédente était de 40 (de 20 à 60), il faut relancer d'au moins autant, donc à 60 + 40 = 100.",
+   "faits": [
+    "La relance précédente était de 40",
+    "La sur-relance minimum est à 100"
+   ],
+   "reponse_modele": "- (Sur-relance minimum)  \n- (120)  \n- (Dans un no-limit, avec blindes 10/20, la sur-relance (3-bet) est généralement de 2x le relance initial. Ici, 60 × 2 = 120. C’est la règle standard en pré-flop pour une 3-bet. Aucun calcul d’équité ou de cote du pot n’est nécessaire ici car la question porte sur la règle de base du jeu.)",
+   "reussi": false,
+   "differences": [
+    "La relance précédente était de 40 : absent",
+    "La sur-relance minimum est à 100 : contredit"
+   ],
+   "secondes": 33.9
+  }
+ ]
+}

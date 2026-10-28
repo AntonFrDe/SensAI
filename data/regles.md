@@ -1,0 +1,8 @@
+- Ordre de parole avant le flop : le joueur à gauche de la grosse blinde (UTG) parle en premier, la grosse blinde en dernier.
+- Ordre de parole après le flop (flop, turn, river) : le premier joueur encore en jeu à gauche du bouton (souvent la petite blinde) parle en premier, le bouton en dernier.
+- En heads-up (deux joueurs), le bouton est la petite blinde : il parle en premier avant le flop et en dernier après le flop.
+- Relance minimum en no-limit : relancer d'au moins le montant de la dernière mise ou relance. Mise de 10 : relance à 20 au minimum. Blindes 10/20 et relance à 60 (relance de 40) : sur-relance à 100 au minimum.
+- Égalité : les couleurs (pique, cœur, carreau, trèfle) ne départagent jamais ; deux mains de même valeur se partagent le pot.
+- Seules les 5 meilleures cartes comptent ; si les 5 cartes communes forment la meilleure main de chacun, le pot est partagé (« le board joue »).
+- Quinte : l'As compte en haut (10-V-D-R-As) ou en bas (As-2-3-4-5, la plus petite quinte) ; une quinte ne « tourne » pas (D-R-As-2-3 n'en est pas une).
+- Tapis et pot annexe (side pot) : un joueur à tapis ne peut gagner de chaque adversaire que ce qu'il a lui-même misé ; le surplus des autres forme un pot annexe qu'ils se disputent entre eux.

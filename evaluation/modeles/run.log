@@ -1,0 +1,16 @@
+=== qwen3:4b-instruct-2507-q4_K_M
+[x] q02 Est-ce qu'une couleur bat un full ?
+[x] q05 L'as peut-il servir dans une quinte basse ?
+[x] q11 Qui parle en premier avant le flop, et après le flop ?
+[x] q12 En no-limit, quelle est la relance minimum quand un joueur a misé 10 ?
+[ ] q15 Que veut dire avoir les « nuts » ?
+[x] q22 En 6-max à 100bb, premier à parler, faut-il ouvrir 7-2 dépareillés (72o) depuis UTG ?
+[x] q26 Avant le flop, As-Roi assortis contre une paire de 8 : qui est favori ?
+[ ] q28 J'ai Ah Kh, le flop est Qh 7h 2c. Combien ai-je d'outs ?
+[ ] q30 Avec un tirage couleur au turn (9 outs), quelle chance de toucher à la river ?
+[ ] q32 Le pot est de 100 (mise adverse comprise) et je dois payer 50. Quelle équité minimum faut-il pour suivre ?
+[x] q33 J'ai As Ad, le flop est Kc 7d 2s. Le pot est de 90 avec la mise adverse et je dois payer 30. Que faire ?
+[ ] q37 Qu'est-ce qu'une donk bet ?
+[x] q42 J'ai J-J et le flop est 9-6-2. Comment s'appelle ma main ?
+[ ] q58 J'ai 9h 8h et le flop est 7h 6c 2h. Combien d'outs pour faire une couleur ou une quinte ?
+[ ] q66 Le pot est de 60 et mon adversaire mise 30. Combien dois-je payer, et quelle équité minimum faut-il pour suivre ?

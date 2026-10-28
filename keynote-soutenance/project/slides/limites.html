@@ -1,0 +1,23 @@
+<section id="limites" data-transition="fade" style="background:#F4F0FF;color:#2A1860;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<p style="font-size:32px;font-weight:700;color:#B42352;letter-spacing:4px;text-transform:uppercase">Les limites du projet</p>
+<h2 style="font-size:72px;font-weight:900;line-height:1.08;letter-spacing:-1px;width:1550px">Ce qui ne marche pas encore assez bien</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="display:flex;flex-direction:column;gap:10px;background:#FBF9FF;padding:32px;border-radius:28px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:34px;font-weight:900;color:#B42352">Un juge peu fiable</h3>
+<p style="font-size:26px;color:#5B4A9A;line-height:1.35">Sur les débriefs, le juge llama3.2:3b voit 6 faits sur 111, quand le code en retrouve 74 sur 81.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#FBF9FF;padding:32px;border-radius:28px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:34px;font-weight:900;color:#B42352">30 questions encore ratées</h3>
+<p style="font-size:26px;color:#5B4A9A;line-height:1.35">57 sur 87 : abattages, probabilités et calculs restent fragiles pour un modèle de 4B.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#FBF9FF;padding:32px;border-radius:28px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:34px;font-weight:900;color:#B42352">La lenteur sur CPU</h3>
+<p style="font-size:26px;color:#5B4A9A;line-height:1.35">Environ 5 tokens par seconde sur nos machines : une explication complète prend plusieurs dizaines de secondes.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#FBF9FF;padding:32px;border-radius:28px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:34px;font-weight:900;color:#B42352">Un usage local, mono-joueur</h3>
+<p style="font-size:26px;color:#5B4A9A;line-height:1.35">Pas d’authentification, choix du modèle gardé en mémoire, cartes adverses mal lues dans une question libre.</p>
+</div>
+</div>
+<aside>[ANTON] Soyons honnêtes sur les limites. Un : notre juge automatique n’est pas fiable. Sur les débriefs, le juge llama trouve 6 faits sur 111, alors qu’une simple vérification par le code en retrouve 74 sur 81. Les scores du juge sont donc indicatifs. Deux : 30 questions sur 87 restent ratées, surtout les abattages et les probabilités. Trois : sur CPU, le modèle produit environ 5 tokens par seconde, une explication complète prend donc du temps. Quatre : c’est une application locale pour un joueur, sans authentification, et le lecteur de situations prend encore les cartes de l’adversaire pour celles du tableau. Nikita et Amine vont vous dire comment on compte y remédier.</aside>
+</section>

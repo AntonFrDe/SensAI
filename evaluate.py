@@ -3,6 +3,7 @@
     python3 evaluate.py                                  # les 87 questions, modèle de ai.py
     python3 evaluate.py --modele llama3.2:3b             # un autre modèle installé
     python3 evaluate.py --questions q01 q28              # seulement certaines questions
+    python3 evaluate.py --reprendre                      # garde les questions déjà corrigées, fait le reste
 
 Pour chaque question de evaluation/questions.jsonl :
 1. le modèle répond, comme dans ai.py (même prompt système, même contexte injecté) ;
@@ -30,6 +31,7 @@ JUDGE = (
     "même s'il le dit aussi ailleurs). Ne juge que ces faits : le reste de la réponse ne compte pas."
 )
 VERDICTS = ("présent", "absent", "contredit")
+JUDGE_MODEL: str | None = None  # None : le modèle évalué se corrige lui-même ; --juge pour comparer des modèles
 
 
 def verdict_format(facts: list[str]) -> dict:
@@ -64,6 +66,7 @@ def judge(item: dict, answer: str) -> dict:
         ],
         format=verdict_format(facts),
         options={"temperature": 0},
+        **({"model": JUDGE_MODEL} if JUDGE_MODEL else {}),
     )
     try:
         verdicts = json.loads(raw)
@@ -136,8 +139,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--temperature", type=float, default=ai.TEMPERATURE,
                         help=f"température des réponses (défaut : {ai.TEMPERATURE} ; 0.7 = réglage d'Ollama)")
     parser.add_argument("--questions", nargs="*", help="identifiants à évaluer, ex. q01 q28")
+    parser.add_argument("--juge", help="modèle correcteur, le même pour tous les modèles comparés (défaut : le modèle évalué)")
+    parser.add_argument("--reprendre", action="store_true",
+                        help="garde les résultats de resultats.json (même modèle et température) et fait le reste")
     args = parser.parse_args(argv)
     ai.MODEL, ai.TEMPERATURE = args.modele, args.temperature
+    global JUDGE_MODEL
+    JUDGE_MODEL = args.juge
     items = load_questions()
     if args.questions:
         items = [item for item in items if item["id"] in args.questions]
@@ -145,11 +153,15 @@ def main(argv: list[str] | None = None) -> int:
             print("Aucune question ne correspond.", file=sys.stderr)
             return 2
 
-    results = []
+    results = previous_results(items) if args.reprendre else []
+    done = {r["id"] for r in results}
     try:
         for item in items:
+            if item["id"] in done:
+                continue
             result = evaluate(item)
             results.append(result)
+            save(results, len(items))  # après chaque question : un Ollama qui tombe ne fait rien perdre
             print(f"[{'x' if result['reussi'] else ' '}] {item['id']} {item['question']}", flush=True)
     except ai.OllamaError as e:
         print(e, file=sys.stderr)
@@ -157,12 +169,28 @@ def main(argv: list[str] | None = None) -> int:
         print("\nInterrompu.", file=sys.stderr)
 
     if results:
-        (FOLDER / "resultats.md").write_text(render(results, ai.MODEL, len(items)), encoding="utf-8")
-        payload = {"modele": ai.MODEL, "temperature": ai.TEMPERATURE, "date": datetime.now().isoformat(timespec="seconds"), "resultats": results}
-        (FOLDER / "resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         passed = sum(r["reussi"] for r in results)
         print(f"\n{passed}/{len(results)} réussies → {FOLDER / 'resultats.md'}")
     return 0 if len(results) == len(items) else 1
+
+
+def previous_results(items: list[dict], folder: Path = FOLDER) -> list[dict]:
+    """Les résultats déjà enregistrés pour ces questions, s'ils viennent du même modèle et de la même température."""
+    try:
+        saved = json.loads((folder / "resultats.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if (saved.get("modele"), saved.get("temperature")) != (ai.MODEL, ai.TEMPERATURE):
+        return []
+    ids = {item["id"] for item in items}
+    return [r for r in saved.get("resultats", []) if r.get("id") in ids]
+
+
+def save(results: list[dict], total: int, folder: Path = FOLDER) -> None:
+    (folder / "resultats.md").write_text(render(results, ai.MODEL, total), encoding="utf-8")
+    payload = {"modele": ai.MODEL, "temperature": ai.TEMPERATURE, "date": datetime.now().isoformat(timespec="seconds"),
+               "resultats": results}
+    (folder / "resultats.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

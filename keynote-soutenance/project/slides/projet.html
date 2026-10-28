@@ -1,0 +1,20 @@
+<section id="projet" data-transition="fade" style="background:#F4F0FF;color:#2A1860;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
+<p style="font-size:32px;font-weight:700;color:#B42352;letter-spacing:4px;text-transform:uppercase">Le projet</p>
+<h2 style="font-size:88px;font-weight:900;line-height:1.05;letter-spacing:-2px;width:1550px">Apprendre le poker avec un coach IA qui ne sort jamais de ta machine</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBF9FF;padding:40px;border-radius:32px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:40px;font-weight:900;color:#4A2BA6">Le moteur</h3>
+<p style="font-size:28px;color:#5B4A9A;line-height:1.35">Règles, équité, outs, cote du pot, ranges : calculés par le code, jamais devinés.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBF9FF;padding:40px;border-radius:32px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:40px;font-weight:900;color:#4A2BA6">Le coach</h3>
+<p style="font-size:28px;color:#5B4A9A;line-height:1.35">Un modèle de 4 milliards de paramètres, via Ollama, qui explique la référence calculée.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBF9FF;padding:40px;border-radius:32px;box-shadow:0 8px 0 #C7BBF2">
+<h3 style="font-size:40px;font-weight:900;color:#4A2BA6">L’entraîneur</h3>
+<p style="font-size:28px;color:#5B4A9A;line-height:1.35">Des situations par niveau, en terminal ou dans le navigateur, avec débrief.</p>
+</div>
+</div>
+<p style="font-size:28px;color:#5B4A9A">Contrainte du sujet : modèle local, aucun framework LLM, du HTTP vers Ollama.</p>
+<aside>[ANTON] SensAI, c’est un entraîneur de poker. On vous donne une situation, vous prenez une décision, et un coach vous explique si c’était juste et pourquoi. Trois briques. Le moteur, qui calcule tout ce qui est calculable : qui gagne, les outs, la cote du pot, l’équité. Le coach, un petit modèle de langage qui tourne en local avec Ollama : son rôle n’est pas de calculer, mais d’expliquer ce que le moteur a calculé. Et l’entraîneur, en ligne de commande ou dans le navigateur. La contrainte du sujet : tout en local, aucun framework comme LangChain, juste des requêtes HTTP vers Ollama.</aside>
+</section>

@@ -1,0 +1,19 @@
+<section id="f-modele" data-transition="fade" style="background:#F4F0FF;color:#2A1860;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<p style="font-size:32px;font-weight:700;color:#B42352;letter-spacing:4px;text-transform:uppercase">Feature · Changement de modèle</p>
+<h2 style="font-size:72px;font-weight:900;line-height:1.08;letter-spacing:-1px;width:1550px">Changer le cerveau du coach sans redémarrer</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FBF9FF;padding:36px;border-radius:32px;border:3px solid #FF5E62;box-shadow:0 8px 0 #F2C4CF">
+<p style="font-size:24px;font-weight:800;color:#B42352;text-transform:uppercase;letter-spacing:2px">Avant</p>
+<p style="font-size:30px;line-height:1.35">Éditer config.json, couper le serveur, le relancer, perdre les sessions en cours.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FBF9FF;padding:36px;border-radius:32px;border:3px solid #2EE59D;box-shadow:0 8px 0 #A9EBCF">
+<p style="font-size:24px;font-weight:800;color:#0B7F67;text-transform:uppercase;letter-spacing:2px">Après</p>
+<p style="font-size:30px;line-height:1.35">Une liste déroulante par rôle : coach ou adversaire IA. Effet immédiat, sessions en cours comprises.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBF9FF;padding:32px;border-radius:28px;box-shadow:0 8px 0 #C7BBF2">
+<p style="font-size:26px;font-weight:700;color:#5B4A9A">POST /api/models · vérifié sur le vrai serveur</p>
+<p style="font-size:28px;line-height:1.4">Coach → llama3.2:3b, adversaire inchangé (qwen3:1.7b) · modèle absent refusé, rien ne change</p>
+</div>
+<aside>[AMINE] Dernière feature côté interface : le changement de modèle. Avant, pour essayer un autre modèle, il fallait modifier config.json et redémarrer le serveur, ce qui coupait les sessions en cours. Maintenant, dans « État de l’IA locale », chaque rôle a sa liste déroulante des modèles installés : le coach et l’adversaire IA. Le changement s’applique tout de suite, y compris au débrief d’une session déjà ouverte. Changer le coach ne touche pas à l’adversaire, et un modèle qui n’est pas installé est refusé sans rien casser. C’est cette feature qui nous a permis de comparer les modèles facilement.</aside>
+</section>

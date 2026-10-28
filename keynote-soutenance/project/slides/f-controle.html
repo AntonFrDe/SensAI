@@ -1,0 +1,18 @@
+<section id="f-controle" data-transition="fade" style="background:#F4F0FF;color:#2A1860;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<p style="font-size:32px;font-weight:700;color:#B42352;letter-spacing:4px;text-transform:uppercase">Feature · Question de contrôle vérifiée</p>
+<h2 style="font-size:72px;font-weight:900;line-height:1.08;letter-spacing:-1px;width:1550px">Le coach pose la question, le code vérifie la réponse</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FBF9FF;padding:36px;border-radius:32px;border:3px solid #FF5E62;box-shadow:0 8px 0 #F2C4CF">
+<p style="font-size:24px;font-weight:800;color:#B42352;text-transform:uppercase;letter-spacing:2px">Avant</p>
+<p style="font-size:30px;font-weight:700;line-height:1.35">« Combien d’outs ? 13 / 10 / 8 / 5 »</p>
+<p style="font-size:28px;color:#5B4A9A;line-height:1.35">Les choix viennent du modèle : la bonne valeur peut manquer, et c’est lui qui corrige, parfois à tort.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FBF9FF;padding:36px;border-radius:32px;border:3px solid #2EE59D;box-shadow:0 8px 0 #A9EBCF">
+<p style="font-size:24px;font-weight:800;color:#0B7F67;text-transform:uppercase;letter-spacing:2px">Après</p>
+<p style="font-size:30px;font-weight:700;line-height:1.35">« Exact ! +10 XP » ou « Presque ! C’était 9. »</p>
+<p style="font-size:28px;color:#5B4A9A;line-height:1.35">Outs, cote, chances, équité : la valeur calculée doit être parmi les choix, sinon la question repart au coach.</p>
+</div>
+</div>
+<p style="font-size:28px;color:#5B4A9A">39 tests dans test_coach.py et test_trainer.py · tolérance d’un point sur les pourcentages.</p>
+<aside>[ALEXANDRE] Après chaque décision, le coach vérifie que le joueur a compris avec une question à choix, par exemple « combien d’outs ? ». Au début, les choix venaient entièrement du modèle : il pouvait proposer 13, 10, 8 et 5 alors que la bonne réponse était 9. Le joueur ne pouvait pas répondre juste, et la correction venait aussi du modèle. Maintenant, quand la question porte sur quelque chose que le moteur sait calculer, les outs, la cote du pot, les chances de toucher ou l’équité, le code vérifie que la bonne valeur est parmi les choix, à un point près pour les pourcentages. Sinon, la question repart au coach pour qu’il la corrige. Et la correction est instantanée à l’écran, sans attendre le modèle : « Exact, plus 10 XP », ou « Presque, c’était 9 ».</aside>
+</section>

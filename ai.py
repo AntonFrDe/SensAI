@@ -27,8 +27,14 @@ OLLAMA = "http://localhost:11434/api/chat"
 # bon contexte, elle reste fausse, mais toujours de la même façon, ce qui permet de comparer avant/après.
 TEMPERATURE = 0.0
 NUM_CTX = 8192  # tokens : contexte injecté + question + réponse ; Ollama prend 4 096 par défaut
+NUM_PREDICT = 800  # tokens générés au plus : à température 0, le modèle peut boucler sans fin (vu sur q65)
 DATA = Path(__file__).parent / "data"
 SYSTEM = (Path(__file__).parent / "prompts" / "conseil.txt").read_text(encoding="utf-8")
+
+
+def rules_context() -> str:
+    """Les règles de base (data/regles.md) : sans elles, le modèle invente (« un 4-bet relance de 4 fois »)."""
+    return "Règles du Texas Hold'em no-limit :\n" + (DATA / "regles.md").read_text(encoding="utf-8").strip()
 
 
 def hand_rankings_context() -> str:
@@ -49,6 +55,15 @@ def hand_rankings_context() -> str:
         + "\nPlus la force est élevée, plus la combinaison est forte."
     )
 
+def _mentions(key: str, question: str, words: str) -> bool:
+    """Le terme est-il dans la question ? Un sigle (« ROI », « BB ») doit y être en majuscules : « As-Roi » n'est pas
+    un retour sur investissement."""
+    if key.isupper() and key.isalpha():
+        return re.search(rf"(?<!\w){key}(?!\w)", question) is not None
+    normalized = glossary.normalize(key)
+    return len(normalized) > 1 and f" {normalized} " in words
+
+
 def glossary_entries_in(question: str) -> list[glossary.Entry]:
     """Les entrées du glossaire dont le terme ou un alias apparaît dans la question, plus leurs renvois « voir X ».
 
@@ -57,7 +72,7 @@ def glossary_entries_in(question: str) -> list[glossary.Entry]:
     words = f" {glossary.normalize(question)} "
     found = [
         entry for entry in glossary.ENTRIES
-        if any(len(key) > 1 and f" {key} " in words for key in map(glossary.normalize, (entry.term, *entry.aliases)))
+        if any(_mentions(key, question, words) for key in (entry.term, *entry.aliases))
     ]
     for entry in list(found):
         for target in filter(None, map(glossary.lookup, entry.see)):
@@ -247,29 +262,34 @@ def preflop_context(question: str) -> str:
         opening = "; ".join(f"{label} depuis {', '.join(by_action[key])}" for key, label in (
             ("raise", "ouvrir"), ("mixed", "ouvrir ou se coucher (main limite)"), ("fold", "se coucher"),
         ) if by_action[key])
-        rating = equity.preflop_rating(equity.class_combos(hand)[0])
-        lines.append(
-            f"- {hand}, premier à parler (personne n'a ouvert avant) : {opening}. La grosse blinde n'ouvre pas. "
-            f"Équité contre une main au hasard : {equity.pct(rating['equity'])} "
-            f"(meilleure que {equity.pct(1 - rating['top'])} des mains de départ)."
-        )
+        if not by_action["raise"] and not by_action["mixed"]:
+            opening = "ne s'ouvre nulle part : se coucher depuis toutes les positions"
+        line = f"- {hand}, premier à parler (personne n'a ouvert avant) : {opening}. La grosse blinde n'ouvre pas."
+        if len(hands) == 1:  # face à une main précise, l'équité contre une main au hasard serait citée à tort
+            rating = equity.preflop_rating(equity.class_combos(hand)[0])
+            # « meilleure que 4,1 % des mains » se lisait comme un argument pour jouer 72o
+            weaker = 1 - rating["top"]
+            line += (f" Équité contre une main au hasard : {equity.pct(rating['equity'])} ; "
+                     f"{'seulement ' if weaker < .5 else ''}{equity.pct(weaker)} des mains de départ sont plus faibles.")
+        lines.append(line)
     if len(hands) == 2:
         first, second = hands
         result = equity.versus(first, second, equity.TABLE_SAMPLES, random.Random(equity.TABLE_SEED))
-        lines.append(
-            f"- {first} contre {second} : {first} {equity.pct(result.equity)}, {second} "
-            f"{equity.pct(1 - result.equity)} (égalités partagées, ±{equity.pct(result.margin)})."
-        )
+        favorite = first if result.equity > .5 else second
+        lines.insert(1, (
+            f"- Face-à-face {first} contre {second} : {first} {equity.pct(result.equity)}, {second} "
+            f"{equity.pct(1 - result.equity)} (égalités partagées, ±{equity.pct(result.margin)}) : {favorite} est favori."
+        ))
     return "\n".join(lines)
 
 
 def find_context(question: str) -> str:
     """Cherche dans data/ ce qui aide à répondre, et le renvoie en texte pour le modèle.
 
-    Le classement des combinaisons et le glossaire, les ranges et l'équité avant le flop des mains de départ
+    Le classement des combinaisons, les règles et le glossaire, les ranges et l'équité avant le flop des mains de départ
     citées, puis les calculs de la main si la question en décrit une.
     """
-    parts = (hand_rankings_context(), glossary_context(question), preflop_context(question),
+    parts = (hand_rankings_context(), rules_context(), glossary_context(question), preflop_context(question),
              situation_context(question))
     return "\n\n".join(part for part in parts if part)
 
@@ -300,7 +320,7 @@ def chat(messages: list[dict], options: dict | None = None, **extra) -> str:
         "model": MODEL,
         "stream": False,  # on attend la réponse entière (plus simple à lire qu'en streaming)
         "messages": messages,
-        "options": {"num_ctx": NUM_CTX, **(options or {})},
+        "options": {"num_ctx": NUM_CTX, "num_predict": NUM_PREDICT, **(options or {})},
         **extra,
     }
     request = urllib.request.Request(
@@ -311,7 +331,7 @@ def chat(messages: list[dict], options: dict | None = None, **extra) -> str:
             return json.load(response)["message"]["content"].strip()
     except urllib.error.HTTPError as e:
         raise OllamaError(_http_error(e)) from None
-    except urllib.error.URLError:
+    except (urllib.error.URLError, ConnectionError):  # ConnectionError : Ollama coupé en pleine réponse
         raise OllamaError("Ollama injoignable. Lance-le avec : ollama serve") from None
 
 

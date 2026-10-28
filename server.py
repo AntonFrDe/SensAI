@@ -50,6 +50,8 @@ ROLES = ("user", "assistant")  # clients cannot inject "system" messages
 Job = tuple[str, dict, list[dict]]  # (label, config for this model, messages)
 GAME_ROUTES = ("/api/games", "/api/actions", "/api/opponent", "/api/next-hand", "/api/odds", "/api/state")
 BANQUE_ROUTE = "/api/banque"
+MODELS_ROUTE = "/api/models"  # GET: the installed models; POST: switch the coach's or the opponent's model
+ROLE_KEYS = {"coach": "model", "opponent": "opponent_model"}  # role → its key in the config
 NOTES_ROUTE = "/api/notes"
 MAX_NOTE = 200
 # The trainer: POST /api/sessions, then /api/sessions/<id>/<step> (see docs/REFONTE.md, section 5)
@@ -99,7 +101,18 @@ def model_status(cfg: dict) -> dict:
     except LLMError as e:
         installed, status = set(), {"ollama": False, "error": str(e)}
     status["models"] = {role: {"name": name, "installed": name in installed} for role, name in names.items()}
+    status["available"] = sorted(installed)
     return status
+
+
+def switched(cfg: dict, role: object, name: object, installed: set[str]) -> dict:
+    """The config with `role` played by `name`, or ValueError. The other role keeps its model: without
+    "opponent_model", the opponent played with the coach's model, and must go on doing so."""
+    if role not in ROLE_KEYS:
+        raise ValueError(f"Unknown role: expected one of {', '.join(ROLE_KEYS)}.")
+    if not isinstance(name, str) or name not in installed:
+        raise ValueError(f"Model {name!r} is not installed.")
+    return {"opponent_model": cfg["model"], **cfg, ROLE_KEYS[role]: name}
 
 
 def glossary_entries() -> list[dict]:
@@ -184,7 +197,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         if self.path == "/":
             self._send(200, (ROOT / "web" / "index.html").read_bytes(), "text/html; charset=utf-8")
-        elif self.path == "/api/models":
+        elif self.path == MODELS_ROUTE:
             try:
                 models = list_models(self.cfg)
             except LLMError as e:
@@ -205,7 +218,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         route = SESSION_ROUTE.fullmatch(self.path)
         if not route and self.path not in ("/api/chat", "/api/compare", "/api/coach", BANQUE_ROUTE, NOTES_ROUTE,
-                                           *GAME_ROUTES):
+                                           MODELS_ROUTE, *GAME_ROUTES):
             return self._send_json(404, {"error": "Not found."})
         # Requiring JSON forces a CORS preflight, so other websites cannot drive your models.
         if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
@@ -225,6 +238,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_json(*self._banque_route(parse_json(raw)))
             if self.path == NOTES_ROUTE:
                 return self._send_json(*self._notes_route(parse_json(raw)))
+            if self.path == MODELS_ROUTE:
+                return self._send_json(*self._switch_model(parse_json(raw)))
             if self.path == "/api/coach":
                 jobs = [self._coach_job(parse_json(raw))]
             elif self.path == "/api/chat":
@@ -409,6 +424,21 @@ class Handler(BaseHTTPRequestHandler):
             self._emit({"error": str(e)})
         finally:
             self.slots.release()
+
+    def _switch_model(self, body: dict) -> tuple[int, dict]:
+        """Switch a role's model for every request from now on, running trainer sessions included.
+
+        ponytail: in memory only, config.json is untouched; a restart goes back to it. Write the file if the choice
+        must survive a restart.
+        """
+        installed = {m["name"] for m in list_models(self.cfg)}
+        cfg = switched(self.cfg, body.get("role"), body.get("name"), installed)
+        with self.games_lock:
+            Handler.cfg = cfg
+            if body["role"] == "coach":  # a session keeps a copy of the config: its debrief would stay on the old model
+                for session in self.sessions.values():
+                    session.cfg = {**session.cfg, "model": cfg["model"]}
+        return 200, model_status(cfg)
 
     def _notes_route(self, body: dict) -> tuple[int, dict]:
         line = session_note(body, date.today())

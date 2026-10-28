@@ -1,0 +1,89 @@
+[x] q01 Quelle est la meilleure main au poker ?
+[x] q02 Est-ce qu'une couleur bat un full ?
+[x] q03 Qu'est-ce qui est le plus fort : une quinte ou un brelan ?
+[ ] q04 Entre une double paire et un brelan, quelle main gagne ?
+[x] q05 L'as peut-il servir dans une quinte basse ?
+[x] q06 Si deux joueurs ont exactement la même main, la couleur (pique, cœur...) les départage-t-elle ?
+[x] q07 Qu'est-ce que le kicker ?
+[x] q08 Combien de cartes reçoit chaque joueur au Texas Hold'em, et comment forme-t-on sa main ?
+[x] q09 Dans quel ordre sont dévoilées les cartes communes ?
+[x] q10 Que sont les blindes ?
+[x] q11 Qui parle en premier avant le flop, et après le flop ?
+[x] q12 En no-limit, quelle est la relance minimum quand un joueur a misé 10 ?
+[x] q13 Qu'est-ce qu'un side pot ?
+[x] q14 Pourquoi le bouton est-il la meilleure position ?
+[ ] q15 Que veut dire avoir les « nuts » ?
+[x] q16 Qu'est-ce qu'un set ?
+[ ] q17 Qu'est-ce qu'un tirage ventral (gutshot) ?
+[x] q18 Qu'est-ce qu'un check-raise ?
+[x] q19 Que veut dire « limper » ?
+[x] q20 Que veut dire être « en tilt » ?
+[x] q21 Qu'est-ce qu'un joueur TAG ?
+[x] q22 En 6-max à 100bb, premier à parler, faut-il ouvrir 7-2 dépareillés (72o) depuis UTG ?
+[x] q23 En 6-max à 100bb, premier à parler, depuis quelles positions ouvre-t-on Roi-9 assortis (K9s) ?
+[x] q24 En 6-max à 100bb, premier à parler, ouvre-t-on Dame-Valet dépareillés (QJo) depuis UTG ?
+[x] q25 Avant le flop, quelle est l'équité d'une paire d'As contre une main au hasard ?
+[x] q26 Avant le flop, As-Roi assortis contre une paire de 8 : qui est favori ?
+[x] q27 Avant le flop, paire de Rois contre paire de Dames : quelles chances pour chacun ?
+[ ] q28 J'ai Ah Kh, le flop est Qh 7h 2c. Combien ai-je d'outs ?
+[ ] q29 J'ai 8h 9d et le flop est 7c 6s 2h. Combien d'outs pour la quinte ?
+[ ] q30 Avec un tirage couleur au turn (9 outs), quelle chance de toucher à la river ?
+[x] q31 Qu'est-ce que la règle du 2 et du 4 ?
+[ ] q32 Le pot est de 100 (mise adverse comprise) et je dois payer 50. Quelle équité minimum faut-il pour suivre ?
+[x] q33 J'ai As Ad, le flop est Kc 7d 2s. Le pot est de 90 avec la mise adverse et je dois payer 30. Que faire ?
+[ ] q34 Qu'est-ce qu'un continuation bet (c-bet) ?
+[x] q35 Qu'est-ce qu'un 3-bet ?
+[x] q36 Qu'est-ce qu'un squeeze ?
+[ ] q37 Qu'est-ce qu'une donk bet ?
+[x] q38 Qu'est-ce qu'un semi-bluff ?
+[x] q39 Qu'est-ce qu'une value bet ?
+[x] q40 Qu'est-ce que le slow play ?
+[x] q41 Qu'est-ce que « floater » au poker ?
+[x] q42 J'ai J-J et le flop est 9-6-2. Comment s'appelle ma main ?
+[x] q43 Que veut dire TPTK ?
+[x] q44 Qu'est-ce qu'un tirage backdoor ?
+[x] q45 Que veut dire un flop « rainbow » ?
+[x] q46 Qu'est-ce que la fold equity ?
+[x] q47 Qu'est-ce qu'une calling station ?
+[x] q48 Qu'est-ce qu'un nit ?
+[x] q49 Que mesure le VPIP ?
+[x] q50 Que veut dire « tirer mort » (drawing dead) ?
+[x] q51 Que désigne le mot « Broadway » ?
+[ ] q52 Quelle différence entre un set et des trips ?
+[x] q53 Qu'est-ce qu'un cooler ?
+[x] q54 Où est assis le cut-off ?
+[ ] q55 Qu'est-ce qu'un walk ?
+[ ] q56 Qu'est-ce qu'un tirage quinte par les deux bouts ?
+[x] q57 Qu'est-ce qu'un straddle ?
+[ ] q58 J'ai 9h 8h et le flop est 7h 6c 2h. Combien d'outs pour faire une couleur ou une quinte ?
+[ ] q59 Au flop, avec 15 outs, quelle est la chance de toucher d'ici la river ?
+[ ] q60 J'ai Jc Ts et le flop est 9d 8h 2c. Combien d'outs pour la quinte, et quelle chance de la toucher d'ici la river ?
+[x] q61 J'ai Jc Ts et le flop est 8d 7h 2c. Combien d'outs pour la quinte ?
+[ ] q62 J'ai As Kd et le flop est 7h 5s 2c. Combien d'outs pour faire la top paire ?
+[x] q63 J'ai 6h 6c et le flop est Ks 9d 3c. Combien d'outs pour faire un brelan à la turn, et avec quelle chance ?
+[x] q64 Au turn, avec un tirage quinte par les deux bouts (8 outs), quelle chance de toucher à la river ?
+[ ] q65 J'ai 9c 8c, le board au turn est 7h 6h 5h Ah et mon adversaire montre Kh Qh. Combien d'outs ai-je ?
+[ ] q66 Le pot est de 60 et mon adversaire mise 30. Combien dois-je payer, et quelle équité minimum faut-il pour suivre ?
+[ ] q67 Face à une mise de la taille du pot, quelle équité minimum faut-il pour suivre ?
+[ ] q68 Au flop, mon adversaire fait tapis pour une mise égale au pot. Je n'ai qu'un tirage couleur (9 outs) et toutes les cartes seront dévoilées. Dois-je suivre ?
+[ ] q69 Au turn, mon adversaire mise la taille du pot et il reste une carte. J'ai un tirage couleur (9 outs) et je ne compte pas sur des gains implicites. Dois-je suivre ?
+[ ] q70 Le tableau est Ah Kd 7c 7s 2h. Le joueur 1 a As Qd, le joueur 2 a Kc Ks. Qui gagne ?
+[x] q71 Le tableau est Kh 9c 5d 3s 2h. Le joueur 1 a Kd Qc, le joueur 2 a Ks Jd. Qui gagne ?
+[ ] q72 Le tableau est 5c 6d 7h 8s 9c. Le joueur 1 a Ac 2d, le joueur 2 a Kh 3s. Qui gagne ?
+[x] q73 Le tableau est 6c 7d 8h 9s 2c. Le joueur 1 a Ts 3d, le joueur 2 a 5s 4d. Qui gagne ?
+[x] q74 Le tableau est Kh 8h 4h 2c 9s. Le joueur 1 a Ah 3h, le joueur 2 a Qh Jh. Qui gagne ?
+[ ] q75 Le tableau est Ah 9d 9c 4s 4h. Le joueur 1 a Ad Kc, le joueur 2 a As Qc. Qui gagne ?
+[x] q76 Avant le flop, As-Roi dépareillés contre As-Dame dépareillés : qui est favori, et à combien ?
+[x] q77 Avant le flop, paire de 2 contre As-Roi dépareillés : qui est favori ?
+[x] q78 Avant le flop, paire d'As contre paire de Rois : quelles chances pour chacun ?
+[ ] q79 Avant le flop, As-Roi assortis contre paire de Dames : qui est favori ?
+[ ] q80 Combien de combinaisons existe-t-il pour une paire servie précise (par ex. AA) et pour une main non appariée (par ex. AK) ?
+[x] q81 Quelle est la probabilité de recevoir une paire d'As ?
+[ ] q82 Avec une paire servie, quelle chance de toucher un brelan (ou mieux) au flop ?
+[ ] q83 Avec deux cartes assorties, quelle chance d'avoir une couleur dès le flop ?
+[ ] q84 En 6-max à 100bb, premier à parler, ouvre-t-on Roi-Valet dépareillés (KJo) depuis UTG ?
+[x] q85 En 6-max à 100bb, premier à parler, depuis quelles positions ouvre-t-on As-9 dépareillés (A9o) ?
+[ ] q86 En heads-up, qui parle en premier avant le flop, et après le flop ?
+[x] q87 En no-limit, blindes 10/20 : un joueur relance à 60. Quelle est la sur-relance minimum ?
+
+57/87 réussies → /home/anton/code/Tech3/SensAI/sensai-2/evaluation/resultats.md

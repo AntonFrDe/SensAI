@@ -8,6 +8,7 @@ import urllib.error
 import urllib.request
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 import ai
 import poker_ai
@@ -293,6 +294,35 @@ def test_status_tells_which_models_are_installed():
 
     assert status == 200 and body["ollama"] is True
     assert body["models"] == {"coach": {"name": "ok", "installed": True}, "opponent": {"name": "absent", "installed": False}}
+
+
+def switch(role, name, **cfg):
+    return post("/api/models", json.dumps({"role": role, "name": name}).encode(), **cfg)
+
+
+def test_switching_the_coach_model_keeps_the_opponent_and_shows_in_the_status():
+    status, [body] = switch("coach", "a")  # the config gives no opponent_model: it was playing with "ok"
+
+    assert status == 200 and body["models"]["coach"] == {"name": "a", "installed": True}
+    assert body["models"]["opponent"]["name"] == "ok"
+    _, after = get("/api/status")
+    assert after["models"]["coach"]["name"] == "a" and {"ok", "a", "b"} <= set(after["available"])
+
+
+def test_switching_to_an_unknown_role_or_a_missing_model_changes_nothing():
+    for role, name in (("arbitre", "a"), ("coach", "zzz"), ("coach", ["a"]), ("opponent", None)):
+        status, [body] = switch(role, name)
+        assert status == 400 and body["error"], (role, name)
+    assert server.Handler.cfg["model"] == "ok"
+
+
+def test_a_running_trainer_session_debriefs_with_the_new_coach_model():
+    server.Handler.sessions["s1"] = SimpleNamespace(cfg={"model": "ok", "tools": []})
+    try:
+        switch("coach", "b")
+        assert server.Handler.sessions["s1"].cfg == {"model": "b", "tools": []}
+    finally:
+        del server.Handler.sessions["s1"]
 
 
 def test_status_reports_an_unreachable_ollama():

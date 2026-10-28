@@ -67,7 +67,8 @@ JSON en camelCase.
 | `POST /api/odds` `{gameId}` | Cote du pot, équité contre une main au hasard (`equity.py`), outs (`odds.py`) |
 | `POST /api/coach` `{gameId, messages?}` | Conseil en streaming NDJSON ; `messages` = suite de la conversation |
 | `POST /api/notes` `{hands, won, net, remark?}` | Ajoute une ligne de bilan à `notes/sessions.md`, que le coach CLI lit par le serveur MCP de fichiers |
-| `GET /api/status` | Ollama joignable, modèles du coach et de l'adversaire installés ou non |
+| `GET /api/status` | Ollama joignable, modèles du coach et de l'adversaire installés ou non, `available` : les modèles installés |
+| `POST /api/models` | `{role: "coach" \| "opponent", name}` : change le modèle du rôle tout de suite (sessions en cours comprises), en mémoire ; un redémarrage revient à `config.json` |
 | `GET /api/glossary`, `GET /api/glossary?term=` | Glossaire complet ou définition d'un terme |
 | `GET /api/hand-rankings` | Les dix combinaisons, avec un exemple en cartes |
 

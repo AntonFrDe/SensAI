@@ -132,12 +132,25 @@ export async function fetchOdds(gameId: string): Promise<OddsSummary> {
 }
 
 export type ModelStatus = { name: string; installed: boolean };
-export type ServerStatusData = { ollama: boolean; error?: string; models: { coach: ModelStatus; opponent: ModelStatus } };
+export type ModelRole = 'coach' | 'opponent';
+export type ServerStatusData = {
+  ollama: boolean; error?: string; available?: string[]; models: Record<ModelRole, ModelStatus>;
+};
 
 export async function fetchStatus(): Promise<ServerStatusData> {
   const response = await fetch('/api/status');
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || 'Serveur SensAI injoignable.');
+  return result;
+}
+
+/** Switches the model a role plays with, for every request from now on; returns the new status. */
+export async function switchModel(role: ModelRole, name: string): Promise<ServerStatusData> {
+  const response = await fetch('/api/models', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role, name }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'Changement de modèle impossible.');
   return result;
 }
 

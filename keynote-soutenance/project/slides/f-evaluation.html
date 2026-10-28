@@ -1,0 +1,31 @@
+<section id="f-evaluation" data-transition="fade" style="background:#1A1042;color:#FBF9FF;font-family:'Rubik', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<p style="font-size:32px;font-weight:700;color:#FFC83D;letter-spacing:4px;text-transform:uppercase">Feature · Banc d’évaluation</p>
+<h2 style="font-size:72px;font-weight:900;line-height:1.08;letter-spacing:-1px;width:1550px">Chaque changement se mesure : python3 evaluate.py</h2>
+<div style="display:flex;align-items:stretch;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A1A63;padding:28px;border-radius:28px;box-shadow:0 8px 0 #0E0828">
+<p style="font-size:24px;font-weight:700;color:#3EC5FF;text-transform:uppercase;letter-spacing:2px">87 questions</p>
+<p style="font-size:26px;color:#C7BBF2;line-height:1.35">Glossaire et situations, réponses recalculées par le moteur</p>
+</div>
+<x-shape kind="arrow-right" style="width:48px;height:28px;background:#A98BFF;align-self:center"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A1A63;padding:28px;border-radius:28px;box-shadow:0 8px 0 #0E0828">
+<p style="font-size:24px;font-weight:700;color:#FF4F8B;text-transform:uppercase;letter-spacing:2px">Le coach répond</p>
+<p style="font-size:26px;color:#C7BBF2;line-height:1.35">Même prompt et même contexte que dans l’app, température 0</p>
+</div>
+<x-shape kind="arrow-right" style="width:48px;height:28px;background:#A98BFF;align-self:center"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A1A63;padding:28px;border-radius:28px;box-shadow:0 8px 0 #0E0828">
+<p style="font-size:24px;font-weight:700;color:#FFC83D;text-transform:uppercase;letter-spacing:2px">Un juge coche</p>
+<p style="font-size:26px;color:#C7BBF2;line-height:1.35">Chaque fait attendu : présent, absent ou contredit</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;background:#2A1A63;padding:28px;border-radius:28px;border:3px solid #FF5E62">
+<p style="font-size:24px;font-weight:800;color:#FF5E62;text-transform:uppercase;letter-spacing:2px">Avant</p>
+<p style="font-size:28px;line-height:1.35">On testait à la main, quelques questions, sans pouvoir comparer deux versions.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;background:#2A1A63;padding:28px;border-radius:28px;border:3px solid #2EE59D">
+<p style="font-size:24px;font-weight:800;color:#2EE59D;text-transform:uppercase;letter-spacing:2px">Après</p>
+<p style="font-size:28px;line-height:1.35">Un score rejouable, et deux bugs trouvés : une boucle de 3 000 tokens, des cartes mal lues.</p>
+</div>
+</div>
+<aside>[ANTON] Toutes les mesures que vous avez vues viennent de ce banc d’évaluation. 87 questions, du vocabulaire aux situations de jeu, et pour chacune une réponse de référence recalculée par notre moteur, jamais écrite de mémoire. Le coach répond exactement comme dans l’application, à température zéro pour que deux passages soient comparables. Puis un juge vérifie chaque fait attendu. Avant, on testait à la main et on ne pouvait pas dire si un changement de prompt améliorait ou dégradait le coach. Maintenant on a un score, et le banc a même trouvé des bugs : une question faisait boucler le modèle sur plus de 3 000 tokens jusqu’à faire tomber Ollama. On a ajouté un plafond de génération.</aside>
+</section>
